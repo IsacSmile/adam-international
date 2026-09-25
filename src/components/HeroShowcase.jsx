@@ -69,7 +69,7 @@ export default function HeroShowcase({ onBookAppointment }) {
   }, []);
 
   return (
-    <main id="home" ref={heroRef} className="min-h-screen">
+    <main id="home" ref={heroRef} className="relative pb-12">
       
       {/* Hero Banner */}
       <section className="relative bg-gradient-to-br from-[#0B1F3A] via-[#112D53] to-[#0B1F3A] text-white py-20 lg:py-28 px-5 lg:px-8 overflow-hidden">
