@@ -1,7 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useEffect } from 'react';
 import { 
   Compass, 
   GraduationCap, 
@@ -93,12 +92,12 @@ export default function ServicesSection({ onSelectService }) {
       if (cardsRef.current.length > 0) {
         gsap.fromTo(
           cardsRef.current,
-          { opacity: 0, y: 40 },
+          { opacity: 0, y: 35 },
           {
             opacity: 1,
             y: 0,
             duration: 0.8,
-            stagger: 0.15,
+            stagger: 0.12,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: sectionRef.current,
@@ -115,13 +114,13 @@ export default function ServicesSection({ onSelectService }) {
 
   const handleScrollLeft = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -400, behavior: 'smooth' });
+      carouselRef.current.scrollBy({ left: -340, behavior: 'smooth' });
     }
   };
 
   const handleScrollRight = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+      carouselRef.current.scrollBy({ left: 340, behavior: 'smooth' });
     }
   };
 
@@ -129,7 +128,7 @@ export default function ServicesSection({ onSelectService }) {
     <section
       id="services"
       ref={sectionRef}
-      className="bg-[#F8FAFC] py-24 sm:py-32 lg:py-36 px-5 sm:px-8 lg:px-12 relative overflow-hidden border-t border-b border-slate-200/80"
+      className="bg-[#F8FAFC] py-16 sm:py-24 lg:py-28 px-4 sm:px-8 lg:px-12 relative overflow-hidden border-t border-b border-slate-200/80"
     >
       {/* Soft Glow Background Accents */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-[#C9A84C]/10 via-[#0B1F3A]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -140,16 +139,16 @@ export default function ServicesSection({ onSelectService }) {
         {/* ==========================================================================
             HEADER BLOCK: Centered Title + Navigation Control Buttons
            ========================================================================== */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 sm:mb-12">
           <div className="text-left max-w-2xl">
             {/* Small Gold Pill Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#C9A84C]/15 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#0B1F3A] text-xs font-bold tracking-wider uppercase backdrop-blur-md shadow-sm mb-4">
+            <div className="inline-flex items-center gap-2 bg-[#C9A84C]/15 border border-[#C9A84C]/40 px-3.5 py-1.5 rounded-full text-[#0B1F3A] text-[11px] sm:text-xs font-bold tracking-wider uppercase backdrop-blur-md shadow-sm mb-3">
               <Sparkles className="w-3.5 h-3.5 text-[#C9A84C]" />
               <span>OUR EXPERTISE</span>
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-[#0B1F3A] tracking-tight leading-[1.16]">
+            <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0B1F3A] tracking-tight leading-[1.16]">
               Comprehensive Overseas{' '}
               <span className="text-[#C9A84C] relative inline-block">
                 Education Services
@@ -157,28 +156,28 @@ export default function ServicesSection({ onSelectService }) {
             </h2>
 
             {/* Supporting Description */}
-            <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed mt-3">
+            <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed mt-2.5">
               From course selection and application filing to visa processing, financial aid, and post-landing settlement — we guide every step of your global journey.
             </p>
           </div>
 
           {/* Slider Controls (Desktop Only) */}
-          <div className="hidden md:flex items-center gap-3 shrink-0 self-end">
+          <div className="hidden md:flex items-center gap-2.5 shrink-0 self-end">
             <button
               type="button"
               onClick={handleScrollLeft}
-              className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-sm transition-all duration-300 cursor-pointer"
               aria-label="Previous service"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={handleScrollRight}
-              className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-sm transition-all duration-300 cursor-pointer"
               aria-label="Next service"
             >
-              <ChevronRight className="w-6 h-6" />
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -188,7 +187,7 @@ export default function ServicesSection({ onSelectService }) {
            ========================================================================== */}
         <div
           ref={carouselRef}
-          className="flex md:flex-row flex-col gap-6 sm:gap-8 md:overflow-x-auto md:pb-8 md:pt-2 scrollbar-none snap-x snap-mandatory"
+          className="flex md:flex-row flex-col gap-5 sm:gap-6 md:overflow-x-auto md:pb-6 md:pt-1 scrollbar-none snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {servicesData.map((service) => {
@@ -199,10 +198,10 @@ export default function ServicesSection({ onSelectService }) {
                 key={service.id}
                 ref={addCardRef}
                 onClick={() => onSelectService && onSelectService(service)}
-                className="w-full md:w-[360px] lg:w-[400px] shrink-0 snap-start bg-white rounded-[24px] border border-slate-200/90 shadow-[0_6px_24px_rgba(11,31,58,0.05)] hover:shadow-[0_20px_40px_rgba(11,31,58,0.12)] hover:border-[#C9A84C] transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden transform hover:-translate-y-2"
+                className="w-full md:w-[310px] lg:w-[330px] xl:w-[340px] shrink-0 snap-start bg-white rounded-[20px] border border-slate-200/90 shadow-[0_4px_20px_rgba(11,31,58,0.05)] hover:shadow-[0_16px_36px_rgba(11,31,58,0.12)] hover:border-[#C9A84C] transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden transform hover:-translate-y-1.5"
               >
                 {/* 1. TOP IMAGE AREA */}
-                <div className="relative h-52 sm:h-60 w-full overflow-hidden bg-slate-100">
+                <div className="relative h-40 sm:h-44 lg:h-48 w-full overflow-hidden bg-slate-100">
                   <img
                     src={service.image}
                     alt={service.title}
@@ -214,34 +213,34 @@ export default function ServicesSection({ onSelectService }) {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/70 via-[#0B1F3A]/20 to-transparent" />
                   
                   {/* Category Pill Overlay */}
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[#0B1F3A] text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow border border-white/40">
+                  <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-[#0B1F3A] text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow border border-white/40">
                     {service.badge}
                   </div>
 
                   {/* Icon Floating Badge */}
-                  <div className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shadow-lg border border-[#C9A84C]/40 group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] transition-colors duration-300">
-                    <IconComp className="w-6 h-6" />
+                  <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shadow-lg border border-[#C9A84C]/40 group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] transition-colors duration-300">
+                    <IconComp className="w-5 h-5" />
                   </div>
                 </div>
 
                 {/* 2. CARD BODY CONTENT */}
-                <div className="p-7 sm:p-8 flex-1 flex flex-col justify-between">
+                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
                   <div>
                     {/* Service Title */}
-                    <h3 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] mb-3 leading-snug group-hover:text-[#C9A84C] transition-colors">
+                    <h3 className="text-lg sm:text-xl font-bold text-[#0B1F3A] mb-2 leading-snug group-hover:text-[#C9A84C] transition-colors">
                       {service.title}
                     </h3>
 
                     {/* Service Description */}
-                    <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal mb-6">
+                    <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal mb-4">
                       {service.description}
                     </p>
 
                     {/* Bullet Highlights */}
-                    <div className="space-y-2 mb-6 pt-2 border-t border-slate-100">
+                    <div className="space-y-1.5 mb-4 pt-2.5 border-t border-slate-100">
                       {service.highlights.map((highlight, hIdx) => (
-                        <div key={hIdx} className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#0B1F3A]">
-                          <CheckCircle2 className="w-4 h-4 text-[#C9A84C] shrink-0" />
+                        <div key={hIdx} className="flex items-center gap-2 text-xs font-semibold text-[#0B1F3A]">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
                           <span>{highlight}</span>
                         </div>
                       ))}
@@ -249,10 +248,10 @@ export default function ServicesSection({ onSelectService }) {
                   </div>
 
                   {/* 3. CARD ACTION LINK */}
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-sm font-extrabold text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-extrabold text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors">
                     <span>Explore Service</span>
-                    <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] flex items-center justify-center transition-colors">
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] flex items-center justify-center transition-colors">
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 </div>
