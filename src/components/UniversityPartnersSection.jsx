@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Building2, MapPin, ArrowRight, Globe, Award, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
@@ -74,10 +74,27 @@ const partnerUniversities = [
   },
 ];
 
+// Tripled list for a perfectly seamless infinite horizontal scroll loop
+const infinitePartnerList = [
+  ...partnerUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.id}-1-${i}` })),
+  ...partnerUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.id}-2-${i}` })),
+  ...partnerUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.id}-3-${i}` })),
+];
+
 export default function UniversityPartnersSection({ onViewAllUniversities }) {
   const sectionRef = useRef(null);
   const carouselRef = useRef(null);
   const cardsRef = useRef([]);
+
+  const isPausedRef = useRef(false);
+  const scrollPosRef = useRef(0);
+  const pauseTimeoutRef = useRef(null);
+
+  // Mouse drag state
+  const isMouseDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const startScrollLeftRef = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const addCardRef = (el) => {
     if (el && !cardsRef.current.includes(el)) {
@@ -85,20 +102,28 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     }
   };
 
-  const isHoveredRef = useRef(false);
+  const pauseAutoScrollTemporarily = (durationMs = 3500) => {
+    isPausedRef.current = true;
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+    }
+    pauseTimeoutRef.current = setTimeout(() => {
+      isPausedRef.current = false;
+    }, durationMs);
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Entrance animation for university cards
+      // Entrance animation for first set of visible cards
       if (cardsRef.current.length > 0) {
         gsap.fromTo(
-          cardsRef.current,
+          cardsRef.current.slice(0, partnerUniversities.length),
           { opacity: 0, y: 35 },
           {
             opacity: 1,
             y: 0,
             duration: 0.8,
-            stagger: 0.1,
+            stagger: 0.08,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: sectionRef.current,
@@ -110,16 +135,26 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
       }
     }, sectionRef);
 
-    // Continuous 60fps Auto-Scroll Loop with Pause on Hover
+    // Continuous 60fps Subpixel Smooth Auto-Scroll Loop
     let animationFrameId;
 
     const autoScroll = () => {
-      if (carouselRef.current && !isHoveredRef.current) {
+      if (carouselRef.current) {
         const el = carouselRef.current;
-        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 4) {
-          el.scrollLeft = 0; // Reset seamless loop
-        } else {
-          el.scrollLeft += 1.5; // Smooth 60fps auto-scroll step
+        const oneSetWidth = el.scrollWidth / 3;
+
+        if (!isPausedRef.current && !isMouseDownRef.current && oneSetWidth > 0) {
+          scrollPosRef.current += 1.2;
+
+          // Seamless infinite reset when passing one full set width
+          if (scrollPosRef.current >= oneSetWidth) {
+            scrollPosRef.current -= oneSetWidth;
+          }
+
+          el.scrollLeft = scrollPosRef.current;
+        } else if (!isMouseDownRef.current) {
+          // Sync internal scroll position accumulator with manual scrolling (trackpad/touch)
+          scrollPosRef.current = el.scrollLeft;
         }
       }
       animationFrameId = requestAnimationFrame(autoScroll);
@@ -132,18 +167,50 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
     };
   }, []);
 
   const handleScrollLeft = () => {
+    pauseAutoScrollTemporarily(3500);
     if (carouselRef.current) {
       carouselRef.current.scrollBy({ left: -340, behavior: 'smooth' });
     }
   };
 
   const handleScrollRight = () => {
+    pauseAutoScrollTemporarily(3500);
     if (carouselRef.current) {
       carouselRef.current.scrollBy({ left: 340, behavior: 'smooth' });
+    }
+  };
+
+  // Mouse Click & Drag to Scroll Handlers (Desktop)
+  const handleMouseDown = (e) => {
+    if (!carouselRef.current) return;
+    isMouseDownRef.current = true;
+    setIsDragging(true);
+    isPausedRef.current = true;
+    startXRef.current = e.pageX - carouselRef.current.offsetLeft;
+    startScrollLeftRef.current = carouselRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isMouseDownRef.current || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 1.6;
+    carouselRef.current.scrollLeft = startScrollLeftRef.current - walk;
+    scrollPosRef.current = carouselRef.current.scrollLeft;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (isMouseDownRef.current) {
+      isMouseDownRef.current = false;
+      setIsDragging(false);
+      pauseAutoScrollTemporarily(2500);
     }
   };
 
@@ -184,7 +251,7 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
             <button
               type="button"
               onClick={handleScrollLeft}
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md active:scale-95"
               aria-label="Previous university"
             >
               <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -192,7 +259,7 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
             <button
               type="button"
               onClick={handleScrollRight}
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md active:scale-95"
               aria-label="Next university"
             >
               <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -200,21 +267,26 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
           </div>
         </div>
 
-        {/* UNIVERSITY PARTNERS HORIZONTAL CAROUSEL WITH AUTO-SCROLL */}
+        {/* UNIVERSITY PARTNERS HORIZONTAL CAROUSEL WITH AUTO-SCROLL & DRAG support */}
         <div
           ref={carouselRef}
-          onMouseEnter={() => { isHoveredRef.current = true; }}
-          onMouseLeave={() => { isHoveredRef.current = false; }}
-          onTouchStart={() => { isHoveredRef.current = true; }}
-          onTouchEnd={() => { isHoveredRef.current = false; }}
-          className="flex flex-row overflow-x-auto pb-8 pt-2 gap-5 sm:gap-7 scrollbar-none"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          onMouseEnter={() => { isPausedRef.current = true; }}
+          onMouseLeave={() => { handleMouseUpOrLeave(); isPausedRef.current = false; }}
+          onTouchStart={() => { isPausedRef.current = true; }}
+          onTouchEnd={() => { pauseAutoScrollTemporarily(2500); }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          className={`flex flex-row overflow-x-auto pb-8 pt-2 gap-5 sm:gap-7 scrollbar-none select-none ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
         >
-          {partnerUniversities.map((univ) => (
+          {infinitePartnerList.map((univ) => (
             <div
-              key={univ.id}
+              key={univ.uniqueKey}
               ref={addCardRef}
-              className="w-[280px] sm:w-[310px] lg:w-[330px] shrink-0 bg-white/5 border border-white/15 backdrop-blur-md rounded-[24px] p-6 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-300 group hover:border-[#C9A84C] hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(201,168,76,0.15)] relative overflow-hidden"
+              className="w-[280px] sm:w-[310px] lg:w-[330px] shrink-0 bg-white/5 border border-white/15 backdrop-blur-md rounded-[24px] p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 group hover:border-[#C9A84C] hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(201,168,76,0.15)] relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C9A84C]/20 to-transparent rounded-tr-[24px] pointer-events-none" />
 
@@ -272,3 +344,4 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     </section>
   );
 }
+

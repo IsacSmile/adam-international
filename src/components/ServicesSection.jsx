@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { 
@@ -81,6 +81,12 @@ export default function ServicesSection({ onSelectService }) {
   const carouselRef = useRef(null);
   const cardsRef = useRef([]);
 
+  // Mouse drag state
+  const isMouseDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const startScrollLeftRef = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
+
   const addCardRef = (el) => {
     if (el && !cardsRef.current.includes(el)) {
       cardsRef.current.push(el);
@@ -124,6 +130,30 @@ export default function ServicesSection({ onSelectService }) {
     }
   };
 
+  // Mouse Drag Handlers
+  const handleMouseDown = (e) => {
+    if (!carouselRef.current) return;
+    isMouseDownRef.current = true;
+    setIsDragging(true);
+    startXRef.current = e.pageX - carouselRef.current.offsetLeft;
+    startScrollLeftRef.current = carouselRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isMouseDownRef.current || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 1.6;
+    carouselRef.current.scrollLeft = startScrollLeftRef.current - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (isMouseDownRef.current) {
+      isMouseDownRef.current = false;
+      setIsDragging(false);
+    }
+  };
+
   return (
     <section
       id="services"
@@ -136,9 +166,7 @@ export default function ServicesSection({ onSelectService }) {
 
       <div className="max-w-[1280px] mx-auto relative z-10">
         
-        {/* ==========================================================================
-            HEADER BLOCK: Centered Title + Navigation Control Buttons
-           ========================================================================== */}
+        {/* HEADER BLOCK */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 sm:mb-12">
           <div className="text-left max-w-2xl">
             {/* Small Gold Pill Badge */}
@@ -166,7 +194,7 @@ export default function ServicesSection({ onSelectService }) {
             <button
               type="button"
               onClick={handleScrollLeft}
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-sm transition-all duration-300 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-sm transition-all duration-300 cursor-pointer active:scale-95"
               aria-label="Previous service"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -174,7 +202,7 @@ export default function ServicesSection({ onSelectService }) {
             <button
               type="button"
               onClick={handleScrollRight}
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-sm transition-all duration-300 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-[#C9A84C] hover:border-[#0B1F3A] flex items-center justify-center shadow-sm transition-all duration-300 cursor-pointer active:scale-95"
               aria-label="Next service"
             >
               <ChevronRight className="w-5 h-5" />
@@ -182,13 +210,17 @@ export default function ServicesSection({ onSelectService }) {
           </div>
         </div>
 
-        {/* ==========================================================================
-            DESKTOP HORIZONTAL SCROLL CAROUSEL / MOBILE RESPONSIVE GRID
-           ========================================================================== */}
+        {/* DESKTOP HORIZONTAL SCROLL CAROUSEL / MOBILE RESPONSIVE GRID */}
         <div
           ref={carouselRef}
-          className="flex md:flex-row flex-col gap-5 sm:gap-6 md:overflow-x-auto md:pb-6 md:pt-1 scrollbar-none snap-x snap-mandatory"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+          className={`flex md:flex-row flex-col gap-5 sm:gap-6 md:overflow-x-auto md:pb-6 md:pt-1 scrollbar-none select-none ${
+            isDragging ? 'md:cursor-grabbing' : 'md:cursor-grab'
+          }`}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
         >
           {servicesData.map((service) => {
             const IconComp = service.icon;
@@ -197,8 +229,8 @@ export default function ServicesSection({ onSelectService }) {
               <div
                 key={service.id}
                 ref={addCardRef}
-                onClick={() => onSelectService && onSelectService(service)}
-                className="w-full md:w-[310px] lg:w-[330px] xl:w-[340px] shrink-0 snap-start bg-white rounded-[20px] border border-slate-200/90 shadow-[0_4px_20px_rgba(11,31,58,0.05)] hover:shadow-[0_16px_36px_rgba(11,31,58,0.12)] hover:border-[#C9A84C] transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden transform hover:-translate-y-1.5"
+                onClick={() => !isDragging && onSelectService && onSelectService(service)}
+                className="w-full md:w-[310px] lg:w-[330px] xl:w-[340px] shrink-0 bg-white rounded-[20px] border border-slate-200/90 shadow-[0_4px_20px_rgba(11,31,58,0.05)] hover:shadow-[0_16px_36px_rgba(11,31,58,0.12)] hover:border-[#C9A84C] transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden transform hover:-translate-y-1.5"
               >
                 {/* 1. TOP IMAGE AREA */}
                 <div className="relative h-40 sm:h-44 lg:h-48 w-full overflow-hidden bg-slate-100">
@@ -208,9 +240,9 @@ export default function ServicesSection({ onSelectService }) {
                     onError={(e) => {
                       e.currentTarget.src = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop';
                     }}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/70 via-[#0B1F3A]/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/70 via-[#0B1F3A]/20 to-transparent pointer-events-none" />
                   
                   {/* Category Pill Overlay */}
                   <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-[#0B1F3A] text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow border border-white/40">
