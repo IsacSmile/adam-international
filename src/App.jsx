@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from './components/Header';
 import HeroShowcase from './components/HeroShowcase';
 import ServicesSection from './components/ServicesSection';
+import UniversityPartnersSection from './components/UniversityPartnersSection';
 import AppointmentModal from './components/AppointmentModal';
 
 export default function App() {
@@ -23,8 +24,11 @@ export default function App() {
       {/* Hero Showcase Content */}
       <HeroShowcase onBookAppointment={handleOpenModal} />
 
-      {/* Corporate Services Section with GSAP Animations */}
+      {/* Corporate Services Section */}
       <ServicesSection onSelectService={handleOpenModal} />
+
+      {/* University Partners Section */}
+      <UniversityPartnersSection onViewAllUniversities={handleOpenModal} />
 
       {/* Appointment Consultation Modal */}
       <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
