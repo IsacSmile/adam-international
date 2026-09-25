@@ -264,10 +264,12 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <h1
               ref={titleRef}
-              className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.14] mb-6 drop-shadow-lg"
+              className="text-[21px] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[52px] xl:text-6xl font-extrabold text-white tracking-tight leading-[1.14] mb-6 drop-shadow-lg"
             >
-              Architect Your Academic Future <br className="hidden sm:inline" />
-              With <span className="text-[#C9A84C]">Adam International</span>
+              <span className="block whitespace-nowrap">Architect Your Academic Future</span>
+              <span className="block mt-1">
+                With <span className="text-[#C9A84C]">Adam International</span>
+              </span>
             </h1>
 
             <p
