@@ -16,6 +16,65 @@ if (typeof window !== 'undefined') {
 // Bright, inspiring, high-resolution Unsplash image of international students on campus
 const HERO_BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1920&auto=format&fit=crop";
 
+// Country Datasets for Vertical Scrolling Columns
+const countryCol1 = [
+  {
+    name: 'United Kingdom',
+    flag: '🇬🇧',
+    count: '150+ Universities',
+    image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=400&auto=format&fit=crop',
+  },
+  {
+    name: 'France',
+    flag: '🇫🇷',
+    count: '80+ Universities',
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=400&auto=format&fit=crop',
+  },
+  {
+    name: 'Germany',
+    flag: '🇩🇪',
+    count: '60+ Universities',
+    image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?q=80&w=400&auto=format&fit=crop',
+  },
+  {
+    name: 'Hungary',
+    flag: '🇭🇺',
+    count: '35+ Universities',
+    image: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?q=80&w=400&auto=format&fit=crop',
+  },
+];
+
+const countryCol2 = [
+  {
+    name: 'United States',
+    flag: '🇺🇸',
+    count: '120+ Universities',
+    image: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=400&auto=format&fit=crop',
+  },
+  {
+    name: 'Canada',
+    flag: '🇨🇦',
+    count: '75+ Universities',
+    image: 'https://images.unsplash.com/photo-1517935703635-27c5696e850b?q=80&w=400&auto=format&fit=crop',
+  },
+  {
+    name: 'Australia',
+    flag: '🇦🇺',
+    count: '50+ Universities',
+    image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=400&auto=format&fit=crop',
+  },
+  {
+    name: 'Switzerland',
+    flag: '🇨🇭',
+    count: '25+ Universities',
+    image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=400&auto=format&fit=crop',
+  },
+];
+
+// Tripled lists for seamless vertical infinite marquee
+const col1Duplicated = [...countryCol1, ...countryCol1, ...countryCol1];
+const col2Duplicated = [...countryCol2, ...countryCol2, ...countryCol2];
+
 export default function HeroShowcase({ onBookAppointment }) {
   const heroRef = useRef(null);
   const bgImgRef = useRef(null);
@@ -167,14 +226,14 @@ export default function HeroShowcase({ onBookAppointment }) {
       // 4. Floating badges subtle idle floating animation
       if (!isMobile) {
         gsap.to(floatingBadge1Ref.current, {
-          y: -8,
+          y: -6,
           duration: 2.5,
           repeat: -1,
           yoyo: true,
           ease: 'sine.easeInOut',
         });
         gsap.to(floatingBadge2Ref.current, {
-          y: 8,
+          y: 6,
           duration: 3,
           repeat: -1,
           yoyo: true,
@@ -231,6 +290,27 @@ export default function HeroShowcase({ onBookAppointment }) {
 
   return (
     <main id="home" ref={heroRef} className="relative bg-[#0B1F3A] overflow-hidden lg:h-[calc(100vh-72px)] lg:min-h-[640px] flex flex-col justify-between">
+      {/* Dynamic Keyframe Style Rules for Dual Vertical Infinite Marquee */}
+      <style>{`
+        @keyframes verticalMarqueeDown {
+          0% { transform: translateY(-33.333%); }
+          100% { transform: translateY(0%); }
+        }
+        @keyframes verticalMarqueeUp {
+          0% { transform: translateY(0%); }
+          100% { transform: translateY(-33.333%); }
+        }
+        .animate-marquee-down {
+          animation: verticalMarqueeDown 24s linear infinite;
+        }
+        .animate-marquee-up {
+          animation: verticalMarqueeUp 24s linear infinite;
+        }
+        .marquee-col:hover .animate-marquee-down,
+        .marquee-col:hover .animate-marquee-up {
+          animation-play-state: paused;
+        }
+      `}</style>
       
       {/* 1. CINEMATIC HERO SECTION */}
       <div className="relative flex-1 flex items-center pt-8 sm:pt-12 lg:pt-6 pb-6 lg:pb-2 px-5 sm:px-8 lg:px-12 overflow-hidden">
@@ -247,7 +327,7 @@ export default function HeroShowcase({ onBookAppointment }) {
           {/* Desktop Left Gradient: dark overlay strictly covering the left text column (60% width) */}
           <div className="hidden lg:block absolute inset-y-0 left-0 w-[62%] bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/95 to-transparent z-10 pointer-events-none" />
           
-          {/* Mobile/Tablet Gradient: smooth transition ensuring readability while revealing background image */}
+          {/* Mobile/Tablet Gradient */}
           <div className="lg:hidden absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/80 to-[#0B1F3A]/40 z-10 pointer-events-none" />
 
           {/* Bottom edge gradient to transition seamlessly into floating stats section */}
@@ -316,32 +396,100 @@ export default function HeroShowcase({ onBookAppointment }) {
 
           </div>
 
-          {/* RIGHT COLUMN: FLOATING GLASS CARDS OVER VISIBLE IMAGE (DESKTOP ONLY) */}
-          <div className="hidden lg:flex lg:col-span-5 relative flex-col gap-4 items-end justify-center pointer-events-none pr-4">
+          {/* RIGHT COLUMN: DUAL VERTICAL INFINITE MARQUEE OF COUNTRY CARDS + FLOATING STATS BADGES (DESKTOP) */}
+          <div className="hidden lg:flex lg:col-span-5 relative h-[420px] items-center justify-center overflow-hidden pr-2">
             
-            <div
-              ref={floatingBadge1Ref}
-              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-[#C9A84C]/40 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] pointer-events-auto transform hover:scale-105 transition-transform"
-            >
-              <div className="w-11 h-11 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
-                <CheckCircle2 className="w-5 h-5" />
+            {/* Top & Bottom Fade Out Gradients for Vertical Marquee */}
+            <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#0B1F3A] to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0B1F3A] to-transparent z-10 pointer-events-none" />
+
+            {/* Dual Vertical Columns Container */}
+            <div className="marquee-col grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-[350px] opacity-75 hover:opacity-100 transition-opacity duration-300">
+              
+              {/* Column 1: Top to Bottom Infinite Scroll */}
+              <div className="overflow-hidden h-[420px] relative">
+                <div className="flex flex-col gap-3.5 animate-marquee-down">
+                  {col1Duplicated.map((c, i) => (
+                    <div
+                      key={`col1-${i}`}
+                      className="w-full bg-[#0B1F3A]/90 backdrop-blur-md border border-white/20 rounded-2xl p-2 sm:p-2.5 shadow-xl flex flex-col gap-1.5 group hover:border-[#C9A84C] transition-all cursor-pointer"
+                    >
+                      <div className="relative h-20 sm:h-24 w-full rounded-xl overflow-hidden bg-slate-900">
+                        <img
+                          src={c.image}
+                          alt={c.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/90 via-[#0B1F3A]/20 to-transparent" />
+                        <div className="absolute bottom-1.5 left-2 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
+                          <span>{c.flag}</span>
+                          <span>{c.name}</span>
+                        </div>
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] font-bold text-gray-300 text-center tracking-wide">
+                        {c.count}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <div className="text-lg font-extrabold text-white">100%</div>
-                <div className="text-xs text-gray-300 font-medium">Visa Approval Rate</div>
+
+              {/* Column 2: Bottom to Top Infinite Scroll */}
+              <div className="overflow-hidden h-[420px] relative">
+                <div className="flex flex-col gap-3.5 animate-marquee-up">
+                  {col2Duplicated.map((c, i) => (
+                    <div
+                      key={`col2-${i}`}
+                      className="w-full bg-[#0B1F3A]/90 backdrop-blur-md border border-white/20 rounded-2xl p-2 sm:p-2.5 shadow-xl flex flex-col gap-1.5 group hover:border-[#C9A84C] transition-all cursor-pointer"
+                    >
+                      <div className="relative h-20 sm:h-24 w-full rounded-xl overflow-hidden bg-slate-900">
+                        <img
+                          src={c.image}
+                          alt={c.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/90 via-[#0B1F3A]/20 to-transparent" />
+                        <div className="absolute bottom-1.5 left-2 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
+                          <span>{c.flag}</span>
+                          <span>{c.name}</span>
+                        </div>
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] font-bold text-gray-300 text-center tracking-wide">
+                        {c.count}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
+
             </div>
 
-            <div
-              ref={floatingBadge2Ref}
-              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-white/20 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] mr-8 pointer-events-auto transform hover:scale-105 transition-transform"
-            >
-              <div className="w-11 h-11 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
-                <GraduationCap className="w-5 h-5 text-[#DFBE7A]" />
+            {/* OVERLAY FLOATING STATS BADGES PINNED ON TOP OF THE VERTICAL MARQUEE */}
+            <div className="absolute inset-0 z-20 flex flex-col justify-center items-center gap-5 pointer-events-none">
+              <div
+                ref={floatingBadge1Ref}
+                className="bg-[#0B1F3A]/95 backdrop-blur-md border border-[#C9A84C]/60 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-lg font-extrabold text-white">100%</div>
+                  <div className="text-xs text-gray-300 font-medium">Visa Approval Rate</div>
+                </div>
               </div>
-              <div>
-                <div className="text-lg font-extrabold text-white">450+ Universities</div>
-                <div className="text-xs text-gray-300 font-medium">UK, USA, EU, Canada</div>
+
+              <div
+                ref={floatingBadge2Ref}
+                className="bg-[#0B1F3A]/95 backdrop-blur-md border border-white/30 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
+                  <GraduationCap className="w-5 h-5 text-[#DFBE7A]" />
+                </div>
+                <div>
+                  <div className="text-lg font-extrabold text-white">450+ Universities</div>
+                  <div className="text-xs text-gray-300 font-medium">UK, USA, EU, Canada</div>
+                </div>
               </div>
             </div>
 
