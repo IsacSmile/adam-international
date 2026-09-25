@@ -6,6 +6,7 @@ import ServicesSection from './components/ServicesSection';
 import UniversityPartnersSection from './components/UniversityPartnersSection';
 import VisaSuccessSection from './components/VisaSuccessSection';
 import TestimonialsSection from './components/TestimonialsSection';
+import FinalCtaBanner from './components/FinalCtaBanner';
 import AppointmentModal from './components/AppointmentModal';
 
 export default function App() {
@@ -41,6 +42,9 @@ export default function App() {
 
       {/* Testimonials Section */}
       <TestimonialsSection />
+
+      {/* Conversion-Focused Final CTA Banner */}
+      <FinalCtaBanner onBookCounseling={handleOpenModal} />
 
       {/* Appointment Consultation Modal */}
       <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
