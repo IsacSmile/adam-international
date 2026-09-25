@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
 import HeroShowcase from './components/HeroShowcase';
+import WhyChooseUsSection from './components/WhyChooseUsSection';
 import ServicesSection from './components/ServicesSection';
 import UniversityPartnersSection from './components/UniversityPartnersSection';
 import VisaSuccessSection from './components/VisaSuccessSection';
@@ -25,6 +26,9 @@ export default function App() {
 
       {/* Hero Showcase Content */}
       <HeroShowcase onBookAppointment={handleOpenModal} />
+
+      {/* Why Choose Adam International Section */}
+      <WhyChooseUsSection onConsultClick={handleOpenModal} />
 
       {/* Corporate Services Section */}
       <ServicesSection onSelectService={handleOpenModal} />
