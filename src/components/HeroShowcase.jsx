@@ -13,8 +13,8 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Bright, inspiring, high-resolution Unsplash image of a proud graduate on a sunlit campus
-const HERO_BG_IMAGE = "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1920&auto=format&fit=crop";
+// Bright, inspiring, high-resolution Unsplash image of international students on campus
+const HERO_BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1920&auto=format&fit=crop";
 
 export default function HeroShowcase({ onBookAppointment }) {
   const heroRef = useRef(null);
@@ -240,18 +240,21 @@ export default function HeroShowcase({ onBookAppointment }) {
           <img
             ref={bgImgRef}
             src={HERO_BG_IMAGE}
-            alt="Proud international graduate student on campus"
-            className="w-full h-full object-cover object-center lg:object-right-top will-change-transform brightness-[1.02] contrast-[1.02]"
+            alt="International university campus and students"
+            className="w-full h-full object-cover object-right-top will-change-transform opacity-70 sm:opacity-80 lg:opacity-95 contrast-[1.05] brightness-[1.05]"
           />
           
-          {/* Directional left-to-right gradient overlay keeping image crisp on right side */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/85 sm:via-[#0B1F3A]/65 via-50% to-transparent z-10" />
+          {/* Desktop Left Gradient: dark overlay strictly covering the left text column (60% width) */}
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-[62%] bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/95 to-transparent z-10 pointer-events-none" />
           
-          {/* Subtle bottom edge gradient to transition into stats section */}
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0B1F3A] to-transparent z-10 pointer-events-none" />
+          {/* Mobile/Tablet Gradient: smooth transition ensuring readability while revealing background image */}
+          <div className="lg:hidden absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/80 to-[#0B1F3A]/40 z-10 pointer-events-none" />
+
+          {/* Bottom edge gradient to transition seamlessly into floating stats section */}
+          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#0B1F3A] via-[#0B1F3A]/60 to-transparent z-10 pointer-events-none" />
           
-          {/* Subtle top edge gradient for navbar contrast */}
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0B1F3A]/70 to-transparent z-10 pointer-events-none" />
+          {/* Top edge gradient for header contrast */}
+          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#0B1F3A]/80 to-transparent z-10 pointer-events-none" />
         </div>
 
         {/* 2. HERO CONTENT GRID */}
