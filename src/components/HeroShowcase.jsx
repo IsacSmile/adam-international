@@ -83,8 +83,6 @@ export default function HeroShowcase({ onBookAppointment }) {
   const subtextRef = useRef(null);
   const buttonsRef = useRef(null);
   const statsRef = useRef(null);
-  const floatingBadge1Ref = useRef(null);
-  const floatingBadge2Ref = useRef(null);
 
   // Counter Refs for GSAP Count-Up Animation
   const stat1Ref = useRef(null);
@@ -127,11 +125,6 @@ export default function HeroShowcase({ onBookAppointment }) {
           { opacity: 0, y: 20 },
           { opacity: 1, y: 0, duration: 0.5 },
           '-=0.35'
-        )
-        .fromTo([floatingBadge1Ref.current, floatingBadge2Ref.current],
-          { opacity: 0, scale: 0.85, y: 15 },
-          { opacity: 1, scale: 1, y: 0, duration: 0.6, stagger: 0.15 },
-          '-=0.3'
         )
         .fromTo(statsRef.current,
           { opacity: 0, y: 30 },
@@ -223,24 +216,7 @@ export default function HeroShowcase({ onBookAppointment }) {
         });
       }
 
-      // 4. Floating badges subtle idle floating animation
-      if (!isMobile) {
-        gsap.to(floatingBadge1Ref.current, {
-          y: -6,
-          duration: 2.5,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.easeInOut',
-        });
-        gsap.to(floatingBadge2Ref.current, {
-          y: 6,
-          duration: 3,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.easeInOut',
-          delay: 0.5,
-        });
-      }
+
     }, heroRef);
 
     return () => ctx.revert();
@@ -464,33 +440,6 @@ export default function HeroShowcase({ onBookAppointment }) {
                 </div>
               </div>
 
-            </div>
-
-            {/* OVERLAY FLOATING STATS BADGES ALIGNED PROPERLY FOR LAPTOP */}
-            <div
-              ref={floatingBadge1Ref}
-              className="absolute top-2 right-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-md border border-[#C9A84C]/60 text-white p-2.5 sm:p-3 rounded-2xl shadow-2xl flex items-center gap-2.5 max-w-[210px] xl:max-w-[240px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
-            >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
-                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div>
-                <div className="text-sm sm:text-base font-extrabold text-white">100%</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-300 font-medium">Visa Approval Rate</div>
-              </div>
-            </div>
-
-            <div
-              ref={floatingBadge2Ref}
-              className="absolute bottom-2 right-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-md border border-white/30 text-white p-2.5 sm:p-3 rounded-2xl shadow-2xl flex items-center gap-2.5 max-w-[210px] xl:max-w-[240px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
-            >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
-                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-[#DFBE7A]" />
-              </div>
-              <div>
-                <div className="text-sm sm:text-base font-extrabold text-white">450+ Universities</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-300 font-medium">UK, USA, EU, Canada</div>
-              </div>
             </div>
 
           </div>
