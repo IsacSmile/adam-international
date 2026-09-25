@@ -14,6 +14,20 @@ import AppointmentModal from './components/AppointmentModal';
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    const handleGesture = (e) => {
+      e.preventDefault();
+    };
+    document.addEventListener('gesturestart', handleGesture);
+    document.addEventListener('gesturechange', handleGesture);
+    document.addEventListener('gestureend', handleGesture);
+    return () => {
+      document.removeEventListener('gesturestart', handleGesture);
+      document.removeEventListener('gesturechange', handleGesture);
+      document.removeEventListener('gestureend', handleGesture);
+    };
+  }, []);
+
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };

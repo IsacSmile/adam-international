@@ -4,9 +4,11 @@
 
 /* Custom animations & keyframes */
 @layer base {
-  html {
+  html, body {
     scroll-behavior: smooth;
     font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
   }
 }
 
