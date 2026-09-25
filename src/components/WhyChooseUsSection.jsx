@@ -47,7 +47,7 @@ const featuresData = [
     description: '100% visa approval rate backed by mock visa interviews, financial documentation verification, and embassy filing precision.',
     extendedDetail: 'Comprehensive document vetting process by senior immigration experts and former embassy visa specialists.',
     icon: Award,
-    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?q=80&w=800&auto=format&fit=crop',
   },
   {
     id: 'university-network',
@@ -132,6 +132,18 @@ export default function WhyChooseUsSection({ onConsultClick }) {
             },
           }
         );
+
+        // 3. Active Card Highlight Syncing on Scroll
+        cardsListRef.current.forEach((cardEl, index) => {
+          if (!cardEl) return;
+          ScrollTrigger.create({
+            trigger: cardEl,
+            start: 'top 60%',
+            end: 'bottom 40%',
+            onEnter: () => setActiveCardId(featuresData[index].id),
+            onEnterBack: () => setActiveCardId(featuresData[index].id),
+          });
+        });
       }
     }, sectionRef);
 
@@ -156,11 +168,11 @@ export default function WhyChooseUsSection({ onConsultClick }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 xl:gap-24 items-start">
           
           {/* ==========================================================================
-              LEFT COLUMN (40%): Spacious Pinned Content Area
+              LEFT COLUMN (40%): Sticky Pinned Content Area
              ========================================================================== */}
           <div
             ref={leftStickyRef}
-            className="lg:col-span-5 lg:sticky lg:top-28 text-left space-y-8 lg:space-y-9"
+            className="lg:col-span-5 lg:sticky lg:top-24 text-left space-y-8 lg:space-y-9 self-start"
           >
             {/* Small Gold Pill Badge */}
             <div>
@@ -238,7 +250,7 @@ export default function WhyChooseUsSection({ onConsultClick }) {
           </div>
 
           {/* ==========================================================================
-              RIGHT COLUMN (60%): Spacious Feature Cards Stack
+              RIGHT COLUMN (60%): Scroll-Synced Feature Cards Stack
              ========================================================================== */}
           <div className="lg:col-span-7 flex flex-col gap-7 sm:gap-8">
             {featuresData.map((feature) => {
@@ -260,13 +272,16 @@ export default function WhyChooseUsSection({ onConsultClick }) {
                     
                     {/* Thumbnail Image + Icon Header */}
                     <div className="flex items-center gap-5 shrink-0">
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 shadow-md border border-slate-200/80">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 shadow-md border border-slate-200/80 bg-slate-100">
                         <img
                           src={feature.image}
                           alt={feature.title}
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop';
+                          }}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0 bg-[#0B1F3A]/25" />
+                        <div className="absolute inset-0 bg-[#0B1F3A]/20" />
                         <div className="absolute bottom-2 right-2 bg-[#0B1F3A] text-[#C9A84C] p-2 rounded-xl shadow-md">
                           <IconComp className="w-4 h-4 text-[#C9A84C]" />
                         </div>
