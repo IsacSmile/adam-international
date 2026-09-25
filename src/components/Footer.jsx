@@ -69,7 +69,7 @@ export default function Footer({ onOpenModal }) {
 
           {/* COLUMN 2: QUICK LINKS */}
           <div>
-            <h3 className="text-base font-bold text-white mb-4 uppercase tracking-wider text-xs text-[#C9A84C]">
+            <h3 className="text-xs font-bold text-[#C9A84C] mb-4 uppercase tracking-wider">
               Quick Links
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -88,7 +88,7 @@ export default function Footer({ onOpenModal }) {
 
           {/* COLUMN 3: SERVICES */}
           <div>
-            <h3 className="text-base font-bold text-white mb-4 uppercase tracking-wider text-xs text-[#C9A84C]">
+            <h3 className="text-xs font-bold text-[#C9A84C] mb-4 uppercase tracking-wider">
               Services
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -114,7 +114,7 @@ export default function Footer({ onOpenModal }) {
 
           {/* COLUMN 4: OUR BRANCHES */}
           <div>
-            <h3 className="text-base font-bold text-white mb-4 uppercase tracking-wider text-xs text-[#C9A84C]">
+            <h3 className="text-xs font-bold text-[#C9A84C] mb-4 uppercase tracking-wider">
               Our Branches
             </h3>
             <ul className="space-y-2.5 text-sm text-gray-300">
@@ -136,7 +136,7 @@ export default function Footer({ onOpenModal }) {
 
           {/* COLUMN 5: CONTACT */}
           <div>
-            <h3 className="text-base font-bold text-white mb-4 uppercase tracking-wider text-xs text-[#C9A84C]">
+            <h3 className="text-xs font-bold text-[#C9A84C] mb-4 uppercase tracking-wider">
               Contact Us
             </h3>
             <ul className="space-y-3 text-sm text-gray-300">
