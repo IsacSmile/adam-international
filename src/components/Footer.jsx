@@ -160,6 +160,19 @@ export default function Footer({ onOpenModal }) {
         {/* BOTTOM BAR WITH THIN GOLD DIVIDER */}
         <div className="pt-8 border-t border-[#C9A84C]/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
           <p>© 2025 Adam International. All rights reserved.</p>
+
+          <p className="flex items-center gap-1.5 text-gray-300">
+            <span>Built by</span>
+            <a
+              href="https://www.instagram.com/faiz_imam__/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#C9A84C] hover:text-white font-extrabold transition-colors hover:underline"
+            >
+              Faiz.I
+            </a>
+          </p>
+
           <div className="flex items-center gap-6">
             <a href="#privacy" className="hover:text-[#C9A84C] transition-colors">Privacy Policy</a>
             <span className="text-gray-600">•</span>

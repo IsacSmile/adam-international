@@ -1,4 +1,4 @@
-import{c as u,r as n,j as e,X as m}from"./index-6FrFIMok.js";import{G as x}from"./graduation-cap-BMUtYGHT.js";/**
+import{c as u,r as n,j as e,X as m}from"./index-CCii66Rf.js";import{G as x}from"./graduation-cap-DDRXN5No.js";/**
  * @license lucide-react v0.428.0 - ISC
  *
  * This source code is licensed under the ISC license.
