@@ -10,7 +10,8 @@ import {
   Quote, 
   Award,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Pause
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -134,13 +135,25 @@ const studentTestimonials = [
 ];
 
 export default function TestimonialsSection() {
-  const [activeIndex, setActiveIndex] = useState(3); // Default to Fasna (index 3, 4th student)
+  const [activeIndex, setActiveIndex] = useState(3); // Default Fasna
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const activeStudent = studentTestimonials[activeIndex];
 
   const sectionRef = useRef(null);
   const cardRef = useRef(null);
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
+
+  // Auto-play timer (changes testimonial every 6s unless paused)
+  useEffect(() => {
+    if (isAutoplayPaused) return;
+
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev === studentTestimonials.length - 1 ? 0 : prev + 1));
+    }, 6000);
+
+    return () => clearInterval(timer);
+  }, [isAutoplayPaused]);
 
   // Animate Card Change with GSAP
   useEffect(() => {
@@ -191,127 +204,131 @@ export default function TestimonialsSection() {
   }, []);
 
   const handlePrev = () => {
+    setIsAutoplayPaused(true);
     setActiveIndex((prev) => (prev === 0 ? studentTestimonials.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
+    setIsAutoplayPaused(true);
     setActiveIndex((prev) => (prev === studentTestimonials.length - 1 ? 0 : prev + 1));
+  };
+
+  const handlePillClick = (idx) => {
+    setIsAutoplayPaused(true);
+    setActiveIndex(idx);
   };
 
   return (
     <section
       id="testimonials"
       ref={sectionRef}
-      className="bg-[#F8F9FC] py-20 md:py-28 px-4 sm:px-6 lg:px-8 border-t border-b border-gray-200/60 relative overflow-hidden"
+      className="bg-[#F8F9FC] py-14 sm:py-20 md:py-28 px-3.5 sm:px-6 lg:px-8 border-t border-b border-gray-200/60 relative overflow-hidden"
     >
       {/* Background Decorative Accent */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#C9A84C]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#C9A84C]/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1120px] mx-auto relative z-10">
 
-        {/* 1. TOP BADGE (DARK NAVY ROUNDED PILL WITH GOLD ICON & TEXT) */}
-        <div className="text-center mb-5">
+        {/* 1. TOP BADGE */}
+        <div className="text-center mb-4 sm:mb-5">
           <div
             ref={badgeRef}
-            className="inline-flex items-center gap-2 bg-[#0B1F3A] text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-md border border-[#C9A84C]/40"
+            className="inline-flex items-center gap-2 bg-[#0B1F3A] text-white px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider shadow-md border border-[#C9A84C]/40 text-center"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#C9A84C]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
             <span>Verified Student Success Stories</span>
           </div>
         </div>
 
         {/* 2. MAIN TITLE & SUBTITLE */}
-        <div ref={titleRef} className="text-center mb-10 max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0B1F3A] tracking-tight leading-tight mb-3">
+        <div ref={titleRef} className="text-center mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-[#0B1F3A] tracking-tight leading-tight mb-2 sm:mb-3">
             Real Students. Proven Pathways.
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 font-normal">
+          <p className="text-xs sm:text-base lg:text-lg text-gray-600 font-normal leading-relaxed">
             Hear directly from international students successfully studying in top global public universities.
           </p>
         </div>
 
-        {/* 3. STUDENT AVATAR SELECTOR PILL BAR */}
-        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-12 max-w-4xl mx-auto">
+        {/* 3. STUDENT AVATAR SELECTOR PILLS (Mobile-optimized 4x2 grid or flex wrap) */}
+        <div className="grid grid-cols-4 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-12 max-w-4xl mx-auto px-1">
           {studentTestimonials.map((student, idx) => {
             const isSelected = idx === activeIndex;
 
             return (
               <button
                 key={student.id}
-                onClick={() => setActiveIndex(idx)}
+                onClick={() => handlePillClick(idx)}
                 type="button"
-                className={`inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm ${
+                className={`inline-flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm ${
                   isSelected
-                    ? 'bg-[#0B1F3A] text-white border-2 border-[#C9A84C] shadow-md scale-105'
+                    ? 'bg-[#0B1F3A] text-white border-2 border-[#C9A84C] shadow-md scale-105 z-10'
                     : 'bg-white text-gray-700 hover:text-[#0B1F3A] hover:bg-gray-100 border border-gray-200'
                 }`}
               >
-                {/* Small Avatar Initials Badge */}
                 <div
-                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full ${student.avatarBg} text-white font-bold text-[10px] sm:text-xs flex items-center justify-center shrink-0 border border-white/30`}
+                  className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full ${student.avatarBg} text-white font-bold text-[9px] sm:text-xs flex items-center justify-center shrink-0 border border-white/30`}
                 >
                   {student.avatarInitials}
                 </div>
-                <span>{student.name}</span>
+                <span className="truncate max-w-[55px] sm:max-w-none">{student.name}</span>
               </button>
             );
           })}
         </div>
 
-        {/* 4. FEATURED TESTIMONIAL CARD (Matching Wireframe Image Exactly) */}
+        {/* 4. FEATURED TESTIMONIAL CARD (Mobile Responsive & Matching Mobile Wireframe) */}
         <div
           ref={cardRef}
-          className="bg-white border border-gray-200 rounded-[28px] p-6 sm:p-10 shadow-xl relative max-w-3xl mx-auto overflow-hidden"
+          onMouseEnter={() => setIsAutoplayPaused(true)}
+          className="bg-white border border-gray-200 rounded-[24px] sm:rounded-[28px] p-5 sm:p-10 shadow-xl relative max-w-3xl mx-auto overflow-hidden"
         >
-          {/* Large Light Gold Quotation Mark on Top Right */}
-          <div className="absolute top-6 right-8 text-[#C9A84C]/25 select-none pointer-events-none">
-            <Quote className="w-16 h-16 sm:w-20 sm:h-20" />
+          {/* Large Light Gold Quotation Mark */}
+          <div className="absolute top-4 right-5 sm:top-6 sm:right-8 text-[#C9A84C]/25 select-none pointer-events-none">
+            <Quote className="w-12 h-12 sm:w-20 sm:h-20" />
           </div>
 
           {/* Top Section: Avatar Frame + Profile Info */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 mb-6">
+          <div className="flex flex-row items-center gap-4 sm:gap-6 mb-5 sm:mb-6">
             
             {/* Student Avatar Box with VERIFIED Badge */}
             <div className="relative shrink-0">
-              <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-2xl ${activeStudent.avatarBg} text-white font-bold text-2xl sm:text-3xl flex items-center justify-center border-4 border-gray-100 shadow-md`}>
+              <div className={`w-20 h-20 sm:w-28 sm:h-28 rounded-2xl ${activeStudent.avatarBg} text-white font-bold text-xl sm:text-3xl flex items-center justify-center border-2 sm:border-4 border-gray-100 shadow-md`}>
                 {activeStudent.avatarInitials}
               </div>
               
               {/* "VERIFIED" Red/Gold Pill Overlay on Bottom Edge */}
-              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#0B1F3A] text-[#C9A84C] text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full tracking-wider border border-[#C9A84C]/50 flex items-center gap-1 shadow">
-                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#0B1F3A] text-[#C9A84C] text-[8px] sm:text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full tracking-wider border border-[#C9A84C]/50 flex items-center gap-1 shadow whitespace-nowrap">
+                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
                 <span>Verified</span>
               </div>
             </div>
 
             {/* Student Details & Star Rating */}
-            <div>
-              {/* Rating + University Tag */}
-              <div className="flex items-center gap-3 mb-2 flex-wrap">
+            <div className="overflow-hidden">
+              <div className="flex items-center gap-2 mb-1 sm:mb-2 flex-wrap">
                 <div className="flex items-center gap-0.5">
                   {[...Array(activeStudent.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-[#C9A84C] text-[#C9A84C]" />
+                    <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#C9A84C] text-[#C9A84C]" />
                   ))}
                 </div>
-                <span className="text-[11px] font-extrabold text-[#0B1F3A] bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-extrabold text-[#0B1F3A] bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-2 py-0.5 rounded-md uppercase tracking-wider truncate max-w-[140px] sm:max-w-none">
                   {activeStudent.universityTag}
                 </span>
               </div>
 
-              {/* Student Name */}
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A] leading-tight mb-1">
+              <h3 className="text-xl sm:text-3xl font-extrabold text-[#0B1F3A] leading-tight mb-0.5 sm:mb-1 truncate">
                 {activeStudent.fullName}
               </h3>
 
-              {/* University & Degree */}
               <div className="space-y-0.5 text-xs sm:text-sm text-gray-600 font-medium">
-                <div className="flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-[#C9A84C]" />
-                  <span>{activeStudent.university}</span>
+                <div className="flex items-center gap-1.5 truncate">
+                  <Award className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
+                  <span className="truncate">{activeStudent.university}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-gray-700 font-semibold">
-                  <Sparkles className="w-3.5 h-3.5 text-[#C9A84C]" />
-                  <span>{activeStudent.course}</span>
+                <div className="flex items-center gap-1.5 text-gray-800 font-semibold truncate">
+                  <Sparkles className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
+                  <span className="truncate">{activeStudent.course}</span>
                 </div>
               </div>
             </div>
@@ -319,65 +336,72 @@ export default function TestimonialsSection() {
           </div>
 
           {/* Middle Section: Student Quote */}
-          <div className="mb-8 pt-4 border-t border-gray-100">
-            <p className="text-gray-700 text-base sm:text-lg leading-relaxed italic font-normal">
+          <div className="mb-6 sm:mb-8 pt-3 sm:pt-4 border-t border-gray-100">
+            <p className="text-gray-700 text-xs sm:text-base lg:text-lg leading-relaxed italic font-normal">
               "{activeStudent.quote}"
             </p>
           </div>
 
           {/* Bottom Footer Metadata Bar */}
-          <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500 font-medium">
+          <div className="pt-3 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-gray-500 font-medium">
             <div className="flex items-center gap-1.5 text-gray-600">
-              <MapPin className="w-4 h-4 text-[#C9A84C]" />
+              <MapPin className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
               <span>{activeStudent.location}</span>
             </div>
 
-            <div className="bg-gray-100 text-[#0B1F3A] font-semibold px-3 py-1 rounded-lg border border-gray-200">
+            <div className="self-start sm:self-auto bg-gray-100 text-[#0B1F3A] font-semibold px-2.5 py-1 rounded-lg border border-gray-200 text-[11px] sm:text-xs">
               {activeStudent.tagPill}
             </div>
           </div>
 
         </div>
 
-        {/* 5. SLIDER CONTROLS (Student X of Y + Arrow Buttons) */}
-        <div className="flex items-center justify-between max-w-3xl mx-auto mt-6 px-2 text-xs sm:text-sm text-gray-500 font-medium">
-          <div>
-            Student <strong className="text-[#0B1F3A] font-bold">{activeIndex + 1}</strong> of <strong className="text-[#0B1F3A] font-bold">{studentTestimonials.length}</strong>
+        {/* 5. SLIDER CONTROLS (Student X of Y + PAUSED indicator + Navigation Arrows) */}
+        <div className="flex items-center justify-between max-w-3xl mx-auto mt-5 sm:mt-6 px-1 text-xs sm:text-sm text-gray-500 font-medium">
+          <div className="flex items-center gap-2">
+            <span>Student <strong className="text-[#0B1F3A] font-bold">{activeIndex + 1}</strong> of <strong className="text-[#0B1F3A] font-bold">{studentTestimonials.length}</strong></span>
+            
+            {isAutoplayPaused && (
+              <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 border border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <Pause className="w-2.5 h-2.5" />
+                <span>Paused</span>
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={handlePrev}
               type="button"
-              className="w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-white hover:border-[#0B1F3A] transition-all cursor-pointer shadow-sm"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-white hover:border-[#0B1F3A] transition-all cursor-pointer shadow-sm"
               aria-label="Previous testimonial"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={handleNext}
               type="button"
-              className="w-10 h-10 rounded-full bg-[#0B1F3A] text-white border border-[#0B1F3A] flex items-center justify-center hover:bg-[#071426] transition-all cursor-pointer shadow-sm"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0B1F3A] text-white border border-[#0B1F3A] flex items-center justify-center hover:bg-[#071426] transition-all cursor-pointer shadow-sm"
               aria-label="Next testimonial"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
 
-        {/* 6. BOTTOM TRUST BADGE STRIP (100% Visa Approval Rate | 100% Personalised Advisory | 4.9/5 Student Rating) */}
-        <div className="mt-14 max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-4 text-center divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
-          <div className="flex items-center justify-center gap-2 pt-2 sm:pt-0">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span className="text-xs sm:text-sm font-bold text-[#0B1F3A]">100% Visa Approval Rate</span>
+        {/* 6. BOTTOM TRUST BADGE STRIP (Responsive 2 cols top + 1 col bottom on mobile) */}
+        <div className="mt-10 sm:mt-14 max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 border-r sm:border-r border-gray-200 pr-2">
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
+            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-[#0B1F3A]">100% Visa Approval</span>
           </div>
-          <div className="flex items-center justify-center gap-2 pt-3 sm:pt-0">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span className="text-xs sm:text-sm font-bold text-[#0B1F3A]">100% Personalised Advisory</span>
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
+            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-[#0B1F3A]">100% Personalised</span>
           </div>
-          <div className="flex items-center justify-center gap-2 pt-3 sm:pt-0">
-            <Star className="w-4 h-4 fill-[#C9A84C] text-[#C9A84C] shrink-0" />
-            <span className="text-xs sm:text-sm font-bold text-[#0B1F3A]">4.9 / 5 Average Student Rating</span>
+          <div className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 sm:gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-l border-gray-200">
+            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#C9A84C] text-[#C9A84C] shrink-0" />
+            <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-[#0B1F3A]">4.9 / 5 Average Rating</span>
           </div>
         </div>
 
