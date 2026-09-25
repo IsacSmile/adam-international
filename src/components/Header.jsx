@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ChevronDown, Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { ChevronDown, Menu, X, ArrowRight, Sparkles, Phone, MessageSquare, Mail, GraduationCap } from 'lucide-react';
 
 // Register GSAP Plugins safely
 if (typeof window !== 'undefined') {
@@ -112,7 +112,7 @@ export default function Header({ onBookAppointment }) {
   }, []);
 
   // ==========================================================================
-  // 2. MOBILE DRAWER GSAP ANIMATION & HAMBURGER MORPH
+  // 2. FULL-SCREEN MOBILE OVERLAY GSAP ANIMATION & HAMBURGER MORPH
   // ==========================================================================
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -120,17 +120,10 @@ export default function Header({ onBookAppointment }) {
         // Prevent body scroll
         document.body.style.overflow = 'hidden';
 
-        // Animate Drawer Backdrop
-        gsap.to(mobileBackdropRef.current, {
-          opacity: 1,
-          visibility: 'visible',
-          duration: 0.3,
-          ease: 'power2.out'
-        });
-
-        // Slide in Mobile Drawer
+        // Animate Fullscreen Mobile Drawer
         gsap.to(mobileDrawerRef.current, {
-          x: '0%',
+          opacity: 1,
+          y: '0%',
           visibility: 'visible',
           duration: 0.4,
           ease: 'power3.out'
@@ -139,8 +132,8 @@ export default function Header({ onBookAppointment }) {
         // Stagger fade-up mobile links
         if (mobileLinksRef.current.length > 0) {
           gsap.fromTo(mobileLinksRef.current,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.15 }
+            { opacity: 0, y: 25 },
+            { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out', delay: 0.1 }
           );
         }
 
@@ -152,26 +145,15 @@ export default function Header({ onBookAppointment }) {
       } else {
         document.body.style.overflow = '';
 
-        // Slide out Mobile Drawer
+        // Slide out Mobile Overlay
         gsap.to(mobileDrawerRef.current, {
-          x: '100%',
-          duration: 0.3,
+          opacity: 0,
+          y: '-100%',
+          duration: 0.35,
           ease: 'power3.in',
           onComplete: () => {
             if (mobileDrawerRef.current) {
               gsap.set(mobileDrawerRef.current, { visibility: 'hidden' });
-            }
-          }
-        });
-
-        // Fade out Backdrop
-        gsap.to(mobileBackdropRef.current, {
-          opacity: 0,
-          duration: 0.3,
-          ease: 'power2.in',
-          onComplete: () => {
-            if (mobileBackdropRef.current) {
-              gsap.set(mobileBackdropRef.current, { visibility: 'hidden' });
             }
           }
         });
@@ -243,10 +225,6 @@ export default function Header({ onBookAppointment }) {
             className="flex items-center group rounded-md outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C9A84C]"
             aria-label="Adam International Study Abroad Home"
           >
-            {/* 
-              Mobile: Container is 44px x 44px overflow-hidden showing left badge only.
-              Desktop (lg): Container width auto, height 52px showing badge + text.
-            */}
             <div className="h-[44px] w-[44px] lg:h-[52px] lg:w-auto overflow-hidden flex items-center justify-start transition-all duration-300">
               <img
                 src="/logo234.webp"
@@ -354,7 +332,7 @@ export default function Header({ onBookAppointment }) {
             <button
               type="button"
               onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="lg:hidden flex flex-col items-center justify-center w-11 h-11 rounded-lg text-[#0B1F3A] hover:bg-navy-deep/5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C9A84C]"
+              className="lg:hidden flex flex-col items-center justify-center w-11 h-11 rounded-lg text-[#0B1F3A] hover:bg-slate-100 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C9A84C]"
               aria-label={isMobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMobileOpen}
             >
@@ -371,91 +349,152 @@ export default function Header({ onBookAppointment }) {
       </header>
 
       {/* ==========================================================================
-          4. MOBILE DRAWER & BACKDROP (GSAP Animated)
+          4. FULLSCREEN ULTRA-MODERN MOBILE OVERLAY MENU
          ========================================================================== */}
       <div
-        ref={mobileBackdropRef}
-        onClick={() => setIsMobileOpen(false)}
-        className="fixed inset-0 bg-[#0B1F3A]/40 backdrop-blur-sm z-40 opacity-0 invisible transition-none"
-        aria-hidden="true"
-      />
-
-      <div
         ref={mobileDrawerRef}
-        className="fixed top-0 right-0 w-full max-w-[340px] h-dvh bg-white z-50 flex flex-col pt-[72px] pb-8 px-6 shadow-drawer translate-x-full invisible overflow-y-auto"
+        className="fixed inset-0 w-full h-dvh bg-[#0B1F3A] text-white z-50 flex flex-col justify-between p-6 sm:p-8 opacity-0 invisible -translate-y-full overflow-y-auto transition-none"
         role="dialog"
         aria-modal="true"
         aria-label="Mobile Navigation Menu"
       >
-        <ul className="flex flex-col gap-1 mb-8">
-          {navLinks.map((link) => {
-            const isDropdown = !!link.dropdown;
+        {/* Ambient Glows */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#C9A84C]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-            return (
-              <li key={link.name} ref={addMobileLinkRef}>
-                {!isDropdown ? (
-                  <a
-                    href={link.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className={`flex items-center justify-between p-3 rounded-lg text-[16px] font-medium transition-colors ${
-                      link.active 
-                        ? 'text-[#0B1F3A] font-semibold bg-[#C9A84C]/10 border-l-4 border-[#C9A84C]' 
-                        : 'text-[#1A1A2E] hover:bg-navy-deep/5 hover:text-[#0B1F3A]'
-                    }`}
-                  >
-                    <span>{link.name}</span>
-                  </a>
-                ) : (
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                      className="w-full flex items-center justify-between p-3 rounded-lg text-[16px] font-medium text-[#1A1A2E] hover:bg-navy-deep/5 hover:text-[#0B1F3A] transition-colors"
-                      aria-expanded={mobileServicesOpen}
-                    >
-                      <span>{link.name}</span>
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
-                        mobileServicesOpen ? 'rotate-180 text-[#0B1F3A]' : ''
-                      }`} />
-                    </button>
+        <div className="relative z-10 flex flex-col h-full justify-between max-w-md mx-auto w-full">
+          
+          {/* Top Bar: Brand Logo + Prominent Circular Close ('X') Button */}
+          <div ref={addMobileLinkRef} className="flex items-center justify-between pb-5 border-b border-white/15">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 overflow-hidden rounded-full border-2 border-[#C9A84C] bg-white flex items-center justify-center shadow-md">
+                <img
+                  src="/logo234.webp"
+                  alt="Adam International Badge"
+                  className="h-full w-auto object-cover object-left"
+                />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white leading-tight">Adam International</h3>
+                <p className="text-[11px] text-[#DFBE7A] font-medium">Study Abroad Consultancy</p>
+              </div>
+            </div>
 
-                    {/* Submenu Accordion */}
-                    {mobileServicesOpen && (
-                      <ul className="pl-4 mt-1 mb-2 border-l-2 border-gray-200 flex flex-col gap-1">
-                        {link.dropdown.map((subItem) => (
-                          <li key={subItem.name}>
-                            <a
-                              href={subItem.href}
-                              onClick={() => setIsMobileOpen(false)}
-                              className="block px-3 py-2 text-[15px] text-gray-600 hover:text-[#0B1F3A] hover:bg-navy-deep/5 rounded-md transition-colors"
-                            >
-                              {subItem.name}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
+            {/* Explicit Circular Close Button */}
+            <button
+              type="button"
+              onClick={() => setIsMobileOpen(false)}
+              className="w-11 h-11 rounded-full bg-white/10 border border-white/25 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95"
+              aria-label="Close navigation menu"
+            >
+              <X className="w-6 h-6 text-white hover:text-[#0B1F3A] transition-colors" />
+            </button>
+          </div>
+
+          {/* Main Navigation Links */}
+          <nav className="my-auto py-6">
+            <ul className="flex flex-col gap-2">
+              {navLinks.map((link) => {
+                const isDropdown = !!link.dropdown;
+
+                return (
+                  <li key={link.name} ref={addMobileLinkRef}>
+                    {!isDropdown ? (
+                      <a
+                        href={link.href}
+                        onClick={() => setIsMobileOpen(false)}
+                        className={`flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-bold transition-all ${
+                          link.active
+                            ? 'bg-[#C9A84C] text-[#0B1F3A] shadow-lg'
+                            : 'text-gray-100 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <span>{link.name}</span>
+                        <ArrowRight className={`w-4 h-4 ${link.active ? 'text-[#0B1F3A]' : 'opacity-40'}`} />
+                      </a>
+                    ) : (
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                          className="w-full flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-bold text-gray-100 hover:bg-white/10 hover:text-white transition-all"
+                          aria-expanded={mobileServicesOpen}
+                        >
+                          <span>{link.name}</span>
+                          <ChevronDown className={`w-5 h-5 text-[#DFBE7A] transition-transform duration-300 ${
+                            mobileServicesOpen ? 'rotate-180 text-white' : ''
+                          }`} />
+                        </button>
+
+                        {/* Submenu Accordion */}
+                        {mobileServicesOpen && (
+                          <ul className="pl-4 mt-2 space-y-1.5 border-l-2 border-[#C9A84C]/40">
+                            {link.dropdown.map((subItem) => (
+                              <li key={subItem.name}>
+                                <a
+                                  href={subItem.href}
+                                  onClick={() => setIsMobileOpen(false)}
+                                  className="flex items-center justify-between py-2 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                >
+                                  <span>{subItem.name}</span>
+                                  {subItem.badge && (
+                                    <span className="text-[10px] font-extrabold text-[#0B1F3A] bg-[#C9A84C] px-2 py-0.5 rounded-full">
+                                      {subItem.badge}
+                                    </span>
+                                  )}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-        {/* Mobile CTA Button */}
-        <div ref={addMobileLinkRef} className="mt-auto pt-4 border-t border-gray-200">
-          <button
-            onClick={() => {
-              setIsMobileOpen(false);
-              if (onBookAppointment) onBookAppointment();
-            }}
-            className="w-full flex items-center justify-center gap-2 bg-[#0B1F3A] text-white font-semibold text-[16px] py-3 px-6 rounded-lg shadow-md hover:bg-navy-dark transition-colors"
-          >
-            <span>Book Appointment</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          {/* Quick Contact Info & Bottom CTA Button */}
+          <div ref={addMobileLinkRef} className="pt-5 border-t border-white/15 space-y-4">
+            
+            {/* Direct Contact Bar */}
+            <div className="grid grid-cols-2 gap-2.5 text-xs font-semibold text-gray-200">
+              <a
+                href="tel:+919876543210"
+                className="flex items-center gap-2 bg-white/10 border border-white/15 p-2.5 rounded-xl hover:bg-white/20 transition-colors truncate"
+              >
+                <Phone className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
+                <span className="truncate">+91 98765 43210</span>
+              </a>
+              <a
+                href="https://wa.me/919876543210"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 p-2.5 rounded-xl hover:bg-emerald-500/30 transition-colors truncate"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="truncate">WhatsApp Chat</span>
+              </a>
+            </div>
+
+            {/* Premium Gold CTA Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileOpen(false);
+                if (onBookAppointment) onBookAppointment();
+              }}
+              className="w-full flex items-center justify-center gap-2.5 bg-[#C9A84C] text-[#0B1F3A] font-extrabold text-base py-3.5 px-6 rounded-2xl shadow-xl hover:bg-[#DFBE7A] transition-all cursor-pointer active:scale-98"
+            >
+              <span>Book Free Counseling Session</span>
+              <ArrowRight className="w-5 h-5 text-[#0B1F3A]" />
+            </button>
+          </div>
+
         </div>
       </div>
     </>
   );
 }
+
