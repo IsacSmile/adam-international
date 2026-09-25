@@ -396,37 +396,39 @@ export default function HeroShowcase({ onBookAppointment }) {
 
           </div>
 
-          {/* RIGHT COLUMN: DUAL VERTICAL INFINITE MARQUEE OF COUNTRY CARDS + FLOATING STATS BADGES (DESKTOP) */}
-          <div className="hidden lg:flex lg:col-span-5 relative h-[420px] items-center justify-center overflow-hidden pr-2">
+          {/* RIGHT COLUMN: DUAL VERTICAL INFINITE MARQUEE OF COUNTRY CARDS + OFFSET FLOATING STATS BADGES (DESKTOP) */}
+          <div className="hidden lg:flex lg:col-span-5 relative h-[440px] items-center justify-center pr-2">
             
-            {/* Top & Bottom Fade Out Gradients for Vertical Marquee */}
-            <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#0B1F3A] to-transparent z-10 pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0B1F3A] to-transparent z-10 pointer-events-none" />
-
-            {/* Dual Vertical Columns Container */}
-            <div className="marquee-col grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-[350px] opacity-75 hover:opacity-100 transition-opacity duration-300">
+            {/* Dual Vertical Columns Container with CSS Gradient Mask (No hard dark boxes) */}
+            <div 
+              className="marquee-col grid grid-cols-2 gap-3.5 w-full max-w-[340px] opacity-90 hover:opacity-100 transition-opacity duration-300"
+              style={{
+                maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+              }}
+            >
               
               {/* Column 1: Top to Bottom Infinite Scroll */}
-              <div className="overflow-hidden h-[420px] relative">
-                <div className="flex flex-col gap-3.5 animate-marquee-down">
+              <div className="overflow-hidden h-[440px] relative">
+                <div className="flex flex-col gap-3 animate-marquee-down">
                   {col1Duplicated.map((c, i) => (
                     <div
                       key={`col1-${i}`}
-                      className="w-full bg-[#0B1F3A]/90 backdrop-blur-md border border-white/20 rounded-2xl p-2 sm:p-2.5 shadow-xl flex flex-col gap-1.5 group hover:border-[#C9A84C] transition-all cursor-pointer"
+                      className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
                     >
-                      <div className="relative h-20 sm:h-24 w-full rounded-xl overflow-hidden bg-slate-900">
+                      <div className="relative h-20 w-full rounded-xl overflow-hidden bg-slate-900">
                         <img
                           src={c.image}
                           alt={c.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/90 via-[#0B1F3A]/20 to-transparent" />
-                        <div className="absolute bottom-1.5 left-2 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
+                        <div className="absolute bottom-1.5 left-1.5 bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
                           <span>{c.flag}</span>
                           <span>{c.name}</span>
                         </div>
                       </div>
-                      <div className="text-[10px] sm:text-[11px] font-bold text-gray-300 text-center tracking-wide">
+                      <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
                         {c.count}
                       </div>
                     </div>
@@ -435,26 +437,26 @@ export default function HeroShowcase({ onBookAppointment }) {
               </div>
 
               {/* Column 2: Bottom to Top Infinite Scroll */}
-              <div className="overflow-hidden h-[420px] relative">
-                <div className="flex flex-col gap-3.5 animate-marquee-up">
+              <div className="overflow-hidden h-[440px] relative">
+                <div className="flex flex-col gap-3 animate-marquee-up">
                   {col2Duplicated.map((c, i) => (
                     <div
                       key={`col2-${i}`}
-                      className="w-full bg-[#0B1F3A]/90 backdrop-blur-md border border-white/20 rounded-2xl p-2 sm:p-2.5 shadow-xl flex flex-col gap-1.5 group hover:border-[#C9A84C] transition-all cursor-pointer"
+                      className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
                     >
-                      <div className="relative h-20 sm:h-24 w-full rounded-xl overflow-hidden bg-slate-900">
+                      <div className="relative h-20 w-full rounded-xl overflow-hidden bg-slate-900">
                         <img
                           src={c.image}
                           alt={c.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/90 via-[#0B1F3A]/20 to-transparent" />
-                        <div className="absolute bottom-1.5 left-2 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
+                        <div className="absolute bottom-1.5 left-1.5 bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
                           <span>{c.flag}</span>
                           <span>{c.name}</span>
                         </div>
                       </div>
-                      <div className="text-[10px] sm:text-[11px] font-bold text-gray-300 text-center tracking-wide">
+                      <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
                         {c.count}
                       </div>
                     </div>
@@ -464,36 +466,35 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             </div>
 
-            {/* OVERLAY FLOATING STATS BADGES PINNED ON TOP OF THE VERTICAL MARQUEE */}
-            <div className="absolute inset-0 z-20 flex flex-col justify-center items-center gap-5 pointer-events-none">
-              <div
-                ref={floatingBadge1Ref}
-                className="bg-[#0B1F3A]/95 backdrop-blur-md border border-[#C9A84C]/60 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
-              >
-                <div className="w-11 h-11 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-lg font-extrabold text-white">100%</div>
-                  <div className="text-xs text-gray-300 font-medium">Visa Approval Rate</div>
-                </div>
+            {/* OVERLAY FLOATING STATS BADGES OFFSET AROUND MARQUEE */}
+            <div
+              ref={floatingBadge1Ref}
+              className="absolute top-4 -right-2 z-20 bg-[#0B1F3A]/90 backdrop-blur-md border border-[#C9A84C]/60 text-white p-3 rounded-2xl shadow-2xl flex items-center gap-3 max-w-[230px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
+              <div>
+                <div className="text-base font-extrabold text-white">100%</div>
+                <div className="text-[11px] text-gray-300 font-medium">Visa Approval Rate</div>
+              </div>
+            </div>
 
-              <div
-                ref={floatingBadge2Ref}
-                className="bg-[#0B1F3A]/95 backdrop-blur-md border border-white/30 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
-              >
-                <div className="w-11 h-11 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
-                  <GraduationCap className="w-5 h-5 text-[#DFBE7A]" />
-                </div>
-                <div>
-                  <div className="text-lg font-extrabold text-white">450+ Universities</div>
-                  <div className="text-xs text-gray-300 font-medium">UK, USA, EU, Canada</div>
-                </div>
+            <div
+              ref={floatingBadge2Ref}
+              className="absolute bottom-4 -left-2 z-20 bg-[#0B1F3A]/90 backdrop-blur-md border border-white/30 text-white p-3 rounded-2xl shadow-2xl flex items-center gap-3 max-w-[230px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
+                <GraduationCap className="w-5 h-5 text-[#DFBE7A]" />
+              </div>
+              <div>
+                <div className="text-base font-extrabold text-white">450+ Universities</div>
+                <div className="text-[11px] text-gray-300 font-medium">UK, USA, EU, Canada</div>
               </div>
             </div>
 
           </div>
+
 
         </div>
 
