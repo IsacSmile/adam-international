@@ -345,7 +345,7 @@ export default function Header({ onBookAppointment }) {
               onClick={onBookAppointment}
               onMouseEnter={handleCtaMouseEnter}
               onMouseLeave={handleCtaMouseLeave}
-              className="hidden lg:inline-flex items-center gap-2 bg-[#0B1F3A] text-white font-medium text-[15px] py-2.5 px-5.5 rounded-lg border border-transparent cursor-pointer whitespace-nowrap shadow-sm"
+              className="hidden lg:inline-flex items-center justify-center bg-[#0B1F3A] text-white font-medium text-[15px] px-[22px] py-[10px] rounded-lg border border-transparent cursor-pointer whitespace-nowrap shadow-sm leading-none transition-all duration-200"
             >
               <span>Book Appointment</span>
             </button>
