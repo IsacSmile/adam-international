@@ -6,17 +6,15 @@ import {
   ArrowRight, 
   ArrowUpRight, 
   CheckCircle2, 
-  GraduationCap, 
-  ShieldCheck, 
-  Sparkles 
+  GraduationCap 
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Stunning, high-resolution Unsplash image of happy international students on a university campus
-const HERO_BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1920&auto=format&fit=crop";
+// Bright, inspiring, high-resolution Unsplash image of a proud graduate on a sunlit campus
+const HERO_BG_IMAGE = "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1920&auto=format&fit=crop";
 
 export default function HeroShowcase({ onBookAppointment }) {
   const heroRef = useRef(null);
@@ -39,7 +37,7 @@ export default function HeroShowcase({ onBookAppointment }) {
       if (bgImgRef.current) {
         loadTl.fromTo(
           bgImgRef.current,
-          { scale: 1.1, opacity: 0.8 },
+          { scale: 1.08, opacity: 0.8 },
           { scale: 1, opacity: 1, duration: 1.2 }
         );
       }
@@ -146,7 +144,7 @@ export default function HeroShowcase({ onBookAppointment }) {
 
   const handleSecondaryMouseLeave = (e) => {
     gsap.to(e.currentTarget, {
-      backgroundColor: 'rgba(255, 255, 255, 0.12)',
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
       color: '#FFFFFF',
       borderColor: 'rgba(255, 255, 255, 0.5)',
       scale: 1,
@@ -158,34 +156,34 @@ export default function HeroShowcase({ onBookAppointment }) {
   return (
     <main id="home" ref={heroRef} className="relative bg-[#0B1F3A] overflow-hidden">
       
-      {/* 1. CINEMATIC HERO SECTION WITH VIBRANT VISIBLE BACKGROUND IMAGE */}
-      <div className="relative min-h-[540px] sm:min-h-[620px] lg:min-h-[700px] flex items-center pt-10 pb-24 lg:pt-16 lg:pb-32 px-5 sm:px-8 lg:px-12 overflow-hidden">
+      {/* 1. CINEMATIC HERO SECTION WITH AMPLE TOP PADDING & VIBRANT GRADUATE BACKGROUND */}
+      <div className="relative min-h-[560px] sm:min-h-[640px] lg:min-h-[720px] flex items-center pt-16 sm:pt-20 lg:pt-24 pb-24 lg:pb-32 px-5 sm:px-8 lg:px-12 overflow-hidden">
         
         {/* Background Image & Balanced Gradient Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
             ref={bgImgRef}
             src={HERO_BG_IMAGE}
-            alt="International students walking on a vibrant university campus"
-            className="w-full h-full object-cover object-center lg:object-right-top will-change-transform brightness-[0.9] contrast-[1.05]"
+            alt="Proud international graduate student on campus"
+            className="w-full h-full object-cover object-center lg:object-right-top will-change-transform brightness-[0.92] contrast-[1.05]"
           />
           
           {/* Left Gradient Overlay: Solid Dark Navy on Left for Text, Clear Transparency on Right for Image */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/85 sm:via-[#0B1F3A]/75 to-transparent z-10" />
           {/* Bottom Gradient Overlay for Smooth Transition */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A] via-transparent to-transparent z-10 opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A] via-transparent to-transparent z-10 opacity-75" />
         </div>
 
-        {/* 2. HERO CONTENT GRID (Left Content + Right Floating Graphic Badges) */}
-        <div className="max-w-[1280px] mx-auto w-full relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* 2. HERO CONTENT GRID */}
+        <div className="max-w-[1280px] mx-auto w-full relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mt-2">
           
           {/* LEFT CONTENT COLUMN */}
           <div className="lg:col-span-7 text-left">
             
-            {/* Gold Pill Badge */}
+            {/* Gold Pill Badge (Ample top margin & clean padding) */}
             <div
               ref={badgeRef}
-              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-5 backdrop-blur-md shadow-sm"
+              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-6 backdrop-blur-md shadow-sm"
             >
               <Award className="w-4 h-4 text-[#C9A84C] shrink-0" />
               <span>Top-Tier Overseas Education Consultancy</span>
@@ -194,7 +192,7 @@ export default function HeroShowcase({ onBookAppointment }) {
             {/* Large Bold Headline */}
             <h1
               ref={titleRef}
-              className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.12] mb-6 drop-shadow-lg"
+              className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.14] mb-6 drop-shadow-lg"
             >
               Architect Your Academic Future <br className="hidden sm:inline" />
               With <span className="text-[#C9A84C]">Adam International</span>
@@ -245,7 +243,7 @@ export default function HeroShowcase({ onBookAppointment }) {
             {/* Floating Card 1: Visa Approval Rate */}
             <div
               ref={floatingBadge1Ref}
-              className="bg-[#0B1F3A]/80 backdrop-blur-md border border-[#C9A84C]/40 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] pointer-events-auto transform hover:scale-105 transition-transform"
+              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-[#C9A84C]/40 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] pointer-events-auto transform hover:scale-105 transition-transform"
             >
               <div className="w-12 h-12 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
                 <CheckCircle2 className="w-6 h-6" />
@@ -259,7 +257,7 @@ export default function HeroShowcase({ onBookAppointment }) {
             {/* Floating Card 2: Partner Universities */}
             <div
               ref={floatingBadge2Ref}
-              className="bg-[#0B1F3A]/80 backdrop-blur-md border border-white/20 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] mr-10 pointer-events-auto transform hover:scale-105 transition-transform"
+              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-white/20 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] mr-10 pointer-events-auto transform hover:scale-105 transition-transform"
             >
               <div className="w-12 h-12 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
                 <GraduationCap className="w-6 h-6 text-[#DFBE7A]" />
