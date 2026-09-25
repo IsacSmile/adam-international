@@ -241,11 +241,17 @@ export default function HeroShowcase({ onBookAppointment }) {
             ref={bgImgRef}
             src={HERO_BG_IMAGE}
             alt="Proud international graduate student on campus"
-            className="w-full h-full object-cover object-center lg:object-right-top will-change-transform brightness-[0.92] contrast-[1.05]"
+            className="w-full h-full object-cover object-center lg:object-right-top will-change-transform brightness-[1.02] contrast-[1.02]"
           />
           
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/85 sm:via-[#0B1F3A]/75 to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A] via-transparent to-transparent z-10 opacity-75" />
+          {/* Directional left-to-right gradient overlay keeping image crisp on right side */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/85 sm:via-[#0B1F3A]/65 via-50% to-transparent z-10" />
+          
+          {/* Subtle bottom edge gradient to transition into stats section */}
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0B1F3A] to-transparent z-10 pointer-events-none" />
+          
+          {/* Subtle top edge gradient for navbar contrast */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0B1F3A]/70 to-transparent z-10 pointer-events-none" />
         </div>
 
         {/* 2. HERO CONTENT GRID */}
