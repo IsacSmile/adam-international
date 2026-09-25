@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Building2, MapPin, Award, ArrowRight, Globe, CheckCircle2 } from 'lucide-react';
+import { Building2, MapPin, ArrowRight, Globe, CheckCircle2 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -76,15 +76,13 @@ const partnerUniversities = [
 
 export default function UniversityPartnersSection({ onViewAllUniversities }) {
   const sectionRef = useRef(null);
+  const glow1Ref = useRef(null);
+  const glow2Ref = useRef(null);
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
   const cardsRef = useRef([]);
   const ctaRef = useRef(null);
-  const carouselTrackRef = useRef(null);
-
-  const [isPaused, setIsPaused] = useState(false);
-  const marqueeAnimationRef = useRef(null);
 
   const addCardRef = (el) => {
     if (el && !cardsRef.current.includes(el)) {
@@ -92,12 +90,39 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     }
   };
 
-  // ==========================================================================
-  // GSAP SCROLLTRIGGER ENTRANCE & CONTINUOUS MARQUEE SLIDER
-  // ==========================================================================
   useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+
     const ctx = gsap.context(() => {
-      // 1. Header Elements Entrance Timeline
+      // 1. Background Glow Blobs Parallax Scrub
+      if (!isMobile) {
+        if (glow1Ref.current) {
+          gsap.to(glow1Ref.current, {
+            yPercent: -20,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
+        if (glow2Ref.current) {
+          gsap.to(glow2Ref.current, {
+            yPercent: 20,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
+      }
+
+      // 2. Header Entrance Timeline
       const headerTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -122,7 +147,7 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
           '-=0.4'
         );
 
-      // 2. Cards Stagger Entrance
+      // 3. Cards Stagger Entrance
       gsap.fromTo(cardsRef.current,
         { opacity: 0, y: 30 },
         {
@@ -139,7 +164,7 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
         }
       );
 
-      // 3. CTA Button entrance
+      // 4. CTA Button Entrance
       if (ctaRef.current) {
         gsap.fromTo(ctaRef.current,
           { opacity: 0, y: 20 },
@@ -161,7 +186,6 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     return () => ctx.revert();
   }, []);
 
-  // Card Mouse Enter GSAP Animation
   const handleCardMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
       y: -6,
@@ -192,7 +216,6 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     }
   };
 
-  // Card Mouse Leave GSAP Animation
   const handleCardMouseLeave = (e) => {
     gsap.to(e.currentTarget, {
       y: 0,
@@ -223,7 +246,6 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     }
   };
 
-  // CTA Button Hover GSAP Animation
   const handleCtaMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
       backgroundColor: '#DFBE7A',
@@ -250,15 +272,20 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
       ref={sectionRef}
       className="bg-[#0B1F3A] text-white py-20 md:py-28 px-5 lg:px-8 relative overflow-hidden border-t border-white/10"
     >
-      {/* Background Decorative Gold Glows */}
-      <div className="absolute top-1/4 left-0 -translate-x-1/2 w-96 h-96 bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-0 translate-x-1/2 w-96 h-96 bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Background Decorative Gold Glows with Parallax Scrub */}
+      <div
+        ref={glow1Ref}
+        className="absolute top-1/4 left-0 -translate-x-1/2 w-96 h-96 bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none will-change-transform"
+      />
+      <div
+        ref={glow2Ref}
+        className="absolute bottom-1/4 right-0 translate-x-1/2 w-96 h-96 bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none will-change-transform"
+      />
 
       <div className="max-w-[1280px] mx-auto relative z-10">
 
         {/* SECTION HEADING */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          
           <div
             ref={badgeRef}
             className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#DFBE7A] text-xs font-semibold tracking-wider uppercase mb-4"
@@ -280,7 +307,6 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
           >
             We partner with top-ranked institutions across the UK, Europe, USA, Canada, Australia and more.
           </p>
-
         </div>
 
         {/* UNIVERSITY PARTNERS RESPONSIVE GRID */}
@@ -293,11 +319,9 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
               onMouseLeave={handleCardMouseLeave}
               className="bg-[#112D53]/60 backdrop-blur-sm border border-white/10 rounded-[12px] p-6 relative overflow-hidden flex flex-col justify-between cursor-pointer transition-colors group"
             >
-              {/* Gold Underline Bar */}
               <div className="gold-card-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#C9A84C] scale-x-0 transform-origin-left pointer-events-none" />
 
               <div>
-                {/* Header Icon + Country Badge */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="univ-icon-box w-12 h-12 rounded-xl bg-[#C9A84C]/15 text-[#C9A84C] flex items-center justify-center transition-colors">
                     <Building2 className="w-6 h-6" />
@@ -307,19 +331,16 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
                   </span>
                 </div>
 
-                {/* University Name */}
                 <h3 className="text-lg font-bold text-white mb-2 leading-snug group-hover:text-[#DFBE7A] transition-colors">
                   {univ.name}
                 </h3>
 
-                {/* Location */}
                 <div className="flex items-center gap-1.5 text-xs text-gray-300 mb-4 font-normal">
                   <MapPin className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
                   <span className="truncate">{univ.location}</span>
                 </div>
               </div>
 
-              {/* Specialization / Ranking Tag */}
               <div className="pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-medium text-gray-300">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
                 <span className="truncate">{univ.tag}</span>

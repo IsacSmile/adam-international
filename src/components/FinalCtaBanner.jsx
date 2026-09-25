@@ -9,17 +9,33 @@ if (typeof window !== 'undefined') {
 
 export default function FinalCtaBanner({ onBookCounseling }) {
   const sectionRef = useRef(null);
+  const glowRef = useRef(null);
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
   const subtextRef = useRef(null);
   const buttonsRef = useRef(null);
   const callRef = useRef(null);
 
-  // ==========================================================================
-  // GSAP SCROLLTRIGGER ENTRANCE ANIMATION
-  // ==========================================================================
   useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+
     const ctx = gsap.context(() => {
+      // 1. Radial Glow Parallax Scrub
+      if (glowRef.current && !isMobile) {
+        gsap.to(glowRef.current, {
+          yPercent: -25,
+          scale: 1.1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      // 2. Entrance Timeline
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -57,7 +73,6 @@ export default function FinalCtaBanner({ onBookCounseling }) {
     return () => ctx.revert();
   }, []);
 
-  // Primary Button GSAP Hover
   const handlePrimaryMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
       backgroundColor: '#DFBE7A',
@@ -78,7 +93,6 @@ export default function FinalCtaBanner({ onBookCounseling }) {
     });
   };
 
-  // Secondary Button GSAP Hover
   const handleSecondaryMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
       backgroundColor: '#FFFFFF',
@@ -119,12 +133,14 @@ export default function FinalCtaBanner({ onBookCounseling }) {
       ref={sectionRef}
       className="w-full bg-gradient-to-br from-[#0B1F3A] via-[#112D53] to-[#0B1F3A] text-white py-16 md:py-20 px-5 lg:px-8 relative overflow-hidden border-t border-white/10"
     >
-      {/* Background Decorative Gold Radial Overlay */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Background Decorative Gold Radial Overlay with Parallax */}
+      <div
+        ref={glowRef}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none will-change-transform"
+      />
 
       <div className="max-w-[1280px] mx-auto text-center relative z-10">
 
-        {/* Small Gold Badge */}
         <div
           ref={badgeRef}
           className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#DFBE7A] text-xs font-semibold tracking-wider uppercase mb-6"
@@ -133,7 +149,6 @@ export default function FinalCtaBanner({ onBookCounseling }) {
           <span>Start Your Journey</span>
         </div>
 
-        {/* Main Headline */}
         <h2
           ref={titleRef}
           className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-3xl mx-auto mb-5"
@@ -141,7 +156,6 @@ export default function FinalCtaBanner({ onBookCounseling }) {
           Ready to Architect Your Academic Future?
         </h2>
 
-        {/* Subtext */}
         <p
           ref={subtextRef}
           className="text-base sm:text-lg text-gray-300 font-normal leading-relaxed max-w-2xl mx-auto mb-10"
@@ -149,12 +163,10 @@ export default function FinalCtaBanner({ onBookCounseling }) {
           Book a free counseling session with our expert advisors and take the first step toward your dream university.
         </p>
 
-        {/* Action Buttons */}
         <div
           ref={buttonsRef}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
         >
-          {/* Primary CTA */}
           <button
             type="button"
             onClick={onBookCounseling}
@@ -166,7 +178,6 @@ export default function FinalCtaBanner({ onBookCounseling }) {
             <ArrowRight className="w-4 h-4 text-[#0B1F3A]" />
           </button>
 
-          {/* Secondary CTA (WhatsApp) */}
           <a
             href="https://wa.me/919895890500"
             target="_blank"
@@ -180,7 +191,6 @@ export default function FinalCtaBanner({ onBookCounseling }) {
           </a>
         </div>
 
-        {/* Extra Call Reference */}
         <div ref={callRef} className="text-gray-400 text-sm font-medium flex items-center justify-center gap-2">
           <Phone className="w-3.5 h-3.5 text-[#C9A84C]" />
           <span>Or call us directly at <a href="tel:+919895890500" className="text-white hover:text-[#DFBE7A] underline font-semibold transition-colors">+91 9895 890 500</a></span>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SmoothScroll from './components/SmoothScroll';
 import Header from './components/Header';
 import HeroShowcase from './components/HeroShowcase';
 import WhyChooseUsSection from './components/WhyChooseUsSection';
@@ -22,36 +23,38 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-brandText antialiased">
-      {/* GSAP & Tailwind Powered Sticky Header */}
-      <Header onBookAppointment={handleOpenModal} />
+    <SmoothScroll>
+      <div className="min-h-screen bg-white font-sans text-brandText antialiased">
+        {/* GSAP & Tailwind Powered Sticky Header */}
+        <Header onBookAppointment={handleOpenModal} />
 
-      {/* Hero Showcase Content */}
-      <HeroShowcase onBookAppointment={handleOpenModal} />
+        {/* Hero Showcase Content with Parallax Glow */}
+        <HeroShowcase onBookAppointment={handleOpenModal} />
 
-      {/* Why Choose Adam International Section */}
-      <WhyChooseUsSection onConsultClick={handleOpenModal} />
+        {/* Why Choose Adam International Section */}
+        <WhyChooseUsSection onConsultClick={handleOpenModal} />
 
-      {/* Corporate Services Section */}
-      <ServicesSection onSelectService={handleOpenModal} />
+        {/* Corporate Services Section */}
+        <ServicesSection onSelectService={handleOpenModal} />
 
-      {/* University Partners Section */}
-      <UniversityPartnersSection onViewAllUniversities={handleOpenModal} />
+        {/* University Partners Section with Dark Glow Parallax */}
+        <UniversityPartnersSection onViewAllUniversities={handleOpenModal} />
 
-      {/* Visa Success Stories Section */}
-      <VisaSuccessSection onViewAllStories={handleOpenModal} />
+        {/* Visa Success Stories Section */}
+        <VisaSuccessSection onViewAllStories={handleOpenModal} />
 
-      {/* Testimonials Section */}
-      <TestimonialsSection />
+        {/* Testimonials Section */}
+        <TestimonialsSection />
 
-      {/* Conversion-Focused Final CTA Banner */}
-      <FinalCtaBanner onBookCounseling={handleOpenModal} />
+        {/* Conversion-Focused Final CTA Banner */}
+        <FinalCtaBanner onBookCounseling={handleOpenModal} />
 
-      {/* Professional Footer Component */}
-      <Footer onOpenModal={handleOpenModal} />
+        {/* Professional Footer Component */}
+        <Footer onOpenModal={handleOpenModal} />
 
-      {/* Appointment Consultation Modal */}
-      <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
-    </div>
+        {/* Appointment Consultation Modal */}
+        <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      </div>
+    </SmoothScroll>
   );
 }

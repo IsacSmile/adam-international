@@ -1,17 +1,86 @@
-import React from 'react';
-import { Globe, Award, ShieldCheck, BookOpen, ArrowUpRight } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Globe, Award, ArrowUpRight } from 'lucide-react';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function HeroShowcase({ onBookAppointment }) {
+  const heroRef = useRef(null);
+  const glowRef = useRef(null);
+  const contentRef = useRef(null);
+  const statsRef = useRef(null);
+
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+
+    const ctx = gsap.context(() => {
+      // 1. Background Glow Parallax Scrub
+      if (glowRef.current && !isMobile) {
+        gsap.to(glowRef.current, {
+          yPercent: 30,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      // 2. Hero Text Content Subtle Upward Movement
+      if (contentRef.current && !isMobile) {
+        gsap.to(contentRef.current, {
+          yPercent: -12,
+          opacity: 0.9,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      // 3. Stats Strip Entrance & Subtle Parallax
+      if (statsRef.current) {
+        gsap.fromTo(statsRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: statsRef.current,
+              start: 'top 90%',
+              toggleActions: 'play none none none',
+            },
+          }
+        );
+      }
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <main id="home" className="min-h-screen">
+    <main id="home" ref={heroRef} className="min-h-screen">
       
       {/* Hero Banner */}
       <section className="relative bg-gradient-to-br from-[#0B1F3A] via-[#112D53] to-[#0B1F3A] text-white py-20 lg:py-28 px-5 lg:px-8 overflow-hidden">
         
-        {/* Glow backdrop decorative SVG */}
-        <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-[500px] h-[500px] bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Glow backdrop decorative SVG with Parallax */}
+        <div
+          ref={glowRef}
+          className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-[600px] h-[600px] bg-[#C9A84C]/15 rounded-full blur-3xl pointer-events-none will-change-transform"
+        />
 
-        <div className="max-w-[1280px] mx-auto text-center relative z-10">
+        <div ref={contentRef} className="max-w-[1280px] mx-auto text-center relative z-10 will-change-transform">
           
           <div className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#DFBE7A] text-xs sm:text-sm font-semibold uppercase tracking-wider mb-6">
             <Award className="w-4 h-4" />
@@ -46,7 +115,7 @@ export default function HeroShowcase({ onBookAppointment }) {
       </section>
 
       {/* Metrics Banner */}
-      <section className="max-w-[1080px] mx-auto px-5 -mt-10 relative z-20">
+      <section ref={statsRef} className="max-w-[1080px] mx-auto px-5 -mt-10 relative z-20">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           <div>
             <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A]">12,500+</div>
@@ -64,40 +133,6 @@ export default function HeroShowcase({ onBookAppointment }) {
             <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A]">$15M+</div>
             <div className="text-xs sm:text-sm text-gray-500 font-medium mt-1">Scholarships Awarded</div>
           </div>
-        </div>
-      </section>
-
-      {/* Study Destinations Grid */}
-      <section id="countries" className="max-w-[1280px] mx-auto px-5 lg:px-8 py-20">
-        <div className="text-center mb-14">
-          <h2 className="text-2xl sm:text-4xl font-bold text-[#0B1F3A] mb-3">
-            Premier Study Destinations
-          </h2>
-          <p className="text-gray-600 max-w-xl mx-auto text-base">
-            Select from world-class university systems with high post-graduation employment rates.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { country: 'United Kingdom', flag: '🇬🇧', desc: '1-Year Master degrees & 2-Year Graduate Work Visas.' },
-            { country: 'United States', flag: '🇺🇸', desc: 'Ivy League institutions & 3-Year STEM OPT extension.' },
-            { country: 'Canada', flag: '🇨🇦', desc: 'Top rankings, PGWP work permits & express PR pathways.' },
-            { country: 'Australia', flag: '🇦🇺', desc: 'High quality of life & extended post-study work rights.' },
-          ].map((item) => (
-            <div
-              key={item.country}
-              className="bg-white border border-gray-200 hover:border-[#C9A84C] rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group"
-            >
-              <div className="text-4xl mb-4">{item.flag}</div>
-              <h3 className="text-lg font-bold text-[#0B1F3A] mb-2 group-hover:text-[#C9A84C] transition-colors">
-                {item.country}
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
         </div>
       </section>
 

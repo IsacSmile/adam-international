@@ -56,6 +56,7 @@ const featuresData = [
 
 export default function WhyChooseUsSection({ onConsultClick }) {
   const sectionRef = useRef(null);
+  const patternRef = useRef(null);
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
@@ -67,12 +68,25 @@ export default function WhyChooseUsSection({ onConsultClick }) {
     }
   };
 
-  // ==========================================================================
-  // GSAP SCROLLTRIGGER ENTRANCE ANIMATION
-  // ==========================================================================
   useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+
     const ctx = gsap.context(() => {
-      // Header Elements Entrance Timeline
+      // 1. Background Dot Pattern Parallax
+      if (patternRef.current && !isMobile) {
+        gsap.to(patternRef.current, {
+          yPercent: 15,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      // 2. Header Entrance
       const headerTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -97,14 +111,14 @@ export default function WhyChooseUsSection({ onConsultClick }) {
           '-=0.4'
         );
 
-      // Cards Stagger Entrance
+      // 3. Cards Stagger Entrance
       gsap.fromTo(cardsRef.current,
-        { opacity: 0, y: 40 },
+        { opacity: 0, y: 35 },
         {
           opacity: 1,
           y: 0,
           duration: 0.7,
-          stagger: 0.12,
+          stagger: 0.1,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -118,7 +132,6 @@ export default function WhyChooseUsSection({ onConsultClick }) {
     return () => ctx.revert();
   }, []);
 
-  // Card Hover GSAP Animation
   const handleCardMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
       y: -6,
@@ -169,8 +182,11 @@ export default function WhyChooseUsSection({ onConsultClick }) {
       ref={sectionRef}
       className="bg-[#F8F9FC] py-20 md:py-28 px-5 lg:px-8 border-t border-b border-gray-200/60 relative overflow-hidden"
     >
-      {/* Decorative Dot Matrix Accent */}
-      <div className="absolute inset-0 bg-[radial-gradient(#0B1F3A_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.03] pointer-events-none" />
+      {/* Decorative Dot Matrix Accent with Parallax */}
+      <div
+        ref={patternRef}
+        className="absolute inset-0 bg-[radial-gradient(#0B1F3A_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.03] pointer-events-none will-change-transform"
+      />
 
       <div className="max-w-[1280px] mx-auto relative z-10">
 
@@ -201,7 +217,7 @@ export default function WhyChooseUsSection({ onConsultClick }) {
 
         </div>
 
-        {/* FEATURE CARDS GRID (3 cols desktop, 2 cols tablet, 1 col mobile) */}
+        {/* FEATURE CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuresData.map((feature) => {
             const IconComp = feature.icon;
@@ -215,27 +231,22 @@ export default function WhyChooseUsSection({ onConsultClick }) {
                 onClick={onConsultClick}
                 className="bg-white border border-gray-200 rounded-[16px] p-7 sm:p-8 flex flex-col justify-between cursor-pointer transition-colors shadow-sm relative group overflow-hidden"
               >
-                {/* Subtle Decorative Corner Glow */}
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#C9A84C]/10 to-transparent rounded-tr-[16px] pointer-events-none" />
 
                 <div>
-                  {/* Top Icon Badge (Navy + Gold Style) */}
                   <div className="feature-icon-badge w-14 h-14 rounded-2xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center mb-6 shadow-md transition-all duration-300">
                     <IconComp className="w-7 h-7" />
                   </div>
 
-                  {/* Title */}
                   <h3 className="text-xl font-bold text-[#0B1F3A] mb-3 leading-snug">
                     {feature.title}
                   </h3>
 
-                  {/* Description */}
                   <p className="text-gray-600 text-sm sm:text-base leading-relaxed font-normal">
                     {feature.description}
                   </p>
                 </div>
 
-                {/* Bottom Gold Accent Bar Indicator */}
                 <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-semibold text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors">
                   <span>Adam Advantage</span>
                   <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
