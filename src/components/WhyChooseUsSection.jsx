@@ -123,7 +123,7 @@ export default function WhyChooseUsSection({ onConsultClick }) {
             opacity: 1,
             y: 0,
             duration: 0.7,
-            stagger: 0.12,
+            stagger: 0.14,
             ease: 'power2.out',
             scrollTrigger: {
               trigger: sectionRef.current,
@@ -146,98 +146,101 @@ export default function WhyChooseUsSection({ onConsultClick }) {
     <section
       id="why-us"
       ref={sectionRef}
-      className="bg-[#F8FAFC] py-20 lg:py-28 px-5 sm:px-8 lg:px-12 relative overflow-hidden border-t border-b border-slate-200/80"
+      className="bg-[#F8FAFC] py-24 sm:py-32 lg:py-36 px-6 sm:px-10 lg:px-14 relative overflow-hidden border-t border-b border-slate-200/80"
     >
-      {/* Soft Glow Background Accents */}
-      <div className="absolute top-0 right-0 w-[550px] h-[550px] bg-gradient-to-br from-[#C9A84C]/10 via-[#0B1F3A]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-[#0B1F3A]/8 via-[#C9A84C]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+      {/* Soft Ambient Glow Accents */}
+      <div className="absolute top-0 right-0 w-[650px] h-[650px] bg-gradient-to-br from-[#C9A84C]/10 via-[#0B1F3A]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-[#0B1F3A]/8 via-[#C9A84C]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1280px] mx-auto relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 xl:gap-24 items-start">
           
           {/* ==========================================================================
-              LEFT COLUMN (40%): Sticky Pinned Content Area
+              LEFT COLUMN (40%): Spacious Pinned Content Area
              ========================================================================== */}
           <div
             ref={leftStickyRef}
-            className="lg:col-span-5 lg:sticky lg:top-28 text-left space-y-6"
+            className="lg:col-span-5 lg:sticky lg:top-28 text-left space-y-8 lg:space-y-9"
           >
             {/* Small Gold Pill Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#C9A84C]/15 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#0B1F3A] text-xs font-bold tracking-wider uppercase backdrop-blur-md shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-[#C9A84C]" />
-              <span>WHY US</span>
+            <div>
+              <div className="inline-flex items-center gap-2 bg-[#C9A84C]/15 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#0B1F3A] text-xs font-bold tracking-wider uppercase backdrop-blur-md shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-[#C9A84C]" />
+                <span>WHY US</span>
+              </div>
             </div>
 
-            {/* Main Heading */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0B1F3A] tracking-tight leading-[1.14]">
-              Why Students Choose{' '}
-              <span className="text-[#C9A84C] relative inline-block">
-                Adam International
-              </span>
-            </h2>
+            {/* Main Heading & Description */}
+            <div className="space-y-4">
+              <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-[#0B1F3A] tracking-tight leading-[1.16]">
+                Why Students Choose{' '}
+                <span className="text-[#C9A84C] relative inline-block">
+                  Adam International
+                </span>
+              </h2>
 
-            {/* Supporting Paragraph */}
-            <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
-              We don’t just process application forms — we build global futures through personalized roadmaps, transparent guidance, and dedicated 1-on-1 mentorship.
-            </p>
+              <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-lg pt-1">
+                We don’t just process application forms — we build global futures through personalized roadmaps, transparent guidance, and dedicated 1-on-1 mentorship.
+              </p>
+            </div>
 
-            {/* 3 Key Highlights with Rich Icon Containers */}
-            <div className="pt-2 space-y-3.5">
-              <div className="flex items-center gap-3.5 bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm">
-                <div className="w-9 h-9 rounded-lg bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-sm">
+            {/* 3 Key Highlights with Generous Padding */}
+            <div className="pt-2 space-y-4">
+              <div className="flex items-center gap-4 bg-white p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-sm">
                   <CheckCircle2 className="w-5 h-5 text-[#C9A84C]" />
                 </div>
                 <span className="text-sm font-bold text-[#0B1F3A]">100% Visa Approval Track Record</span>
               </div>
 
-              <div className="flex items-center gap-3.5 bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm">
-                <div className="w-9 h-9 rounded-lg bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-sm">
+              <div className="flex items-center gap-4 bg-white p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-sm">
                   <Globe className="w-5 h-5 text-[#C9A84C]" />
                 </div>
                 <span className="text-sm font-bold text-[#0B1F3A]">450+ Partner Universities Worldwide</span>
               </div>
 
-              <div className="flex items-center gap-3.5 bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm">
-                <div className="w-9 h-9 rounded-lg bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-sm">
+              <div className="flex items-center gap-4 bg-white p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-sm">
                   <Shield className="w-5 h-5 text-[#C9A84C]" />
                 </div>
                 <span className="text-sm font-bold text-[#0B1F3A]">Zero Hidden Charges & Full Transparency</span>
               </div>
             </div>
 
-            {/* Rating / Trust Anchor Badge to balance height */}
-            <div className="bg-gradient-to-r from-white to-slate-50 border border-slate-200/90 rounded-xl p-4 shadow-sm flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
+            {/* Trust Anchor Rating Badge */}
+            <div className="bg-gradient-to-r from-white to-slate-50 border border-slate-200/90 rounded-2xl p-5 shadow-sm flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-[#0B1F3A] text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
                   <Star className="w-5 h-5 fill-[#C9A84C] text-[#C9A84C]" />
                 </div>
                 <div>
                   <div className="text-sm font-extrabold text-[#0B1F3A]">4.9 / 5.0 Student Rating</div>
-                  <div className="text-xs text-slate-500 font-medium">Based on 15,000+ Placements</div>
+                  <div className="text-xs text-slate-500 font-medium mt-0.5">Based on 15,000+ Placements</div>
                 </div>
               </div>
-              <div className="text-[11px] font-bold text-[#0B1F3A] bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-2.5 py-1 rounded-full shrink-0">
+              <div className="text-[11px] font-bold text-[#0B1F3A] bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3 py-1.5 rounded-full shrink-0">
                 Top Rated
               </div>
             </div>
 
-            {/* Prominent Primary Action Button */}
-            <div className="pt-2">
+            {/* Prominent Action Button with Extra Space */}
+            <div className="pt-4 sm:pt-6">
               <button
                 type="button"
                 onClick={onConsultClick}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#C9A84C] text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-white font-extrabold text-base py-4 px-8 rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl group cursor-pointer border border-[#C9A84C]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#C9A84C] text-[#0B1F3A] hover:bg-[#0B1F3A] hover:text-white font-extrabold text-base py-4.5 px-9 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl group cursor-pointer border border-[#C9A84C]"
               >
                 <span>Book Free Counseling</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" />
               </button>
             </div>
           </div>
 
           {/* ==========================================================================
-              RIGHT COLUMN (60%): Interactive Feature Cards List
+              RIGHT COLUMN (60%): Spacious Feature Cards Stack
              ========================================================================== */}
-          <div className="lg:col-span-7 space-y-5">
+          <div className="lg:col-span-7 flex flex-col gap-7 sm:gap-8">
             {featuresData.map((feature) => {
               const IconComp = feature.icon;
               const isActive = activeCardId === feature.id;
@@ -247,41 +250,41 @@ export default function WhyChooseUsSection({ onConsultClick }) {
                   key={feature.id}
                   ref={addCardRef}
                   onClick={() => handleCardClick(feature.id)}
-                  className={`rounded-[20px] border transition-all duration-300 overflow-hidden cursor-pointer ${
+                  className={`rounded-[24px] border transition-all duration-300 overflow-hidden cursor-pointer ${
                     isActive 
-                      ? 'bg-gradient-to-r from-amber-50/30 via-white to-white border-[#C9A84C] shadow-[0_16px_36px_rgba(11,31,58,0.12)] ring-1 ring-[#C9A84C]/50 -translate-y-1' 
-                      : 'bg-white border-slate-200/90 shadow-[0_4px_20px_rgba(11,31,58,0.05)] hover:shadow-[0_16px_32px_rgba(11,31,58,0.1)] hover:border-[#C9A84C]/70 -translate-y-0 hover:-translate-y-1'
+                      ? 'bg-gradient-to-r from-amber-50/40 via-white to-white border-[#C9A84C] shadow-[0_20px_40px_rgba(11,31,58,0.12)] ring-1 ring-[#C9A84C]/50 -translate-y-1' 
+                      : 'bg-white border-slate-200/90 shadow-[0_6px_24px_rgba(11,31,58,0.04)] hover:shadow-[0_20px_36px_rgba(11,31,58,0.1)] hover:border-[#C9A84C]/70 -translate-y-0 hover:-translate-y-1'
                   }`}
                 >
-                  <div className="p-6 sm:p-7 flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
+                  <div className="p-7 sm:p-9 lg:p-10 flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
                     
                     {/* Thumbnail Image + Icon Header */}
-                    <div className="flex items-center gap-4 shrink-0">
-                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 shadow-md border border-slate-200/80">
+                    <div className="flex items-center gap-5 shrink-0">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 shadow-md border border-slate-200/80">
                         <img
                           src={feature.image}
                           alt={feature.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-[#0B1F3A]/25" />
-                        <div className="absolute bottom-1.5 right-1.5 bg-[#0B1F3A] text-[#C9A84C] p-1.5 rounded-lg shadow-md">
+                        <div className="absolute bottom-2 right-2 bg-[#0B1F3A] text-[#C9A84C] p-2 rounded-xl shadow-md">
                           <IconComp className="w-4 h-4 text-[#C9A84C]" />
                         </div>
                       </div>
 
                       {/* Title & Badge */}
-                      <div>
-                        <div className="inline-block bg-[#C9A84C]/15 border border-[#C9A84C]/30 text-[#0B1F3A] text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1.5">
+                      <div className="space-y-1.5">
+                        <div className="inline-block bg-[#C9A84C]/15 border border-[#C9A84C]/35 text-[#0B1F3A] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                           {feature.badge}
                         </div>
-                        <h3 className="text-lg sm:text-xl font-bold text-[#0B1F3A] leading-snug">
+                        <h3 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] leading-snug">
                           {feature.title}
                         </h3>
                       </div>
                     </div>
 
                     {/* More Details Indicator */}
-                    <div className="self-end sm:self-center shrink-0 flex items-center gap-1.5 text-xs font-bold text-[#0B1F3A] bg-slate-100/80 border border-slate-200 px-3.5 py-2 rounded-xl group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] transition-colors">
+                    <div className="self-end sm:self-center shrink-0 flex items-center gap-2 text-xs font-bold text-[#0B1F3A] bg-slate-100/90 border border-slate-200 px-4 py-2.5 rounded-xl group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] transition-colors">
                       <span>{isActive ? 'Less Details' : 'More Details'}</span>
                       <ChevronRight
                         className={`w-4 h-4 transition-transform duration-300 ${
@@ -293,15 +296,15 @@ export default function WhyChooseUsSection({ onConsultClick }) {
                   </div>
 
                   {/* Description Body */}
-                  <div className="px-6 sm:px-7 pb-6">
-                    <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
+                  <div className="px-7 sm:px-9 lg:px-10 pb-7 sm:pb-9 lg:pb-10">
+                    <p className="text-slate-600 text-base sm:text-lg leading-relaxed font-normal">
                       {feature.description}
                     </p>
 
                     {/* Expandable Extended Details */}
                     {isActive && (
-                      <div className="mt-4 pt-4 border-t border-amber-200/60 bg-amber-50/50 p-4 rounded-xl text-xs sm:text-sm text-[#0B1F3A] font-medium leading-relaxed flex items-start gap-2.5 animate-fadeIn">
-                        <CheckCircle2 className="w-4 h-4 text-[#C9A84C] shrink-0 mt-0.5" />
+                      <div className="mt-5 pt-5 border-t border-amber-200/60 bg-amber-50/50 p-5 rounded-2xl text-sm sm:text-base text-[#0B1F3A] font-medium leading-relaxed flex items-start gap-3 animate-fadeIn">
+                        <CheckCircle2 className="w-5 h-5 text-[#C9A84C] shrink-0 mt-0.5" />
                         <span>{feature.extendedDetail}</span>
                       </div>
                     )}
