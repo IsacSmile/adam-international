@@ -102,9 +102,9 @@ export default function HeroShowcase({ onBookAppointment }) {
         },
       });
 
-      // Metric 2: Visa Success Rate (0.0% -> 98.4%)
+      // Metric 2: Visa Success Rate (0% -> 100%)
       gsap.to(count2Obj, {
-        val: 98.4,
+        val: 100,
         duration: 2.2,
         ease: 'power2.out',
         scrollTrigger: {
@@ -113,7 +113,7 @@ export default function HeroShowcase({ onBookAppointment }) {
         },
         onUpdate: () => {
           if (stat2Ref.current) {
-            stat2Ref.current.innerText = count2Obj.val.toFixed(1) + '%';
+            stat2Ref.current.innerText = Math.floor(count2Obj.val) + '%';
           }
         },
       });
@@ -327,7 +327,7 @@ export default function HeroShowcase({ onBookAppointment }) {
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-lg font-extrabold text-white">98.4%</div>
+                <div className="text-lg font-extrabold text-white">100%</div>
                 <div className="text-xs text-gray-300 font-medium">Visa Approval Rate</div>
               </div>
             </div>
@@ -365,7 +365,7 @@ export default function HeroShowcase({ onBookAppointment }) {
           </div>
           <div className="p-2 sm:p-0 border-b sm:border-b-0 border-gray-100">
             <div ref={stat2Ref} className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
-              0.0%
+              0%
             </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Visa Success Rate</div>
           </div>

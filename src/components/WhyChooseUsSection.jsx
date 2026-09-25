@@ -31,7 +31,7 @@ const featuresData = [
   {
     id: 'high-visa-success',
     title: 'High Visa Success Rate',
-    description: '98.4% visa success rate backed by expert documentation and interview preparation.',
+    description: '100% visa success rate backed by expert documentation and interview preparation.',
     icon: Award,
   },
   {
