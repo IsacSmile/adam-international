@@ -324,11 +324,11 @@ export default function HeroShowcase({ onBookAppointment }) {
             className="w-full h-full object-cover object-right-top will-change-transform opacity-70 sm:opacity-80 lg:opacity-95 contrast-[1.05] brightness-[1.05]"
           />
           
-          {/* Desktop Left Gradient: dark overlay strictly covering the left text column (60% width) */}
-          <div className="hidden lg:block absolute inset-y-0 left-0 w-[62%] bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/95 to-transparent z-10 pointer-events-none" />
+          {/* Desktop/Laptop Left Gradient: dark overlay strictly covering the left text column */}
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-[68%] lg:w-[65%] xl:w-[60%] bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/95 to-transparent z-10 pointer-events-none" />
           
           {/* Mobile/Tablet Gradient */}
-          <div className="lg:hidden absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/80 to-[#0B1F3A]/40 z-10 pointer-events-none" />
+          <div className="lg:hidden absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/85 to-[#0B1F3A]/40 z-10 pointer-events-none" />
 
           {/* Bottom edge gradient to transition seamlessly into floating stats section */}
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0B1F3A] via-[#0B1F3A]/60 to-transparent z-10 pointer-events-none" />
@@ -341,11 +341,11 @@ export default function HeroShowcase({ onBookAppointment }) {
         <div className="max-w-[1280px] mx-auto w-full relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* LEFT CONTENT COLUMN */}
-          <div className="lg:col-span-7 text-left">
+          <div className="lg:col-span-7 text-left max-w-[580px] xl:max-w-[650px]">
             
             <div
               ref={badgeRef}
-              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-4 sm:mb-5 backdrop-blur-md shadow-sm"
+              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-3.5 sm:mb-4 backdrop-blur-md shadow-sm"
             >
               <Award className="w-4 h-4 text-[#C9A84C] shrink-0" />
               <span>Top-Tier Overseas Education Consultancy</span>
@@ -353,9 +353,9 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <h1
               ref={titleRef}
-              className="text-[21px] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[44px] xl:text-[52px] font-extrabold text-white tracking-tight leading-[1.12] mb-4 sm:mb-5 drop-shadow-lg"
+              className="text-[22px] xs:text-2xl sm:text-4xl lg:text-[34px] xl:text-[44px] 2xl:text-[50px] font-extrabold text-white tracking-tight leading-[1.15] mb-3.5 sm:mb-4 drop-shadow-lg"
             >
-              <span className="block whitespace-nowrap">Architect Your Academic Future</span>
+              <span className="block">Architect Your Academic Future</span>
               <span className="block mt-1">
                 With <span className="text-[#C9A84C]">Adam International</span>
               </span>
@@ -363,7 +363,7 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <p
               ref={subtextRef}
-              className="text-sm sm:text-base lg:text-lg text-gray-100 font-normal leading-relaxed max-w-xl mb-6 sm:mb-7 drop-shadow"
+              className="text-xs sm:text-base lg:text-base xl:text-lg text-gray-100 font-normal leading-relaxed max-w-lg mb-5 sm:mb-6 drop-shadow"
             >
               Unlocking global educational opportunities with end-to-end university admissions, merit scholarship funding, and visa facilitation.
             </p>
@@ -396,12 +396,12 @@ export default function HeroShowcase({ onBookAppointment }) {
 
           </div>
 
-          {/* RIGHT COLUMN: DUAL VERTICAL INFINITE MARQUEE OF COUNTRY CARDS + OFFSET FLOATING STATS BADGES (DESKTOP) */}
-          <div className="hidden lg:flex lg:col-span-5 relative h-[440px] items-center justify-center pr-2">
+          {/* RIGHT COLUMN: DUAL VERTICAL INFINITE MARQUEE OF COUNTRY CARDS + FLOATING STATS BADGES (DESKTOP/LAPTOP) */}
+          <div className="hidden lg:flex lg:col-span-5 relative h-[420px] items-center justify-end pr-2">
             
-            {/* Dual Vertical Columns Container with CSS Gradient Mask (No hard dark boxes) */}
+            {/* Dual Vertical Columns Container with CSS Gradient Mask */}
             <div 
-              className="marquee-col grid grid-cols-2 gap-3.5 w-full max-w-[340px] opacity-90 hover:opacity-100 transition-opacity duration-300"
+              className="marquee-col grid grid-cols-2 gap-3 w-full max-w-[310px] xl:max-w-[340px] opacity-90 hover:opacity-100 transition-opacity duration-300"
               style={{
                 maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
@@ -409,23 +409,23 @@ export default function HeroShowcase({ onBookAppointment }) {
             >
               
               {/* Column 1: Top to Bottom Infinite Scroll */}
-              <div className="overflow-hidden h-[440px] relative">
+              <div className="overflow-hidden h-[420px] relative">
                 <div className="flex flex-col gap-3 animate-marquee-down">
                   {col1Duplicated.map((c, i) => (
                     <div
                       key={`col1-${i}`}
                       className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
                     >
-                      <div className="relative h-20 w-full rounded-xl overflow-hidden bg-slate-900">
+                      <div className="relative h-18 sm:h-20 w-full rounded-xl overflow-hidden bg-slate-900">
                         <img
                           src={c.image}
                           alt={c.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-1.5 left-1.5 bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
+                        <div className="absolute bottom-1 left-1 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40 truncate max-w-[90%]">
                           <span>{c.flag}</span>
-                          <span>{c.name}</span>
+                          <span className="truncate">{c.name}</span>
                         </div>
                       </div>
                       <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
@@ -437,23 +437,23 @@ export default function HeroShowcase({ onBookAppointment }) {
               </div>
 
               {/* Column 2: Bottom to Top Infinite Scroll */}
-              <div className="overflow-hidden h-[440px] relative">
+              <div className="overflow-hidden h-[420px] relative">
                 <div className="flex flex-col gap-3 animate-marquee-up">
                   {col2Duplicated.map((c, i) => (
                     <div
                       key={`col2-${i}`}
                       className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
                     >
-                      <div className="relative h-20 w-full rounded-xl overflow-hidden bg-slate-900">
+                      <div className="relative h-18 sm:h-20 w-full rounded-xl overflow-hidden bg-slate-900">
                         <img
                           src={c.image}
                           alt={c.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-1.5 left-1.5 bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40">
+                        <div className="absolute bottom-1 left-1 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40 truncate max-w-[90%]">
                           <span>{c.flag}</span>
-                          <span>{c.name}</span>
+                          <span className="truncate">{c.name}</span>
                         </div>
                       </div>
                       <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
@@ -466,30 +466,30 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             </div>
 
-            {/* OVERLAY FLOATING STATS BADGES OFFSET AROUND MARQUEE */}
+            {/* OVERLAY FLOATING STATS BADGES ALIGNED PROPERLY FOR LAPTOP */}
             <div
               ref={floatingBadge1Ref}
-              className="absolute top-4 -right-2 z-20 bg-[#0B1F3A]/90 backdrop-blur-md border border-[#C9A84C]/60 text-white p-3 rounded-2xl shadow-2xl flex items-center gap-3 max-w-[230px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
+              className="absolute top-2 right-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-md border border-[#C9A84C]/60 text-white p-2.5 sm:p-3 rounded-2xl shadow-2xl flex items-center gap-2.5 max-w-[210px] xl:max-w-[240px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
-                <CheckCircle2 className="w-5 h-5" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
+                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <div className="text-base font-extrabold text-white">100%</div>
-                <div className="text-[11px] text-gray-300 font-medium">Visa Approval Rate</div>
+                <div className="text-sm sm:text-base font-extrabold text-white">100%</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-300 font-medium">Visa Approval Rate</div>
               </div>
             </div>
 
             <div
               ref={floatingBadge2Ref}
-              className="absolute bottom-4 -left-2 z-20 bg-[#0B1F3A]/90 backdrop-blur-md border border-white/30 text-white p-3 rounded-2xl shadow-2xl flex items-center gap-3 max-w-[230px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
+              className="absolute bottom-2 right-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-md border border-white/30 text-white p-2.5 sm:p-3 rounded-2xl shadow-2xl flex items-center gap-2.5 max-w-[210px] xl:max-w-[240px] pointer-events-auto transform hover:scale-105 transition-transform cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
-                <GraduationCap className="w-5 h-5 text-[#DFBE7A]" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
+                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-[#DFBE7A]" />
               </div>
               <div>
-                <div className="text-base font-extrabold text-white">450+ Universities</div>
-                <div className="text-[11px] text-gray-300 font-medium">UK, USA, EU, Canada</div>
+                <div className="text-sm sm:text-base font-extrabold text-white">450+ Universities</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-300 font-medium">UK, USA, EU, Canada</div>
               </div>
             </div>
 
