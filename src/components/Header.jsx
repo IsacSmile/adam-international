@@ -382,7 +382,7 @@ export default function Header({ onBookAppointment }) {
 
       <div
         ref={mobileDrawerRef}
-        className="fixed top-0 right-0 w-full max-w-[340px] h-full h-dvh bg-white z-50 flex flex-col pt-[72px] pb-8 px-6 shadow-drawer translate-x-full invisible overflow-y-auto"
+        className="fixed top-0 right-0 w-full max-w-[340px] h-dvh bg-white z-50 flex flex-col pt-[72px] pb-8 px-6 shadow-drawer translate-x-full invisible overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-label="Mobile Navigation Menu"
