@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Building2, MapPin, ArrowRight, Globe, CheckCircle2 } from 'lucide-react';
+import { Building2, MapPin, ArrowRight, Globe, Award, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -14,7 +14,7 @@ const partnerUniversities = [
     location: 'Leicester, United Kingdom',
     country: 'UK',
     tag: 'Top 50 UK University',
-    established: '1870',
+    ranking: '#1 for Employability',
   },
   {
     id: 'bpp',
@@ -22,7 +22,7 @@ const partnerUniversities = [
     location: 'London, United Kingdom',
     country: 'UK',
     tag: 'Premier Law & Business School',
-    established: '1992',
+    ranking: 'Top Finance & Law Prep',
   },
   {
     id: 'coventry',
@@ -30,15 +30,15 @@ const partnerUniversities = [
     location: 'Coventry, United Kingdom',
     country: 'UK',
     tag: '5-Star QS Rated Institution',
-    established: '1843',
+    ranking: '#1 Student Experience',
   },
   {
     id: 'bangor',
     name: 'Bangor University',
     location: 'Bangor, Wales, UK',
     country: 'UK',
-    tag: 'Top UK Student Satisfaction',
-    established: '1884',
+    tag: 'Top 10 for Teaching Quality',
+    ranking: 'Gold Teaching Excellence',
   },
   {
     id: 'herts',
@@ -46,7 +46,7 @@ const partnerUniversities = [
     location: 'Hatfield, United Kingdom',
     country: 'UK',
     tag: 'TEF Gold Rated University',
-    established: '1952',
+    ranking: '96.5% Graduate Jobs',
   },
   {
     id: 'greenwich',
@@ -54,15 +54,15 @@ const partnerUniversities = [
     location: 'London, United Kingdom',
     country: 'UK',
     tag: 'UNESCO World Heritage Campus',
-    established: '1890',
+    ranking: 'Top 10 International Students',
   },
   {
     id: 'ue-germany',
     name: 'UE Applied Sciences',
     location: 'Berlin / Hamburg, Germany',
-    country: 'Europe',
-    tag: 'Top German Private University',
-    established: '2000',
+    country: 'EU',
+    tag: 'Top German Tech University',
+    ranking: 'Top 10 European Tech',
   },
   {
     id: 'northeastern',
@@ -70,19 +70,14 @@ const partnerUniversities = [
     location: 'Boston, USA',
     country: 'USA',
     tag: 'Tier-1 US Research Institution',
-    established: '1898',
+    ranking: 'Global Co-op Leader',
   },
 ];
 
 export default function UniversityPartnersSection({ onViewAllUniversities }) {
   const sectionRef = useRef(null);
-  const glow1Ref = useRef(null);
-  const glow2Ref = useRef(null);
-  const badgeRef = useRef(null);
-  const titleRef = useRef(null);
-  const subtitleRef = useRef(null);
+  const carouselRef = useRef(null);
   const cardsRef = useRef([]);
-  const ctaRef = useRef(null);
 
   const addCardRef = (el) => {
     if (el && !cardsRef.current.includes(el)) {
@@ -91,91 +86,21 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
   };
 
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-
     const ctx = gsap.context(() => {
-      // 1. Background Glow Blobs Parallax Scrub
-      if (!isMobile) {
-        if (glow1Ref.current) {
-          gsap.to(glow1Ref.current, {
-            yPercent: -20,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          });
-        }
-        if (glow2Ref.current) {
-          gsap.to(glow2Ref.current, {
-            yPercent: 20,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          });
-        }
-      }
-
-      // 2. Header Entrance Timeline
-      const headerTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
-      });
-
-      headerTl
-        .fromTo(badgeRef.current,
-          { opacity: 0, y: 25 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-        )
-        .fromTo(titleRef.current,
-          { opacity: 0, y: 25 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-          '-=0.4'
-        )
-        .fromTo(subtitleRef.current,
-          { opacity: 0, y: 25 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-          '-=0.4'
-        );
-
-      // 3. Cards Stagger Entrance
-      gsap.fromTo(cardsRef.current,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.1,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
-            toggleActions: 'play none none none',
-          },
-        }
-      );
-
-      // 4. CTA Button Entrance
-      if (ctaRef.current) {
-        gsap.fromTo(ctaRef.current,
-          { opacity: 0, y: 20 },
+      // Entrance animation for university cards
+      if (cardsRef.current.length > 0) {
+        gsap.fromTo(
+          cardsRef.current,
+          { opacity: 0, y: 35 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.6,
-            ease: 'power2.out',
+            duration: 0.8,
+            stagger: 0.1,
+            ease: 'power3.out',
             scrollTrigger: {
-              trigger: ctaRef.current,
-              start: 'top 90%',
+              trigger: sectionRef.current,
+              start: 'top 75%',
               toggleActions: 'play none none none',
             },
           }
@@ -186,180 +111,132 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     return () => ctx.revert();
   }, []);
 
-  const handleCardMouseEnter = (e) => {
-    gsap.to(e.currentTarget, {
-      y: -6,
-      borderColor: '#C9A84C',
-      boxShadow: '0 12px 30px rgba(201, 168, 76, 0.15)',
-      duration: 0.3,
-      ease: 'power2.out',
-    });
-
-    const underline = e.currentTarget.querySelector('.gold-card-underline');
-    if (underline) {
-      gsap.to(underline, {
-        scaleX: 1,
-        transformOrigin: 'left',
-        duration: 0.3,
-        ease: 'power2.out',
-      });
-    }
-
-    const iconBox = e.currentTarget.querySelector('.univ-icon-box');
-    if (iconBox) {
-      gsap.to(iconBox, {
-        backgroundColor: '#C9A84C',
-        color: '#0B1F3A',
-        duration: 0.3,
-        ease: 'power2.out',
-      });
+  const handleScrollLeft = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: -340, behavior: 'smooth' });
     }
   };
 
-  const handleCardMouseLeave = (e) => {
-    gsap.to(e.currentTarget, {
-      y: 0,
-      borderColor: 'rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 0px 0px rgba(0, 0, 0, 0)',
-      duration: 0.3,
-      ease: 'power2.out',
-    });
-
-    const underline = e.currentTarget.querySelector('.gold-card-underline');
-    if (underline) {
-      gsap.to(underline, {
-        scaleX: 0,
-        transformOrigin: 'right',
-        duration: 0.3,
-        ease: 'power2.out',
-      });
+  const handleScrollRight = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: 340, behavior: 'smooth' });
     }
-
-    const iconBox = e.currentTarget.querySelector('.univ-icon-box');
-    if (iconBox) {
-      gsap.to(iconBox, {
-        backgroundColor: 'rgba(201, 168, 76, 0.15)',
-        color: '#C9A84C',
-        duration: 0.3,
-        ease: 'power2.out',
-      });
-    }
-  };
-
-  const handleCtaMouseEnter = (e) => {
-    gsap.to(e.currentTarget, {
-      backgroundColor: '#DFBE7A',
-      scale: 1.03,
-      boxShadow: '0 8px 25px rgba(201, 168, 76, 0.3)',
-      duration: 0.2,
-      ease: 'power2.out',
-    });
-  };
-
-  const handleCtaMouseLeave = (e) => {
-    gsap.to(e.currentTarget, {
-      backgroundColor: '#C9A84C',
-      scale: 1,
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-      duration: 0.2,
-      ease: 'power2.out',
-    });
   };
 
   return (
     <section
       id="partners"
       ref={sectionRef}
-      className="bg-[#0B1F3A] text-white py-20 md:py-28 px-5 lg:px-8 relative overflow-hidden border-t border-white/10"
+      className="bg-[#0B1F3A] text-white py-24 sm:py-32 lg:py-36 px-5 sm:px-8 lg:px-12 relative overflow-hidden border-t border-white/10"
     >
-      {/* Background Decorative Gold Glows with Parallax Scrub */}
-      <div
-        ref={glow1Ref}
-        className="absolute top-1/4 left-0 -translate-x-1/2 w-96 h-96 bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none will-change-transform"
-      />
-      <div
-        ref={glow2Ref}
-        className="absolute bottom-1/4 right-0 translate-x-1/2 w-96 h-96 bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none will-change-transform"
-      />
+      {/* Background Decorative Gold Ambient Glows */}
+      <div className="absolute top-1/4 left-0 -translate-x-1/2 w-[550px] h-[550px] bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-0 translate-x-1/2 w-[550px] h-[550px] bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1280px] mx-auto relative z-10">
 
-        {/* SECTION HEADING */}
-        <div className="text-center mb-16 max-w-3xl mx-auto">
-          <div
-            ref={badgeRef}
-            className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#DFBE7A] text-xs font-semibold tracking-wider uppercase mb-4"
-          >
-            <Globe className="w-3.5 h-3.5 text-[#C9A84C]" />
-            <span>Our Partners</span>
+        {/* SECTION HEADING & CONTROLS */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16">
+          <div className="text-left max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#DFBE7A] text-xs font-bold tracking-wider uppercase mb-4 shadow-sm">
+              <Globe className="w-3.5 h-3.5 text-[#C9A84C]" />
+              <span>GLOBAL NETWORK</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-white tracking-tight leading-[1.16]">
+              Leading Universities We{' '}
+              <span className="text-[#C9A84C] relative inline-block">
+                Collaborate With
+              </span>
+            </h2>
+
+            <p className="text-base sm:text-lg text-gray-300 font-normal leading-relaxed mt-3">
+              We partner with top-ranked institutions across the UK, Europe, USA, Canada, Australia and more.
+            </p>
           </div>
 
-          <h2
-            ref={titleRef}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4"
-          >
-            Leading Universities We Collaborate With
-          </h2>
-
-          <p
-            ref={subtitleRef}
-            className="text-base sm:text-lg text-gray-300 font-normal leading-relaxed"
-          >
-            We partner with top-ranked institutions across the UK, Europe, USA, Canada, Australia and more.
-          </p>
+          {/* Slider Controls (Desktop Only) */}
+          <div className="hidden md:flex items-center gap-3 shrink-0 self-end">
+            <button
+              type="button"
+              onClick={handleScrollLeft}
+              className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
+              aria-label="Previous university"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button
+              type="button"
+              onClick={handleScrollRight}
+              className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
+              aria-label="Next university"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
-        {/* UNIVERSITY PARTNERS RESPONSIVE GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        {/* UNIVERSITY PARTNERS HORIZONTAL CAROUSEL / RESPONSIVE GRID */}
+        <div
+          ref={carouselRef}
+          className="flex md:flex-row flex-col gap-6 sm:gap-8 md:overflow-x-auto md:pb-8 md:pt-2 scrollbar-none snap-x snap-mandatory"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
           {partnerUniversities.map((univ) => (
             <div
               key={univ.id}
               ref={addCardRef}
-              onMouseEnter={handleCardMouseEnter}
-              onMouseLeave={handleCardMouseLeave}
-              className="bg-[#112D53]/60 backdrop-blur-sm border border-white/10 rounded-[12px] p-6 relative overflow-hidden flex flex-col justify-between cursor-pointer transition-colors group"
+              className="w-full md:w-[310px] lg:w-[330px] xl:w-[340px] shrink-0 snap-start bg-white/5 border border-white/15 backdrop-blur-md rounded-[24px] p-7 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-300 group hover:border-[#C9A84C] hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(201,168,76,0.15)] relative overflow-hidden"
             >
-              <div className="gold-card-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#C9A84C] scale-x-0 transform-origin-left pointer-events-none" />
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C9A84C]/20 to-transparent rounded-tr-[24px] pointer-events-none" />
 
               <div>
-                <div className="flex items-center justify-between mb-5">
-                  <div className="univ-icon-box w-12 h-12 rounded-xl bg-[#C9A84C]/15 text-[#C9A84C] flex items-center justify-center transition-colors">
+                {/* Header Icon + Country Badge */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-[#C9A84C]/20 text-[#C9A84C] group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] flex items-center justify-center transition-colors shadow-md">
                     <Building2 className="w-6 h-6" />
                   </div>
-                  <span className="text-[11px] font-semibold text-[#DFBE7A] bg-white/5 border border-white/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[#DFBE7A] bg-white/10 border border-white/20 px-3 py-1 rounded-full uppercase tracking-wider">
                     {univ.country}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-2 leading-snug group-hover:text-[#DFBE7A] transition-colors">
+                {/* University Name */}
+                <h3 className="text-xl font-bold text-white mb-2 leading-snug group-hover:text-[#DFBE7A] transition-colors">
                   {univ.name}
                 </h3>
 
-                <div className="flex items-center gap-1.5 text-xs text-gray-300 mb-4 font-normal">
+                {/* Location */}
+                <div className="flex items-center gap-2 text-xs text-gray-300 mb-6 font-normal">
                   <MapPin className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
                   <span className="truncate">{univ.location}</span>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-medium text-gray-300">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
-                <span className="truncate">{univ.tag}</span>
+              {/* Ranking & Highlight Tags */}
+              <div className="pt-4 border-t border-white/10 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-gray-200">
+                  <Award className="w-4 h-4 text-[#C9A84C] shrink-0" />
+                  <span className="truncate">{univ.tag}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[11px] font-medium text-gray-400">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A84C]/80 shrink-0" />
+                  <span className="truncate">{univ.ranking}</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         {/* CENTERED CTA BUTTON */}
-        <div ref={ctaRef} className="text-center">
+        <div className="text-center mt-12 sm:mt-16">
           <button
             type="button"
             onClick={onViewAllUniversities}
-            onMouseEnter={handleCtaMouseEnter}
-            onMouseLeave={handleCtaMouseLeave}
-            className="inline-flex items-center gap-2.5 bg-[#C9A84C] text-[#0B1F3A] font-bold text-base py-3.5 px-8 rounded-lg cursor-pointer transition-all shadow-md"
+            className="inline-flex items-center gap-3 bg-[#C9A84C] text-[#0B1F3A] hover:bg-white hover:text-[#0B1F3A] font-extrabold text-base py-4 px-9 rounded-2xl cursor-pointer transition-all duration-300 shadow-xl hover:shadow-2xl group border border-[#C9A84C]"
           >
             <span>View All Universities</span>
-            <ArrowRight className="w-4 h-4 text-[#0B1F3A]" />
+            <ArrowRight className="w-5 h-5 text-[#0B1F3A] group-hover:translate-x-1.5 transition-transform duration-300" />
           </button>
         </div>
 
