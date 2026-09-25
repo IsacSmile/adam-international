@@ -85,6 +85,8 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     }
   };
 
+  const isHoveredRef = useRef(false);
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Entrance animation for university cards
@@ -108,7 +110,32 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
       }
     }, sectionRef);
 
-    return () => ctx.revert();
+    // Continuous 60fps Auto-Scroll Loop with Pause on Hover
+    let animationFrameId;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    if (!isMobile) {
+      const autoScroll = () => {
+        if (carouselRef.current && !isHoveredRef.current) {
+          const el = carouselRef.current;
+          if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
+            el.scrollLeft = 0; // Reset seamless loop
+          } else {
+            el.scrollLeft += 1.2; // Smooth auto-scroll step
+          }
+        }
+        animationFrameId = requestAnimationFrame(autoScroll);
+      };
+
+      animationFrameId = requestAnimationFrame(autoScroll);
+    }
+
+    return () => {
+      ctx.revert();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, []);
 
   const handleScrollLeft = () => {
@@ -176,9 +203,11 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
           </div>
         </div>
 
-        {/* UNIVERSITY PARTNERS HORIZONTAL CAROUSEL / RESPONSIVE GRID */}
+        {/* UNIVERSITY PARTNERS HORIZONTAL CAROUSEL WITH AUTO-SCROLL */}
         <div
           ref={carouselRef}
+          onMouseEnter={() => { isHoveredRef.current = true; }}
+          onMouseLeave={() => { isHoveredRef.current = false; }}
           className="flex md:flex-row flex-col gap-6 sm:gap-8 md:overflow-x-auto md:pb-8 md:pt-2 scrollbar-none snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
