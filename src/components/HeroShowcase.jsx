@@ -230,10 +230,10 @@ export default function HeroShowcase({ onBookAppointment }) {
   };
 
   return (
-    <main id="home" ref={heroRef} className="relative bg-[#0B1F3A] overflow-hidden">
+    <main id="home" ref={heroRef} className="relative bg-[#0B1F3A] overflow-hidden lg:h-[calc(100vh-72px)] lg:min-h-[640px] flex flex-col justify-between">
       
       {/* 1. CINEMATIC HERO SECTION */}
-      <div className="relative min-h-[560px] sm:min-h-[640px] lg:min-h-[720px] flex items-center pt-16 sm:pt-20 lg:pt-24 pb-24 lg:pb-32 px-5 sm:px-8 lg:px-12 overflow-hidden">
+      <div className="relative flex-1 flex items-center pt-8 sm:pt-12 lg:pt-6 pb-6 lg:pb-2 px-5 sm:px-8 lg:px-12 overflow-hidden">
         
         {/* Background Image & Balanced Gradient Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -251,21 +251,21 @@ export default function HeroShowcase({ onBookAppointment }) {
           <div className="lg:hidden absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/80 to-[#0B1F3A]/40 z-10 pointer-events-none" />
 
           {/* Bottom edge gradient to transition seamlessly into floating stats section */}
-          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#0B1F3A] via-[#0B1F3A]/60 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0B1F3A] via-[#0B1F3A]/60 to-transparent z-10 pointer-events-none" />
           
           {/* Top edge gradient for header contrast */}
           <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#0B1F3A]/80 to-transparent z-10 pointer-events-none" />
         </div>
 
         {/* 2. HERO CONTENT GRID */}
-        <div className="max-w-[1280px] mx-auto w-full relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mt-2">
+        <div className="max-w-[1280px] mx-auto w-full relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* LEFT CONTENT COLUMN */}
           <div className="lg:col-span-7 text-left">
             
             <div
               ref={badgeRef}
-              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-6 backdrop-blur-md shadow-sm"
+              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-4 sm:mb-5 backdrop-blur-md shadow-sm"
             >
               <Award className="w-4 h-4 text-[#C9A84C] shrink-0" />
               <span>Top-Tier Overseas Education Consultancy</span>
@@ -273,7 +273,7 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <h1
               ref={titleRef}
-              className="text-[21px] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[52px] xl:text-6xl font-extrabold text-white tracking-tight leading-[1.14] mb-6 drop-shadow-lg"
+              className="text-[21px] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[44px] xl:text-[52px] font-extrabold text-white tracking-tight leading-[1.12] mb-4 sm:mb-5 drop-shadow-lg"
             >
               <span className="block whitespace-nowrap">Architect Your Academic Future</span>
               <span className="block mt-1">
@@ -283,7 +283,7 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <p
               ref={subtextRef}
-              className="text-sm sm:text-lg lg:text-xl text-gray-100 font-normal leading-relaxed max-w-xl mb-8 sm:mb-10 drop-shadow"
+              className="text-sm sm:text-base lg:text-lg text-gray-100 font-normal leading-relaxed max-w-xl mb-6 sm:mb-7 drop-shadow"
             >
               Unlocking global educational opportunities with end-to-end university admissions, merit scholarship funding, and visa facilitation.
             </p>
@@ -297,7 +297,7 @@ export default function HeroShowcase({ onBookAppointment }) {
                 onClick={onBookAppointment}
                 onMouseEnter={handlePrimaryMouseEnter}
                 onMouseLeave={handlePrimaryMouseLeave}
-                className="inline-flex items-center justify-center gap-2 bg-[#C9A84C] text-[#0B1F3A] font-bold text-sm sm:text-base py-3.5 sm:py-4 px-7 sm:px-8 rounded-xl cursor-pointer transition-all shadow-xl text-center"
+                className="inline-flex items-center justify-center gap-2 bg-[#C9A84C] text-[#0B1F3A] font-bold text-sm sm:text-base py-3 sm:py-3.5 px-6 sm:px-7 rounded-xl cursor-pointer transition-all shadow-xl text-center"
               >
                 <span>Book Free Counseling Session</span>
                 <ArrowRight className="w-4 h-4 text-[#0B1F3A] shrink-0" />
@@ -307,7 +307,7 @@ export default function HeroShowcase({ onBookAppointment }) {
                 href="#countries"
                 onMouseEnter={handleSecondaryMouseEnter}
                 onMouseLeave={handleSecondaryMouseLeave}
-                className="inline-flex items-center justify-center gap-2 bg-white/15 border border-white/50 text-white font-medium text-sm sm:text-base py-3.5 sm:py-4 px-6 sm:px-7 rounded-xl transition-all text-center backdrop-blur-md shadow-sm"
+                className="inline-flex items-center justify-center gap-2 bg-white/15 border border-white/50 text-white font-medium text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-xl transition-all text-center backdrop-blur-md shadow-sm"
               >
                 <span>Explore Top Destinations</span>
                 <ArrowUpRight className="w-4 h-4 shrink-0" />
@@ -317,30 +317,30 @@ export default function HeroShowcase({ onBookAppointment }) {
           </div>
 
           {/* RIGHT COLUMN: FLOATING GLASS CARDS OVER VISIBLE IMAGE (DESKTOP ONLY) */}
-          <div className="hidden lg:flex lg:col-span-5 relative flex-col gap-6 items-end justify-center pointer-events-none pr-4">
+          <div className="hidden lg:flex lg:col-span-5 relative flex-col gap-4 items-end justify-center pointer-events-none pr-4">
             
             <div
               ref={floatingBadge1Ref}
-              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-[#C9A84C]/40 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] pointer-events-auto transform hover:scale-105 transition-transform"
+              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-[#C9A84C]/40 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] pointer-events-auto transform hover:scale-105 transition-transform"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
-                <CheckCircle2 className="w-6 h-6" />
+              <div className="w-11 h-11 rounded-xl bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center shrink-0 shadow-md">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-xl font-extrabold text-white">98.4%</div>
+                <div className="text-lg font-extrabold text-white">98.4%</div>
                 <div className="text-xs text-gray-300 font-medium">Visa Approval Rate</div>
               </div>
             </div>
 
             <div
               ref={floatingBadge2Ref}
-              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-white/20 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] mr-10 pointer-events-auto transform hover:scale-105 transition-transform"
+              className="bg-[#0B1F3A]/85 backdrop-blur-md border border-white/20 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-[270px] mr-8 pointer-events-auto transform hover:scale-105 transition-transform"
             >
-              <div className="w-12 h-12 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
-                <GraduationCap className="w-6 h-6 text-[#DFBE7A]" />
+              <div className="w-11 h-11 rounded-xl bg-white/20 text-[#C9A84C] flex items-center justify-center shrink-0 shadow-md">
+                <GraduationCap className="w-5 h-5 text-[#DFBE7A]" />
               </div>
               <div>
-                <div className="text-xl font-extrabold text-white">450+ Universities</div>
+                <div className="text-lg font-extrabold text-white">450+ Universities</div>
                 <div className="text-xs text-gray-300 font-medium">UK, USA, EU, Canada</div>
               </div>
             </div>
@@ -352,31 +352,31 @@ export default function HeroShowcase({ onBookAppointment }) {
       </div>
 
       {/* 3. FLOATING STATS CARD OVERLAPPING HERO IMAGE WITH GSAP ANIMATED COUNTERS */}
-      <div className="relative z-30 max-w-[1120px] mx-auto px-4 sm:px-6 -mt-12 sm:-mt-20 pb-12">
+      <div className="relative z-30 max-w-[1120px] mx-auto px-4 sm:px-6 w-full pb-4 sm:pb-6 lg:pb-5">
         <div
           ref={statsRef}
-          className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 text-center divide-y-0 sm:divide-x divide-gray-100"
+          className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 sm:p-6 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center divide-y-0 sm:divide-x divide-gray-100"
         >
           <div className="p-2 sm:p-0 border-r border-b sm:border-r-0 sm:border-b-0 border-gray-100">
-            <div ref={stat1Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+            <div ref={stat1Ref} className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
               0+
             </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Students Enrolled</div>
           </div>
           <div className="p-2 sm:p-0 border-b sm:border-b-0 border-gray-100">
-            <div ref={stat2Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+            <div ref={stat2Ref} className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
               0.0%
             </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Visa Success Rate</div>
           </div>
           <div className="p-2 sm:p-0 border-r sm:border-r-0 border-gray-100 pt-3 sm:pt-0">
-            <div ref={stat3Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+            <div ref={stat3Ref} className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
               0+
             </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Partner Universities</div>
           </div>
           <div className="p-2 sm:p-0 pt-3 sm:pt-0">
-            <div ref={stat4Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+            <div ref={stat4Ref} className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
               $0M+
             </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Scholarships Awarded</div>
