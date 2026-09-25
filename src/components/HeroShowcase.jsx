@@ -321,7 +321,7 @@ export default function HeroShowcase({ onBookAppointment }) {
             
             <div
               ref={badgeRef}
-              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-3.5 sm:mb-4 backdrop-blur-md shadow-sm"
+              className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-4 sm:mb-5 lg:mb-6 backdrop-blur-md shadow-sm"
             >
               <Award className="w-4 h-4 text-[#C9A84C] shrink-0" />
               <span>Top-Tier Overseas Education Consultancy</span>
@@ -329,17 +329,17 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <h1
               ref={titleRef}
-              className="text-[22px] xs:text-2xl sm:text-4xl lg:text-[32px] xl:text-[44px] 2xl:text-[50px] font-extrabold text-white tracking-tight leading-[1.18] mb-3.5 sm:mb-4 drop-shadow-lg"
+              className="text-[22px] xs:text-2xl sm:text-4xl lg:text-[34px] xl:text-[44px] 2xl:text-[50px] font-extrabold text-white tracking-normal leading-[1.3] sm:leading-[1.26] lg:leading-[1.24] mb-5 sm:mb-6 lg:mb-7 drop-shadow-lg"
             >
               <span className="block">Architect Your Academic Future</span>
-              <span className="block mt-1">
+              <span className="block mt-2 sm:mt-2.5">
                 With <span className="text-[#C9A84C]">Adam International</span>
               </span>
             </h1>
 
             <p
               ref={subtextRef}
-              className="text-xs sm:text-base lg:text-sm xl:text-lg text-gray-100 font-normal leading-relaxed max-w-lg mb-5 sm:mb-6 drop-shadow"
+              className="text-xs sm:text-base lg:text-sm xl:text-lg text-gray-100 font-normal leading-relaxed max-w-lg mb-6 sm:mb-7 lg:mb-8 drop-shadow"
             >
               Unlocking global educational opportunities with end-to-end university admissions, merit scholarship funding, and visa facilitation.
             </p>
