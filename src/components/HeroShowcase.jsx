@@ -341,7 +341,7 @@ export default function HeroShowcase({ onBookAppointment }) {
         <div className="max-w-[1280px] mx-auto w-full relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* LEFT CONTENT COLUMN */}
-          <div className="lg:col-span-7 text-left max-w-[580px] xl:max-w-[650px]">
+          <div className="lg:col-span-7 xl:col-span-7 text-left max-w-[580px] lg:max-w-none xl:max-w-[650px]">
             
             <div
               ref={badgeRef}
@@ -353,7 +353,7 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <h1
               ref={titleRef}
-              className="text-[22px] xs:text-2xl sm:text-4xl lg:text-[34px] xl:text-[44px] 2xl:text-[50px] font-extrabold text-white tracking-tight leading-[1.15] mb-3.5 sm:mb-4 drop-shadow-lg"
+              className="text-[22px] xs:text-2xl sm:text-4xl lg:text-[32px] xl:text-[44px] 2xl:text-[50px] font-extrabold text-white tracking-tight leading-[1.18] mb-3.5 sm:mb-4 drop-shadow-lg"
             >
               <span className="block">Architect Your Academic Future</span>
               <span className="block mt-1">
@@ -363,23 +363,23 @@ export default function HeroShowcase({ onBookAppointment }) {
 
             <p
               ref={subtextRef}
-              className="text-xs sm:text-base lg:text-base xl:text-lg text-gray-100 font-normal leading-relaxed max-w-lg mb-5 sm:mb-6 drop-shadow"
+              className="text-xs sm:text-base lg:text-sm xl:text-lg text-gray-100 font-normal leading-relaxed max-w-lg mb-5 sm:mb-6 drop-shadow"
             >
               Unlocking global educational opportunities with end-to-end university admissions, merit scholarship funding, and visa facilitation.
             </p>
 
             <div
               ref={buttonsRef}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 max-w-md sm:max-w-none"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center flex-wrap xl:flex-nowrap gap-3 sm:gap-3.5 lg:gap-3 xl:gap-4 max-w-md sm:max-w-none"
             >
               <button
                 type="button"
                 onClick={onBookAppointment}
                 onMouseEnter={handlePrimaryMouseEnter}
                 onMouseLeave={handlePrimaryMouseLeave}
-                className="inline-flex items-center justify-center gap-2 bg-[#C9A84C] text-[#0B1F3A] font-bold text-sm sm:text-base py-3 sm:py-3.5 px-6 sm:px-7 rounded-xl cursor-pointer transition-all shadow-xl text-center"
+                className="inline-flex items-center justify-center gap-2 bg-[#C9A84C] text-[#0B1F3A] font-bold text-xs sm:text-sm lg:text-xs xl:text-base py-3 sm:py-3.5 px-4 sm:px-5 lg:px-3.5 xl:px-7 rounded-xl cursor-pointer transition-all shadow-xl text-center whitespace-nowrap shrink-0"
               >
-                <span>Book Free Counseling Session</span>
+                <span className="whitespace-nowrap select-none">Book Free Counseling Session</span>
                 <ArrowRight className="w-4 h-4 text-[#0B1F3A] shrink-0" />
               </button>
 
@@ -387,9 +387,9 @@ export default function HeroShowcase({ onBookAppointment }) {
                 href="#countries"
                 onMouseEnter={handleSecondaryMouseEnter}
                 onMouseLeave={handleSecondaryMouseLeave}
-                className="inline-flex items-center justify-center gap-2 bg-white/15 border border-white/50 text-white font-medium text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-xl transition-all text-center backdrop-blur-md shadow-sm"
+                className="inline-flex items-center justify-center gap-2 bg-white/15 border border-white/50 text-white font-medium text-xs sm:text-sm lg:text-xs xl:text-base py-3 sm:py-3.5 px-4 sm:px-5 lg:px-3.5 xl:px-6 rounded-xl transition-all text-center backdrop-blur-md shadow-sm whitespace-nowrap shrink-0"
               >
-                <span>Explore Top Destinations</span>
+                <span className="whitespace-nowrap select-none">Explore Top Destinations</span>
                 <ArrowUpRight className="w-4 h-4 shrink-0" />
               </a>
             </div>

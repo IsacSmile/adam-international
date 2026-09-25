@@ -260,7 +260,7 @@ export default function Header({ onBookAppointment }) {
               2. DESKTOP NAVIGATION
              ========================================================================== */}
           <nav className="hidden lg:flex items-center h-full" aria-label="Desktop Navigation">
-            <ul className="flex items-center gap-7 lg:gap-9 h-full">
+            <ul className="flex items-center gap-4 lg:gap-5 xl:gap-8 h-full">
               {navLinks.map((link, idx) => {
                 const isDropdown = !!link.dropdown;
 
