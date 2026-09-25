@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, Calendar, GraduationCap } from 'lucide-react';
 
 export default function AppointmentModal({ isOpen, onClose }) {
@@ -10,6 +10,22 @@ export default function AppointmentModal({ isOpen, onClose }) {
     country: 'United Kingdom',
     studyLevel: 'Master\'s Degree',
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
