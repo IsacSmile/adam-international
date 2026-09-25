@@ -27,6 +27,12 @@ export default function HeroShowcase({ onBookAppointment }) {
   const floatingBadge1Ref = useRef(null);
   const floatingBadge2Ref = useRef(null);
 
+  // Counter Refs for GSAP Count-Up Animation
+  const stat1Ref = useRef(null);
+  const stat2Ref = useRef(null);
+  const stat3Ref = useRef(null);
+  const stat4Ref = useRef(null);
+
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
 
@@ -74,7 +80,77 @@ export default function HeroShowcase({ onBookAppointment }) {
           '-=0.2'
         );
 
-      // 2. Parallax Scrub on Background Image for Desktop
+      // 2. GSAP COUNT-UP ANIMATION FOR METRIC NUMBERS FROM ZERO
+      const count1Obj = { val: 0 };
+      const count2Obj = { val: 0 };
+      const count3Obj = { val: 0 };
+      const count4Obj = { val: 0 };
+
+      // Metric 1: Students Enrolled (0 -> 12,500+)
+      gsap.to(count1Obj, {
+        val: 12500,
+        duration: 2.2,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: 'top 90%',
+        },
+        onUpdate: () => {
+          if (stat1Ref.current) {
+            stat1Ref.current.innerText = Math.floor(count1Obj.val).toLocaleString() + '+';
+          }
+        },
+      });
+
+      // Metric 2: Visa Success Rate (0.0% -> 98.4%)
+      gsap.to(count2Obj, {
+        val: 98.4,
+        duration: 2.2,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: 'top 90%',
+        },
+        onUpdate: () => {
+          if (stat2Ref.current) {
+            stat2Ref.current.innerText = count2Obj.val.toFixed(1) + '%';
+          }
+        },
+      });
+
+      // Metric 3: Partner Universities (0 -> 450+)
+      gsap.to(count3Obj, {
+        val: 450,
+        duration: 2.2,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: 'top 90%',
+        },
+        onUpdate: () => {
+          if (stat3Ref.current) {
+            stat3Ref.current.innerText = Math.floor(count3Obj.val) + '+';
+          }
+        },
+      });
+
+      // Metric 4: Scholarships Awarded ($0M+ -> $15M+)
+      gsap.to(count4Obj, {
+        val: 15,
+        duration: 2.2,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: 'top 90%',
+        },
+        onUpdate: () => {
+          if (stat4Ref.current) {
+            stat4Ref.current.innerText = '$' + Math.floor(count4Obj.val) + 'M+';
+          }
+        },
+      });
+
+      // 3. Parallax Scrub on Background Image for Desktop
       if (bgImgRef.current && !isMobile) {
         gsap.to(bgImgRef.current, {
           yPercent: 12,
@@ -88,7 +164,7 @@ export default function HeroShowcase({ onBookAppointment }) {
         });
       }
 
-      // 3. Floating badges subtle idle floating animation
+      // 4. Floating badges subtle idle floating animation
       if (!isMobile) {
         gsap.to(floatingBadge1Ref.current, {
           y: -8,
@@ -156,7 +232,7 @@ export default function HeroShowcase({ onBookAppointment }) {
   return (
     <main id="home" ref={heroRef} className="relative bg-[#0B1F3A] overflow-hidden">
       
-      {/* 1. CINEMATIC HERO SECTION WITH AMPLE TOP PADDING & VIBRANT GRADUATE BACKGROUND */}
+      {/* 1. CINEMATIC HERO SECTION */}
       <div className="relative min-h-[560px] sm:min-h-[640px] lg:min-h-[720px] flex items-center pt-16 sm:pt-20 lg:pt-24 pb-24 lg:pb-32 px-5 sm:px-8 lg:px-12 overflow-hidden">
         
         {/* Background Image & Balanced Gradient Overlay */}
@@ -168,9 +244,7 @@ export default function HeroShowcase({ onBookAppointment }) {
             className="w-full h-full object-cover object-center lg:object-right-top will-change-transform brightness-[0.92] contrast-[1.05]"
           />
           
-          {/* Left Gradient Overlay: Solid Dark Navy on Left for Text, Clear Transparency on Right for Image */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] via-[#0B1F3A]/85 sm:via-[#0B1F3A]/75 to-transparent z-10" />
-          {/* Bottom Gradient Overlay for Smooth Transition */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A] via-transparent to-transparent z-10 opacity-75" />
         </div>
 
@@ -180,7 +254,6 @@ export default function HeroShowcase({ onBookAppointment }) {
           {/* LEFT CONTENT COLUMN */}
           <div className="lg:col-span-7 text-left">
             
-            {/* Gold Pill Badge (Ample top margin & clean padding) */}
             <div
               ref={badgeRef}
               className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-3.5 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[#DFBE7A] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-6 backdrop-blur-md shadow-sm"
@@ -189,7 +262,6 @@ export default function HeroShowcase({ onBookAppointment }) {
               <span>Top-Tier Overseas Education Consultancy</span>
             </div>
 
-            {/* Large Bold Headline */}
             <h1
               ref={titleRef}
               className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.14] mb-6 drop-shadow-lg"
@@ -198,7 +270,6 @@ export default function HeroShowcase({ onBookAppointment }) {
               With <span className="text-[#C9A84C]">Adam International</span>
             </h1>
 
-            {/* Supporting Paragraph */}
             <p
               ref={subtextRef}
               className="text-sm sm:text-lg lg:text-xl text-gray-100 font-normal leading-relaxed max-w-xl mb-8 sm:mb-10 drop-shadow"
@@ -206,12 +277,10 @@ export default function HeroShowcase({ onBookAppointment }) {
               Unlocking global educational opportunities with end-to-end university admissions, merit scholarship funding, and visa facilitation.
             </p>
 
-            {/* Two Action Buttons */}
             <div
               ref={buttonsRef}
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 max-w-md sm:max-w-none"
             >
-              {/* Primary Gold CTA */}
               <button
                 type="button"
                 onClick={onBookAppointment}
@@ -223,7 +292,6 @@ export default function HeroShowcase({ onBookAppointment }) {
                 <ArrowRight className="w-4 h-4 text-[#0B1F3A] shrink-0" />
               </button>
 
-              {/* Secondary Outline CTA */}
               <a
                 href="#countries"
                 onMouseEnter={handleSecondaryMouseEnter}
@@ -240,7 +308,6 @@ export default function HeroShowcase({ onBookAppointment }) {
           {/* RIGHT COLUMN: FLOATING GLASS CARDS OVER VISIBLE IMAGE (DESKTOP ONLY) */}
           <div className="hidden lg:flex lg:col-span-5 relative flex-col gap-6 items-end justify-center pointer-events-none pr-4">
             
-            {/* Floating Card 1: Visa Approval Rate */}
             <div
               ref={floatingBadge1Ref}
               className="bg-[#0B1F3A]/85 backdrop-blur-md border border-[#C9A84C]/40 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] pointer-events-auto transform hover:scale-105 transition-transform"
@@ -254,7 +321,6 @@ export default function HeroShowcase({ onBookAppointment }) {
               </div>
             </div>
 
-            {/* Floating Card 2: Partner Universities */}
             <div
               ref={floatingBadge2Ref}
               className="bg-[#0B1F3A]/85 backdrop-blur-md border border-white/20 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[280px] mr-10 pointer-events-auto transform hover:scale-105 transition-transform"
@@ -274,26 +340,34 @@ export default function HeroShowcase({ onBookAppointment }) {
 
       </div>
 
-      {/* 3. FLOATING STATS CARD OVERLAPPING HERO IMAGE */}
+      {/* 3. FLOATING STATS CARD OVERLAPPING HERO IMAGE WITH GSAP ANIMATED COUNTERS */}
       <div className="relative z-30 max-w-[1120px] mx-auto px-4 sm:px-6 -mt-12 sm:-mt-20 pb-12">
         <div
           ref={statsRef}
           className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 text-center divide-y-0 sm:divide-x divide-gray-100"
         >
           <div className="p-2 sm:p-0 border-r border-b sm:border-r-0 sm:border-b-0 border-gray-100">
-            <div className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">12,500+</div>
+            <div ref={stat1Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+              0+
+            </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Students Enrolled</div>
           </div>
           <div className="p-2 sm:p-0 border-b sm:border-b-0 border-gray-100">
-            <div className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">98.4%</div>
+            <div ref={stat2Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+              0.0%
+            </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Visa Success Rate</div>
           </div>
           <div className="p-2 sm:p-0 border-r sm:border-r-0 border-gray-100 pt-3 sm:pt-0">
-            <div className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">450+</div>
+            <div ref={stat3Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+              0+
+            </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Partner Universities</div>
           </div>
           <div className="p-2 sm:p-0 pt-3 sm:pt-0">
-            <div className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">$15M+</div>
+            <div ref={stat4Ref} className="text-2xl sm:text-4xl font-extrabold text-[#0B1F3A] tracking-tight">
+              $0M+
+            </div>
             <div className="text-xs sm:text-sm text-gray-500 font-semibold mt-1">Scholarships Awarded</div>
           </div>
         </div>
