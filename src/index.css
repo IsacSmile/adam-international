@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations & keyframes */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* Accessibility focus styles */
+:focus-visible {
+  outline: 2px solid #C9A84C;
+  outline-offset: 2px;
+}
