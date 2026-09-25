@@ -158,21 +158,21 @@ export default function WhyChooseUsSection({ onConsultClick }) {
     <section
       id="why-us"
       ref={sectionRef}
-      className="bg-[#F8FAFC] py-24 sm:py-32 lg:py-36 px-6 sm:px-10 lg:px-14 relative overflow-hidden border-t border-b border-slate-200/80"
+      className="bg-[#F8FAFC] py-24 sm:py-32 lg:py-36 px-6 sm:px-10 lg:px-14 relative overflow-x-clip border-t border-b border-slate-200/80"
     >
       {/* Soft Ambient Glow Accents */}
       <div className="absolute top-0 right-0 w-[650px] h-[650px] bg-gradient-to-br from-[#C9A84C]/10 via-[#0B1F3A]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-[#0B1F3A]/8 via-[#C9A84C]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1280px] mx-auto relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 xl:gap-24 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 xl:gap-24 items-start relative">
           
           {/* ==========================================================================
               LEFT COLUMN (40%): Sticky Pinned Content Area
              ========================================================================== */}
           <div
             ref={leftStickyRef}
-            className="lg:col-span-5 lg:sticky lg:top-24 text-left space-y-8 lg:space-y-9 self-start"
+            className="lg:col-span-5 lg:sticky lg:top-28 text-left space-y-8 lg:space-y-9 self-start"
           >
             {/* Small Gold Pill Badge */}
             <div>
