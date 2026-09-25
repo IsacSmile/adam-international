@@ -112,23 +112,20 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
 
     // Continuous 60fps Auto-Scroll Loop with Pause on Hover
     let animationFrameId;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-    if (!isMobile) {
-      const autoScroll = () => {
-        if (carouselRef.current && !isHoveredRef.current) {
-          const el = carouselRef.current;
-          if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
-            el.scrollLeft = 0; // Reset seamless loop
-          } else {
-            el.scrollLeft += 1.2; // Smooth auto-scroll step
-          }
+    const autoScroll = () => {
+      if (carouselRef.current && !isHoveredRef.current) {
+        const el = carouselRef.current;
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 4) {
+          el.scrollLeft = 0; // Reset seamless loop
+        } else {
+          el.scrollLeft += 1.5; // Smooth 60fps auto-scroll step
         }
-        animationFrameId = requestAnimationFrame(autoScroll);
-      };
-
+      }
       animationFrameId = requestAnimationFrame(autoScroll);
-    }
+    };
+
+    animationFrameId = requestAnimationFrame(autoScroll);
 
     return () => {
       ctx.revert();
@@ -182,23 +179,23 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
             </p>
           </div>
 
-          {/* Slider Controls (Desktop Only) */}
-          <div className="hidden md:flex items-center gap-3 shrink-0 self-end">
+          {/* Slider Controls */}
+          <div className="flex items-center gap-3 shrink-0 self-end">
             <button
               type="button"
               onClick={handleScrollLeft}
-              className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
               aria-label="Previous university"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
             <button
               type="button"
               onClick={handleScrollRight}
-              className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-[#C9A84C] hover:text-[#0B1F3A] hover:border-[#C9A84C] flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer backdrop-blur-md"
               aria-label="Next university"
             >
-              <ChevronRight className="w-6 h-6" />
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>
@@ -208,14 +205,16 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
           ref={carouselRef}
           onMouseEnter={() => { isHoveredRef.current = true; }}
           onMouseLeave={() => { isHoveredRef.current = false; }}
-          className="flex md:flex-row flex-col gap-6 sm:gap-8 md:overflow-x-auto md:pb-8 md:pt-2 scrollbar-none snap-x snap-mandatory"
+          onTouchStart={() => { isHoveredRef.current = true; }}
+          onTouchEnd={() => { isHoveredRef.current = false; }}
+          className="flex flex-row overflow-x-auto pb-8 pt-2 gap-5 sm:gap-7 scrollbar-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {partnerUniversities.map((univ) => (
             <div
               key={univ.id}
               ref={addCardRef}
-              className="w-full md:w-[310px] lg:w-[330px] xl:w-[340px] shrink-0 snap-start bg-white/5 border border-white/15 backdrop-blur-md rounded-[24px] p-7 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-300 group hover:border-[#C9A84C] hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(201,168,76,0.15)] relative overflow-hidden"
+              className="w-[280px] sm:w-[310px] lg:w-[330px] shrink-0 bg-white/5 border border-white/15 backdrop-blur-md rounded-[24px] p-6 sm:p-8 flex flex-col justify-between cursor-pointer transition-all duration-300 group hover:border-[#C9A84C] hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(201,168,76,0.15)] relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C9A84C]/20 to-transparent rounded-tr-[24px] pointer-events-none" />
 
