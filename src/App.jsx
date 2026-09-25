@@ -3,6 +3,7 @@ import Header from './components/Header';
 import HeroShowcase from './components/HeroShowcase';
 import ServicesSection from './components/ServicesSection';
 import UniversityPartnersSection from './components/UniversityPartnersSection';
+import VisaSuccessSection from './components/VisaSuccessSection';
 import AppointmentModal from './components/AppointmentModal';
 
 export default function App() {
@@ -29,6 +30,9 @@ export default function App() {
 
       {/* University Partners Section */}
       <UniversityPartnersSection onViewAllUniversities={handleOpenModal} />
+
+      {/* Visa Success Stories Section */}
+      <VisaSuccessSection onViewAllStories={handleOpenModal} />
 
       {/* Appointment Consultation Modal */}
       <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
