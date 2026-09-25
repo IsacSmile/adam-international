@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import SmoothScroll from './components/SmoothScroll';
 import Header from './components/Header';
-import HeroShowcase from './components/HeroShowcase';
-import WhyChooseUsSection from './components/WhyChooseUsSection';
-import ServicesSection from './components/ServicesSection';
-import UniversityPartnersSection from './components/UniversityPartnersSection';
-import VisaSuccessSection from './components/VisaSuccessSection';
-import TestimonialsSection from './components/TestimonialsSection';
-import FinalCtaBanner from './components/FinalCtaBanner';
-import Footer from './components/Footer';
-import AppointmentModal from './components/AppointmentModal';
+import SectionSkeleton from './components/SectionSkeleton';
+
+const HeroShowcase = lazy(() => import('./components/HeroShowcase'));
+const WhyChooseUsSection = lazy(() => import('./components/WhyChooseUsSection'));
+const ServicesSection = lazy(() => import('./components/ServicesSection'));
+const UniversityPartnersSection = lazy(() => import('./components/UniversityPartnersSection'));
+const VisaSuccessSection = lazy(() => import('./components/VisaSuccessSection'));
+const TestimonialsSection = lazy(() => import('./components/TestimonialsSection'));
+const FinalCtaBanner = lazy(() => import('./components/FinalCtaBanner'));
+const Footer = lazy(() => import('./components/Footer'));
+const AppointmentModal = lazy(() => import('./components/AppointmentModal'));
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,31 +45,49 @@ export default function App() {
         <Header onBookAppointment={handleOpenModal} />
 
         {/* Hero Showcase Content with Parallax Glow */}
-        <HeroShowcase onBookAppointment={handleOpenModal} />
+        <Suspense fallback={<SectionSkeleton type="hero" />}>
+          <HeroShowcase onBookAppointment={handleOpenModal} />
+        </Suspense>
 
         {/* Why Choose Adam International Section */}
-        <WhyChooseUsSection onConsultClick={handleOpenModal} />
+        <Suspense fallback={<SectionSkeleton type="cards" />}>
+          <WhyChooseUsSection onConsultClick={handleOpenModal} />
+        </Suspense>
 
         {/* Corporate Services Section */}
-        <ServicesSection onSelectService={handleOpenModal} />
+        <Suspense fallback={<SectionSkeleton type="cards" />}>
+          <ServicesSection onSelectService={handleOpenModal} />
+        </Suspense>
 
         {/* University Partners Section with Dark Glow Parallax */}
-        <UniversityPartnersSection onViewAllUniversities={handleOpenModal} />
+        <Suspense fallback={<SectionSkeleton type="dark" />}>
+          <UniversityPartnersSection onViewAllUniversities={handleOpenModal} />
+        </Suspense>
 
         {/* Visa Success Stories Section */}
-        <VisaSuccessSection onViewAllStories={handleOpenModal} />
+        <Suspense fallback={<SectionSkeleton type="visa" />}>
+          <VisaSuccessSection onViewAllStories={handleOpenModal} />
+        </Suspense>
 
         {/* Testimonials Section */}
-        <TestimonialsSection />
+        <Suspense fallback={<SectionSkeleton type="cards" />}>
+          <TestimonialsSection />
+        </Suspense>
 
         {/* Conversion-Focused Final CTA Banner */}
-        <FinalCtaBanner onBookCounseling={handleOpenModal} />
+        <Suspense fallback={<SectionSkeleton type="cards" />}>
+          <FinalCtaBanner onBookCounseling={handleOpenModal} />
+        </Suspense>
 
         {/* Professional Footer Component */}
-        <Footer onOpenModal={handleOpenModal} />
+        <Suspense fallback={<SectionSkeleton type="dark" />}>
+          <Footer onOpenModal={handleOpenModal} />
+        </Suspense>
 
         {/* Appointment Consultation Modal */}
-        <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
+        <Suspense fallback={null}>
+          <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
+        </Suspense>
       </div>
     </SmoothScroll>
   );
