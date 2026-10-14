@@ -1,22 +1,30 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import SmoothScroll from './components/SmoothScroll';
-import Header from './components/Header';
+import { AppointmentProvider } from './context/AppointmentContext';
+import MainLayout from './layouts/MainLayout';
 import SectionSkeleton from './components/SectionSkeleton';
 
-const HeroShowcase = lazy(() => import('./components/HeroShowcase'));
-const WhyChooseUsSection = lazy(() => import('./components/WhyChooseUsSection'));
-const ServicesSection = lazy(() => import('./components/ServicesSection'));
-const UniversityPartnersSection = lazy(() => import('./components/UniversityPartnersSection'));
-const VisaSuccessSection = lazy(() => import('./components/VisaSuccessSection'));
-const TestimonialsSection = lazy(() => import('./components/TestimonialsSection'));
-const FinalCtaBanner = lazy(() => import('./components/FinalCtaBanner'));
-const Footer = lazy(() => import('./components/Footer'));
-const AppointmentModal = lazy(() => import('./components/AppointmentModal'));
+const HomePage = lazy(() => import('./pages/HomePage'));
+const CountriesPage = lazy(() => import('./pages/CountriesPage'));
+const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'));
+const UniversitiesPage = lazy(() => import('./pages/UniversitiesPage'));
+const UniversityDetailPage = lazy(() => import('./pages/UniversityDetailPage'));
+const SuccessStoriesPage = lazy(() => import('./pages/SuccessStoriesPage'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+
+// Admin routes lazy-loaded outside public bundle
+const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
+const AdminRoute = lazy(() => import('./components/admin/AdminRoute'));
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
 
 export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   useEffect(() => {
+    // Preserve mobile pinch-zoom locking
     const handleGesture = (e) => {
       e.preventDefault();
     };
@@ -30,65 +38,42 @@ export default function App() {
     };
   }, []);
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
   return (
-    <SmoothScroll>
-      <div className="min-h-screen bg-white font-sans text-brandText antialiased">
-        {/* GSAP & Tailwind Powered Sticky Header */}
-        <Header onBookAppointment={handleOpenModal} />
+    <HelmetProvider>
+      <BrowserRouter>
+        <SmoothScroll>
+          <AppointmentProvider>
+            <Suspense fallback={<SectionSkeleton type="cards" />}>
+              <Routes>
+                {/* Admin routes (outside MainLayout - no public header or footer) */}
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboardPage />
+                    </AdminRoute>
+                  }
+                />
 
-        {/* Hero Showcase Content with Parallax Glow */}
-        <Suspense fallback={<SectionSkeleton type="hero" />}>
-          <HeroShowcase onBookAppointment={handleOpenModal} />
-        </Suspense>
-
-        {/* Why Choose Adam International Section */}
-        <Suspense fallback={<SectionSkeleton type="cards" />}>
-          <WhyChooseUsSection onConsultClick={handleOpenModal} />
-        </Suspense>
-
-        {/* Corporate Services Section */}
-        <Suspense fallback={<SectionSkeleton type="cards" />}>
-          <ServicesSection onSelectService={handleOpenModal} />
-        </Suspense>
-
-        {/* University Partners Section with Dark Glow Parallax */}
-        <Suspense fallback={<SectionSkeleton type="dark" />}>
-          <UniversityPartnersSection onViewAllUniversities={handleOpenModal} />
-        </Suspense>
-
-        {/* Visa Success Stories Section */}
-        <Suspense fallback={<SectionSkeleton type="visa" />}>
-          <VisaSuccessSection onViewAllStories={handleOpenModal} />
-        </Suspense>
-
-        {/* Testimonials Section */}
-        <Suspense fallback={<SectionSkeleton type="cards" />}>
-          <TestimonialsSection />
-        </Suspense>
-
-        {/* Conversion-Focused Final CTA Banner */}
-        <Suspense fallback={<SectionSkeleton type="cards" />}>
-          <FinalCtaBanner onBookCounseling={handleOpenModal} />
-        </Suspense>
-
-        {/* Professional Footer Component */}
-        <Suspense fallback={<SectionSkeleton type="dark" />}>
-          <Footer onOpenModal={handleOpenModal} />
-        </Suspense>
-
-        {/* Appointment Consultation Modal */}
-        <Suspense fallback={null}>
-          <AppointmentModal isOpen={isModalOpen} onClose={handleCloseModal} />
-        </Suspense>
-      </div>
-    </SmoothScroll>
+                {/* Public site routes inside MainLayout */}
+                <Route path="/" element={<MainLayout />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="countries" element={<CountriesPage />} />
+                  <Route path="services" element={<ServicesPage />} />
+                  <Route path="services/:slug" element={<ServiceDetailPage />} />
+                  <Route path="universities" element={<UniversitiesPage />} />
+                  <Route path="universities/:slug" element={<UniversityDetailPage />} />
+                  <Route path="success-stories" element={<SuccessStoriesPage />} />
+                  <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+                  <Route path="terms" element={<TermsPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </AppointmentProvider>
+        </SmoothScroll>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }

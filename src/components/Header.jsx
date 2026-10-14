@@ -1,31 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ChevronDown, Menu, X, ArrowRight, Sparkles, Phone, MessageSquare, Mail, GraduationCap } from 'lucide-react';
+import {
+  ChevronDown,
+  Menu,
+  X,
+  ArrowRight,
+  Sparkles,
+  Phone,
+  MessageSquare,
+  Mail,
+  GraduationCap,
+  Compass,
+  BookOpenCheck,
+  Wallet,
+  FileCheck2,
+  Plane,
+  Luggage,
+} from 'lucide-react';
+import { services } from '../data/services';
+import { useAppointment } from '../context/AppointmentContext';
 
 // Register GSAP Plugins safely
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+const iconMap = {
+  Compass,
+  GraduationCap,
+  BookOpenCheck,
+  Wallet,
+  FileCheck2,
+  Plane,
+  Luggage,
+};
+
 const navLinks = [
-  { name: 'Home', href: '#home', active: true },
-  { name: 'About Us', href: '#about' },
-  { 
-    name: 'Services', 
-    href: '#services',
-    dropdown: [
-      { name: 'University Admissions', href: '#university-admissions', badge: 'Popular' },
-      { name: 'Visa & Immigration Support', href: '#visa-assistance' },
-      { name: 'Scholarship Guidance', href: '#scholarships' },
-      { name: 'IELTS / PTE Test Prep', href: '#test-prep' },
-      { name: 'Career & Course Mapping', href: '#career-counseling' },
-    ]
+  { name: 'Home', href: '/' },
+  { name: 'About Us', href: '/#about' }, // TODO: page not built yet
+  {
+    name: 'Services',
+    href: '/services',
+    isDropdown: true,
   },
-  { name: 'Countries', href: '#countries' },
-  { name: 'Gallery', href: '#gallery' },
-  { name: 'Blog', href: '#blog' },
-  { name: 'Contact Us', href: '#contact' },
+  { name: 'Countries', href: '/countries' },
+  { name: 'Gallery', href: '/#gallery' }, // TODO: page not built yet
+  { name: 'Blog', href: '/#blog' }, // TODO: page not built yet
+  { name: 'Contact Us', href: '/#contact' },
 ];
 
 export default function Header({ onBookAppointment }) {
@@ -34,17 +57,28 @@ export default function Header({ onBookAppointment }) {
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Refs for GSAP scoping
+  const location = useLocation();
+  const { openAppointment } = useAppointment();
+
+  const handleBookAppointment = () => {
+    if (onBookAppointment) {
+      onBookAppointment();
+    } else {
+      openAppointment();
+    }
+  };
+
+  // Refs for GSAP scoping & dropdown outside click
   const headerRef = useRef(null);
   const logoRef = useRef(null);
   const navItemsRef = useRef([]);
   const desktopCtaRef = useRef(null);
   const mobileDrawerRef = useRef(null);
-  const mobileBackdropRef = useRef(null);
   const mobileLinksRef = useRef([]);
   const topBarRef = useRef(null);
   const middleBarRef = useRef(null);
   const bottomBarRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   // Helper to add refs into arrays
   const addNavRef = (el) => {
@@ -59,41 +93,77 @@ export default function Header({ onBookAppointment }) {
     }
   };
 
+  // Close desktop dropdown on Outside Click and Escape key
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setActiveDropdown(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setActiveDropdown(false);
+      }
+    };
+
+    if (activeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeDropdown]);
+
+  // Determine active state based on route
+  const isLinkActive = (link) => {
+    if (link.isDropdown) {
+      return location.pathname.startsWith('/services');
+    }
+    if (link.href === '/') {
+      return location.pathname === '/' && !location.hash;
+    }
+    if (link.href.startsWith('/#')) {
+      const targetHash = link.href.slice(1);
+      return location.pathname === '/' && location.hash === targetHash;
+    }
+    return location.pathname === link.href;
+  };
+
   // ==========================================================================
   // 1. GSAP INITIAL ENTRY ANIMATIONS & SCROLL TRIGGER SHADOW
   // ==========================================================================
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Timeline for Page Load Entrance
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      // 1. Logo fade in
       if (logoRef.current) {
-        tl.fromTo(logoRef.current, 
-          { opacity: 0, x: -15 }, 
+        tl.fromTo(
+          logoRef.current,
+          { opacity: 0, x: -15 },
           { opacity: 1, x: 0, duration: 0.6 }
         );
       }
 
-      // 2. Desktop Nav items stagger from top
       if (navItemsRef.current.length > 0) {
-        tl.fromTo(navItemsRef.current,
+        tl.fromTo(
+          navItemsRef.current,
           { opacity: 0, y: -12 },
           { opacity: 1, y: 0, duration: 0.5, stagger: 0.05 },
           '-=0.4'
         );
       }
 
-      // 3. CTA Button fade in
       if (desktopCtaRef.current) {
-        tl.fromTo(desktopCtaRef.current,
+        tl.fromTo(
+          desktopCtaRef.current,
           { opacity: 0, scale: 0.95 },
           { opacity: 1, scale: 1, duration: 0.4 },
           '-=0.3'
         );
       }
 
-      // ScrollTrigger for smooth Sticky Shadow transition
       ScrollTrigger.create({
         start: 'top -10px',
         onUpdate: (self) => {
@@ -102,9 +172,9 @@ export default function Header({ onBookAppointment }) {
           gsap.to(headerRef.current, {
             boxShadow: scrolled ? '0 4px 20px rgba(11, 31, 58, 0.08)' : '0 0px 0px rgba(0,0,0,0)',
             duration: 0.3,
-            ease: 'power2.out'
+            ease: 'power2.out',
           });
-        }
+        },
       });
     }, headerRef);
 
@@ -117,35 +187,30 @@ export default function Header({ onBookAppointment }) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (isMobileOpen) {
-        // Prevent body scroll
         document.body.style.overflow = 'hidden';
 
-        // Animate Fullscreen Mobile Drawer
         gsap.to(mobileDrawerRef.current, {
           opacity: 1,
           y: '0%',
           visibility: 'visible',
           duration: 0.4,
-          ease: 'power3.out'
+          ease: 'power3.out',
         });
 
-        // Stagger fade-up mobile links
         if (mobileLinksRef.current.length > 0) {
-          gsap.fromTo(mobileLinksRef.current,
+          gsap.fromTo(
+            mobileLinksRef.current,
             { opacity: 0, y: 25 },
             { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out', delay: 0.1 }
           );
         }
 
-        // Hamburger to X morph
         gsap.to(topBarRef.current, { y: 7, rotate: 45, duration: 0.3, ease: 'power2.out' });
         gsap.to(middleBarRef.current, { opacity: 0, duration: 0.2 });
         gsap.to(bottomBarRef.current, { y: -7, rotate: -45, duration: 0.3, ease: 'power2.out' });
-
       } else {
         document.body.style.overflow = '';
 
-        // Slide out Mobile Overlay
         gsap.to(mobileDrawerRef.current, {
           opacity: 0,
           y: '-100%',
@@ -155,10 +220,9 @@ export default function Header({ onBookAppointment }) {
             if (mobileDrawerRef.current) {
               gsap.set(mobileDrawerRef.current, { visibility: 'hidden' });
             }
-          }
+          },
         });
 
-        // Reset Hamburger Icon
         gsap.to(topBarRef.current, { y: 0, rotate: 0, duration: 0.3, ease: 'power2.out' });
         gsap.to(middleBarRef.current, { opacity: 1, duration: 0.2 });
         gsap.to(bottomBarRef.current, { y: 0, rotate: 0, duration: 0.3, ease: 'power2.out' });
@@ -191,7 +255,7 @@ export default function Header({ onBookAppointment }) {
       scale: 1.02,
       boxShadow: '0 6px 16px rgba(11, 31, 58, 0.25)',
       duration: 0.2,
-      ease: 'power2.out'
+      ease: 'power2.out',
     });
   };
 
@@ -202,7 +266,7 @@ export default function Header({ onBookAppointment }) {
       scale: 1,
       boxShadow: '0 2px 6px rgba(11, 31, 58, 0.12)',
       duration: 0.2,
-      ease: 'power2.out'
+      ease: 'power2.out',
     });
   };
 
@@ -215,12 +279,11 @@ export default function Header({ onBookAppointment }) {
         }`}
       >
         <div className="max-w-[1280px] h-[64px] lg:h-[72px] mx-auto px-5 lg:px-8 flex items-center justify-between">
-          
           {/* ==========================================================================
               1. LOGO: Desktop Full Logo, Mobile Circular Badge Only
              ========================================================================== */}
-          <a
-            href="#home"
+          <Link
+            to="/"
             ref={logoRef}
             className="flex items-center group rounded-md outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C9A84C]"
             aria-label="Adam International Study Abroad Home"
@@ -232,56 +295,77 @@ export default function Header({ onBookAppointment }) {
                 className="h-[44px] lg:h-[52px] w-auto max-w-none object-cover object-left block"
               />
             </div>
-          </a>
+          </Link>
 
           {/* ==========================================================================
               2. DESKTOP NAVIGATION
              ========================================================================== */}
           <nav className="hidden lg:flex items-center h-full" aria-label="Desktop Navigation">
             <ul className="flex items-center gap-4 lg:gap-5 xl:gap-8 h-full">
-              {navLinks.map((link, idx) => {
-                const isDropdown = !!link.dropdown;
+              {navLinks.map((link) => {
+                const isDropdown = !!link.isDropdown;
+                const active = isLinkActive(link);
 
                 return (
                   <li
                     key={link.name}
-                    ref={addNavRef}
+                    ref={isDropdown ? dropdownRef : addNavRef}
                     className="relative flex items-center h-full group"
                     onMouseEnter={() => isDropdown && setActiveDropdown(true)}
                     onMouseLeave={() => isDropdown && setActiveDropdown(false)}
                   >
-                    <a
-                      href={link.href}
-                      onMouseEnter={handleMouseEnterUnderline}
-                      onMouseLeave={(e) => handleMouseLeaveUnderline(e, link.active)}
-                      className={`relative flex items-center gap-1.5 h-full text-[15px] font-medium transition-colors duration-200 outline-none ${
-                        link.active ? 'text-[#0B1F3A] font-semibold' : 'text-[#1A1A2E] hover:text-[#0B1F3A]'
-                      }`}
-                      aria-haspopup={isDropdown ? 'true' : undefined}
-                      aria-expanded={isDropdown ? activeDropdown : undefined}
-                    >
-                      <span>{link.name}</span>
+                    {isDropdown ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveDropdown(!activeDropdown)}
+                        onMouseEnter={handleMouseEnterUnderline}
+                        onMouseLeave={(e) => handleMouseLeaveUnderline(e, active)}
+                        className={`relative flex items-center gap-1.5 h-full text-[15px] font-medium transition-colors duration-200 outline-none cursor-pointer bg-transparent border-none ${
+                          active ? 'text-[#0B1F3A] font-semibold' : 'text-[#1A1A2E] hover:text-[#0B1F3A]'
+                        }`}
+                        aria-haspopup="true"
+                        aria-expanded={activeDropdown}
+                      >
+                        <span>{link.name}</span>
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${
+                            activeDropdown ? 'rotate-180 text-[#0B1F3A]' : 'group-hover:rotate-180'
+                          }`}
+                        />
+                        {/* GSAP Underline element */}
+                        <span
+                          className="gsap-underline absolute bottom-[18px] left-0 w-full h-[2px] bg-[#C9A84C] pointer-events-none"
+                          style={{
+                            transform: active ? 'scaleX(1)' : 'scaleX(0)',
+                            transformOrigin: active ? 'left' : 'right',
+                          }}
+                        />
+                      </button>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        onMouseEnter={handleMouseEnterUnderline}
+                        onMouseLeave={(e) => handleMouseLeaveUnderline(e, active)}
+                        className={`relative flex items-center gap-1.5 h-full text-[15px] font-medium transition-colors duration-200 outline-none ${
+                          active ? 'text-[#0B1F3A] font-semibold' : 'text-[#1A1A2E] hover:text-[#0B1F3A]'
+                        }`}
+                      >
+                        <span>{link.name}</span>
+                        {/* GSAP Underline element */}
+                        <span
+                          className="gsap-underline absolute bottom-[18px] left-0 w-full h-[2px] bg-[#C9A84C] pointer-events-none"
+                          style={{
+                            transform: active ? 'scaleX(1)' : 'scaleX(0)',
+                            transformOrigin: active ? 'left' : 'right',
+                          }}
+                        />
+                      </Link>
+                    )}
 
-                      {isDropdown && (
-                        <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${
-                          activeDropdown ? 'rotate-180 text-[#0B1F3A]' : 'group-hover:rotate-180'
-                        }`} />
-                      )}
-
-                      {/* GSAP Underline element */}
-                      <span
-                        className="gsap-underline absolute bottom-[18px] left-0 w-full h-[2px] bg-[#C9A84C] pointer-events-none"
-                        style={{
-                          transform: link.active ? 'scaleX(1)' : 'scaleX(0)',
-                          transformOrigin: link.active ? 'left' : 'right'
-                        }}
-                      />
-                    </a>
-
-                    {/* Services Dropdown Menu */}
+                    {/* Desktop Services Dropdown Menu */}
                     {isDropdown && (
                       <div
-                        className={`absolute top-[calc(100%-8px)] left-1/2 -translate-x-1/2 w-[260px] bg-white border border-gray-200 border-t-[3px] border-t-[#C9A84C] rounded-b-xl shadow-dropdown py-2 transition-all duration-200 z-50 ${
+                        className={`absolute top-[calc(100%-8px)] left-1/2 -translate-x-1/2 w-[310px] bg-white border border-gray-200 border-t-[3px] border-t-[#C9A84C] rounded-b-xl shadow-2xl py-2 transition-all duration-200 z-50 ${
                           activeDropdown
                             ? 'opacity-100 visible translate-y-0'
                             : 'opacity-0 invisible translate-y-2 pointer-events-none'
@@ -289,21 +373,35 @@ export default function Header({ onBookAppointment }) {
                         role="menu"
                         aria-label="Services Submenu"
                       >
-                        {link.dropdown.map((subItem) => (
-                          <a
-                            key={subItem.name}
-                            href={subItem.href}
-                            className="flex items-center justify-between px-4 py-2.5 text-[14px] font-medium text-[#1A1A2E] hover:text-[#0B1F3A] hover:bg-navy-deep/5 transition-colors"
+                        {services.map((service) => {
+                          const IconComponent = iconMap[service.icon] || Compass;
+                          return (
+                            <Link
+                              key={service.slug}
+                              to={`/services/${service.slug}`}
+                              onClick={() => setActiveDropdown(false)}
+                              className="flex items-center gap-3 px-3.5 py-2.5 text-[14px] font-medium text-[#1A1A2E] hover:text-[#0B1F3A] hover:bg-slate-50 transition-colors rounded-lg mx-1"
+                              role="menuitem"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-[#C9A84C]/15 flex items-center justify-center shrink-0">
+                                <IconComponent className="w-4 h-4 text-[#C9A84C]" />
+                              </div>
+                              <span className="truncate">{service.title}</span>
+                            </Link>
+                          );
+                        })}
+
+                        <div className="border-t border-gray-100 mt-1 pt-1.5">
+                          <Link
+                            to="/services"
+                            onClick={() => setActiveDropdown(false)}
+                            className="flex items-center justify-between px-4 py-2 text-[13px] font-bold text-[#0B1F3A] hover:text-[#C9A84C] hover:bg-slate-50 transition-colors rounded-lg mx-1"
                             role="menuitem"
                           >
-                            <span>{subItem.name}</span>
-                            {subItem.badge && (
-                              <span className="text-[11px] font-semibold text-[#0B1F3A] bg-[#C9A84C]/20 px-2 py-0.5 rounded-full">
-                                {subItem.badge}
-                              </span>
-                            )}
-                          </a>
-                        ))}
+                            <span>All Services →</span>
+                            <ArrowRight className="w-4 h-4 text-[#C9A84C]" />
+                          </Link>
+                        </div>
                       </div>
                     )}
                   </li>
@@ -316,11 +414,10 @@ export default function Header({ onBookAppointment }) {
               3. CTA BUTTON (Desktop) & MOBILE HAMBURGER TOGGLE
              ========================================================================== */}
           <div className="flex items-center gap-4">
-            
             {/* Desktop CTA Button */}
             <button
               ref={desktopCtaRef}
-              onClick={onBookAppointment}
+              onClick={handleBookAppointment}
               onMouseEnter={handleCtaMouseEnter}
               onMouseLeave={handleCtaMouseLeave}
               className="hidden lg:inline-flex items-center justify-center bg-[#0B1F3A] text-white font-medium text-[15px] px-[22px] py-[10px] rounded-lg border border-transparent cursor-pointer whitespace-nowrap shadow-sm leading-none transition-all duration-200"
@@ -342,9 +439,7 @@ export default function Header({ onBookAppointment }) {
                 <span ref={bottomBarRef} className="w-full h-[2.25px] bg-[#0B1F3A] rounded-full block transform origin-center"></span>
               </div>
             </button>
-
           </div>
-
         </div>
       </header>
 
@@ -363,10 +458,9 @@ export default function Header({ onBookAppointment }) {
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col h-full justify-between max-w-md mx-auto w-full">
-          
           {/* Top Bar: Brand Logo + Prominent Circular Close ('X') Button */}
           <div ref={addMobileLinkRef} className="flex items-center justify-between pb-5 border-b border-white/15">
-            <div className="flex items-center gap-3">
+            <Link to="/" onClick={() => setIsMobileOpen(false)} className="flex items-center gap-3">
               <div className="h-11 w-11 overflow-hidden rounded-full border-2 border-[#C9A84C] bg-white flex items-center justify-center shadow-md">
                 <img
                   src="/logo234.webp"
@@ -378,7 +472,7 @@ export default function Header({ onBookAppointment }) {
                 <h3 className="text-base font-extrabold text-white leading-tight">Adam International</h3>
                 <p className="text-[11px] text-[#DFBE7A] font-medium">Study Abroad Consultancy</p>
               </div>
-            </div>
+            </Link>
 
             {/* Explicit Circular Close Button */}
             <button
@@ -395,23 +489,24 @@ export default function Header({ onBookAppointment }) {
           <nav className="my-auto py-6">
             <ul className="flex flex-col gap-2">
               {navLinks.map((link) => {
-                const isDropdown = !!link.dropdown;
+                const isDropdown = !!link.isDropdown;
+                const active = isLinkActive(link);
 
                 return (
                   <li key={link.name} ref={addMobileLinkRef}>
                     {!isDropdown ? (
-                      <a
-                        href={link.href}
+                      <Link
+                        to={link.href}
                         onClick={() => setIsMobileOpen(false)}
                         className={`flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-bold transition-all ${
-                          link.active
+                          active
                             ? 'bg-[#C9A84C] text-[#0B1F3A] shadow-lg'
                             : 'text-gray-100 hover:bg-white/10 hover:text-white'
                         }`}
                       >
                         <span>{link.name}</span>
-                        <ArrowRight className={`w-4 h-4 ${link.active ? 'text-[#0B1F3A]' : 'opacity-40'}`} />
-                      </a>
+                        <ArrowRight className={`w-4 h-4 ${active ? 'text-[#0B1F3A]' : 'opacity-40'}`} />
+                      </Link>
                     ) : (
                       <div>
                         <button
@@ -420,31 +515,41 @@ export default function Header({ onBookAppointment }) {
                           className="w-full flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-bold text-gray-100 hover:bg-white/10 hover:text-white transition-all"
                           aria-expanded={mobileServicesOpen}
                         >
-                          <span>{link.name}</span>
-                          <ChevronDown className={`w-5 h-5 text-[#DFBE7A] transition-transform duration-300 ${
-                            mobileServicesOpen ? 'rotate-180 text-white' : ''
-                          }`} />
+                          <span className={active ? 'text-[#DFBE7A]' : ''}>{link.name}</span>
+                          <ChevronDown
+                            className={`w-5 h-5 text-[#DFBE7A] transition-transform duration-300 ${
+                              mobileServicesOpen ? 'rotate-180 text-white' : ''
+                            }`}
+                          />
                         </button>
 
                         {/* Submenu Accordion */}
                         {mobileServicesOpen && (
                           <ul className="pl-4 mt-2 space-y-1.5 border-l-2 border-[#C9A84C]/40">
-                            {link.dropdown.map((subItem) => (
-                              <li key={subItem.name}>
-                                <a
-                                  href={subItem.href}
-                                  onClick={() => setIsMobileOpen(false)}
-                                  className="flex items-center justify-between py-2 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
-                                >
-                                  <span>{subItem.name}</span>
-                                  {subItem.badge && (
-                                    <span className="text-[10px] font-extrabold text-[#0B1F3A] bg-[#C9A84C] px-2 py-0.5 rounded-full">
-                                      {subItem.badge}
-                                    </span>
-                                  )}
-                                </a>
-                              </li>
-                            ))}
+                            {services.map((service) => {
+                              const IconComponent = iconMap[service.icon] || Compass;
+                              return (
+                                <li key={service.slug}>
+                                  <Link
+                                    to={`/services/${service.slug}`}
+                                    onClick={() => setIsMobileOpen(false)}
+                                    className="flex items-center gap-2.5 py-2 px-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                  >
+                                    <IconComponent className="w-4 h-4 text-[#C9A84C] shrink-0" />
+                                    <span>{service.title}</span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                            <li>
+                              <Link
+                                to="/services"
+                                onClick={() => setIsMobileOpen(false)}
+                                className="flex items-center justify-between py-2 px-3 text-sm font-bold text-[#DFBE7A] hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                              >
+                                <span>All Services →</span>
+                              </Link>
+                            </li>
                           </ul>
                         )}
                       </div>
@@ -457,18 +562,17 @@ export default function Header({ onBookAppointment }) {
 
           {/* Quick Contact Info & Bottom CTA Button */}
           <div ref={addMobileLinkRef} className="pt-5 border-t border-white/15 space-y-4">
-            
             {/* Direct Contact Bar */}
             <div className="grid grid-cols-2 gap-2.5 text-xs font-semibold text-gray-200">
               <a
-                href="tel:+919876543210"
+                href="tel:+919895890500"
                 className="flex items-center gap-2 bg-white/10 border border-white/15 p-2.5 rounded-xl hover:bg-white/20 transition-colors truncate"
               >
                 <Phone className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
-                <span className="truncate">+91 98765 43210</span>
+                <span className="truncate">+91 9895 890 500</span>
               </a>
               <a
-                href="https://wa.me/919876543210"
+                href="https://wa.me/919895890500"
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 p-2.5 rounded-xl hover:bg-emerald-500/30 transition-colors truncate"
@@ -483,7 +587,7 @@ export default function Header({ onBookAppointment }) {
               type="button"
               onClick={() => {
                 setIsMobileOpen(false);
-                if (onBookAppointment) onBookAppointment();
+                handleBookAppointment();
               }}
               className="w-full flex items-center justify-center gap-2.5 bg-[#C9A84C] text-[#0B1F3A] font-extrabold text-base py-3.5 px-6 rounded-2xl shadow-xl hover:bg-[#DFBE7A] transition-all cursor-pointer active:scale-98"
             >
@@ -491,10 +595,8 @@ export default function Header({ onBookAppointment }) {
               <ArrowRight className="w-5 h-5 text-[#0B1F3A]" />
             </button>
           </div>
-
         </div>
       </div>
     </>
   );
 }
-

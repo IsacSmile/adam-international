@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { 
@@ -8,6 +9,8 @@ import {
   CheckCircle2, 
   GraduationCap 
 } from 'lucide-react';
+import { countries } from '../data/countries';
+import { universities } from '../data/universities';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -16,60 +19,19 @@ if (typeof window !== 'undefined') {
 // Bright, inspiring, high-resolution Unsplash image of international students on campus
 const HERO_BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1920&auto=format&fit=crop";
 
-// Country Datasets for Vertical Scrolling Columns
+// Country Datasets for Vertical Scrolling Columns derived from countries.js
 const countryCol1 = [
-  {
-    name: 'United Kingdom',
-    flag: '🇬🇧',
-    count: '150+ Universities',
-    image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    name: 'France',
-    flag: '🇫🇷',
-    count: '80+ Universities',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    name: 'Germany',
-    flag: '🇩🇪',
-    count: '60+ Universities',
-    image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    name: 'Hungary',
-    flag: '🇭🇺',
-    count: '35+ Universities',
-    image: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?q=80&w=400&auto=format&fit=crop',
-  },
-];
+  countries.find((c) => c.slug === 'united-kingdom'),
+  countries.find((c) => c.slug === 'france'),
+  countries.find((c) => c.slug === 'germany'),
+  countries.find((c) => c.slug === 'hungary'),
+].filter(Boolean);
 
 const countryCol2 = [
-  {
-    name: 'United States',
-    flag: '🇺🇸',
-    count: '120+ Universities',
-    image: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    name: 'Canada',
-    flag: '🇨🇦',
-    count: '75+ Universities',
-    image: 'https://images.unsplash.com/photo-1517935703635-27c5696e850b?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    name: 'Australia',
-    flag: '🇦🇺',
-    count: '50+ Universities',
-    image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    name: 'Switzerland',
-    flag: '🇨🇭',
-    count: '25+ Universities',
-    image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=400&auto=format&fit=crop',
-  },
-];
+  countries.find((c) => c.slug === 'united-states'),
+  countries.find((c) => c.slug === 'canada'),
+  countries.find((c) => c.slug === 'australia'),
+].filter(Boolean);
 
 // Tripled lists for seamless vertical infinite marquee
 const col1Duplicated = [...countryCol1, ...countryCol1, ...countryCol1];
@@ -359,15 +321,15 @@ export default function HeroShowcase({ onBookAppointment }) {
                 <ArrowRight className="w-4 h-4 text-[#0B1F3A] shrink-0" />
               </button>
 
-              <a
-                href="#countries"
+              <Link
+                to="/countries"
                 onMouseEnter={handleSecondaryMouseEnter}
                 onMouseLeave={handleSecondaryMouseLeave}
                 className="inline-flex items-center justify-center gap-2 bg-white/15 border border-white/50 text-white font-medium text-xs sm:text-sm lg:text-xs xl:text-base py-3 sm:py-3.5 px-4 sm:px-5 lg:px-3.5 xl:px-6 rounded-xl transition-all text-center backdrop-blur-md shadow-sm whitespace-nowrap shrink-0"
               >
                 <span className="whitespace-nowrap select-none">Explore Top Destinations</span>
                 <ArrowUpRight className="w-4 h-4 shrink-0" />
-              </a>
+              </Link>
             </div>
 
           </div>
@@ -386,59 +348,75 @@ export default function HeroShowcase({ onBookAppointment }) {
               
               {/* Column 1: Top to Bottom Infinite Scroll */}
               <div className="overflow-hidden h-[420px] relative">
-                <div className="flex flex-col gap-3 animate-marquee-down">
-                  {col1Duplicated.map((c, i) => (
-                    <div
-                      key={`col1-${i}`}
-                      className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
-                    >
-                      <div className="relative h-18 sm:h-20 w-full rounded-xl overflow-hidden bg-slate-900">
-                        <img
-                          src={c.image}
-                          alt={c.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-1 left-1 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40 truncate max-w-[90%]">
-                          <span>{c.flag}</span>
-                          <span className="truncate">{c.name}</span>
+                 <div className="flex flex-col gap-3 animate-marquee-down">
+                  {col1Duplicated.map((c, i) => {
+                    const hasUniversities = universities.some((u) => u.country === c.slug);
+                    const tileLink = hasUniversities ? `/universities?country=${c.slug}` : '/countries';
+
+                    return (
+                      <Link
+                        key={`col1-${i}`}
+                        to={tileLink}
+                        className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
+                      >
+                        <div className="relative h-18 sm:h-20 w-full rounded-xl overflow-hidden bg-slate-900">
+                          <img
+                            src={c.image}
+                            alt={c.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
+                          <div className="absolute bottom-1 left-1 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40 truncate max-w-[90%]">
+                            <span>{c.flag}</span>
+                            <span className="truncate">{c.name}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
-                        {c.count}
-                      </div>
-                    </div>
-                  ))}
+                        {Boolean(c.universityCount || c.count) && (
+                          <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
+                            {c.universityCount || c.count}
+                          </div>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Column 2: Bottom to Top Infinite Scroll */}
               <div className="overflow-hidden h-[420px] relative">
                 <div className="flex flex-col gap-3 animate-marquee-up">
-                  {col2Duplicated.map((c, i) => (
-                    <div
-                      key={`col2-${i}`}
-                      className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
-                    >
-                      <div className="relative h-18 sm:h-20 w-full rounded-xl overflow-hidden bg-slate-900">
-                        <img
-                          src={c.image}
-                          alt={c.name}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-1 left-1 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40 truncate max-w-[90%]">
-                          <span>{c.flag}</span>
-                          <span className="truncate">{c.name}</span>
+                  {col2Duplicated.map((c, i) => {
+                    const hasUniversities = universities.some((u) => u.country === c.slug);
+                    const tileLink = hasUniversities ? `/universities?country=${c.slug}` : '/countries';
+
+                    return (
+                      <Link
+                        key={`col2-${i}`}
+                        to={tileLink}
+                        className="w-full bg-[#0B1F3A]/75 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-lg flex flex-col gap-1.5 group hover:border-[#C9A84C] hover:bg-[#0B1F3A]/90 transition-all cursor-pointer"
+                      >
+                        <div className="relative h-18 sm:h-20 w-full rounded-xl overflow-hidden bg-slate-900">
+                          <img
+                            src={c.image}
+                            alt={c.name}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A]/80 via-transparent to-transparent" />
+                          <div className="absolute bottom-1 left-1 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-extrabold text-[#0B1F3A] flex items-center gap-1 shadow border border-white/40 truncate max-w-[90%]">
+                            <span>{c.flag}</span>
+                            <span className="truncate">{c.name}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
-                        {c.count}
-                      </div>
-                    </div>
-                  ))}
+                        {Boolean(c.universityCount || c.count) && (
+                          <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
+                            {c.universityCount || c.count}
+                          </div>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
 

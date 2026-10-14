@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Facebook, 
   Instagram, 
@@ -8,20 +9,31 @@ import {
   Mail, 
   ArrowUpRight 
 } from 'lucide-react';
+import { services } from '../data/services';
+
+const quickLinks = [
+  { name: 'About Us', href: '/#about' }, // TODO: page not built yet
+  { name: 'Services', href: '/services' },
+  { name: 'Countries', href: '/countries' },
+  { name: 'Universities', href: '/universities' },
+  { name: 'Success Stories', href: '/success-stories' },
+  { name: 'Contact Us', href: '/#contact' },
+];
 
 export default function Footer({ onOpenModal }) {
   return (
     <footer className="bg-[#0B1F3A] text-white pt-16 pb-8 px-5 lg:px-8 border-t border-white/10 relative overflow-hidden">
-      
       {/* Container */}
       <div className="max-w-[1280px] mx-auto">
-        
         {/* TOP GRID (5 COLUMNS ON DESKTOP, STACKED ON MOBILE) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8 mb-16">
-          
           {/* COLUMN 1: BRAND */}
           <div className="lg:col-span-1 sm:col-span-2 lg:sm:col-span-1">
-            <a href="#home" className="inline-block mb-4 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C9A84C]">
+            <Link
+              to="/"
+              className="inline-block mb-4 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C9A84C]"
+              aria-label="Adam International Home"
+            >
               <div className="h-[48px] w-auto overflow-hidden flex items-center justify-start">
                 <img
                   src="/logo234.webp"
@@ -29,7 +41,7 @@ export default function Footer({ onOpenModal }) {
                   className="h-[48px] w-auto max-w-none object-cover object-left block"
                 />
               </div>
-            </a>
+            </Link>
 
             <p className="text-gray-300 text-sm leading-relaxed mb-6 font-normal">
               Top-tier overseas education consultancy helping students achieve their global academic dreams since 2008.
@@ -73,14 +85,16 @@ export default function Footer({ onOpenModal }) {
               Quick Links
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {['About Us', 'Services', 'Countries', 'Gallery', 'Blog', 'Contact Us'].map((item) => (
-                <li key={item}>
-                  <a
-                    href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+              {quickLinks.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    to={item.href}
                     className="text-gray-300 hover:text-[#C9A84C] transition-colors duration-200 inline-flex items-center gap-1 group"
                   >
-                    <span className="group-hover:translate-x-0.5 transition-transform duration-200">{item}</span>
-                  </a>
+                    <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+                      {item.name}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -92,21 +106,16 @@ export default function Footer({ onOpenModal }) {
               Services
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {[
-                'Career Counseling',
-                'Admission Support',
-                'Visa Assistance',
-                'Financial Assistance',
-                'Pre-Departure Support',
-                'Training & Interview Prep',
-              ].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#services"
+              {services.map((service) => (
+                <li key={service.slug}>
+                  <Link
+                    to={`/services/${service.slug}`}
                     className="text-gray-300 hover:text-[#C9A84C] transition-colors duration-200 inline-flex items-center gap-1 group"
                   >
-                    <span className="group-hover:translate-x-0.5 transition-transform duration-200">{item}</span>
-                  </a>
+                    <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+                      {service.title}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -146,15 +155,18 @@ export default function Footer({ onOpenModal }) {
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#C9A84C] shrink-0" />
-                <a href="tel:+919895890500" className="hover:text-[#C9A84C] transition-colors font-medium">+91 9895 890 500</a>
+                <a href="tel:+919895890500" className="hover:text-[#C9A84C] transition-colors font-medium">
+                  +91 9895 890 500
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[#C9A84C] shrink-0" />
-                <a href="mailto:info@adaminternational.in" className="hover:text-[#C9A84C] transition-colors font-medium">info@adaminternational.in</a>
+                <a href="mailto:info@adaminternational.in" className="hover:text-[#C9A84C] transition-colors font-medium">
+                  info@adaminternational.in
+                </a>
               </li>
             </ul>
           </div>
-
         </div>
 
         {/* BOTTOM BAR WITH THIN GOLD DIVIDER */}
@@ -174,12 +186,11 @@ export default function Footer({ onOpenModal }) {
           </p>
 
           <div className="flex items-center gap-6">
-            <a href="#privacy" className="hover:text-[#C9A84C] transition-colors">Privacy Policy</a>
+            <Link to="/privacy-policy" className="hover:text-[#C9A84C] transition-colors">Privacy Policy</Link>
             <span className="text-gray-600">•</span>
-            <a href="#terms" className="hover:text-[#C9A84C] transition-colors">Terms & Conditions</a>
+            <Link to="/terms" className="hover:text-[#C9A84C] transition-colors">Terms & Conditions</Link>
           </div>
         </div>
-
       </div>
     </footer>
   );

@@ -1,87 +1,23 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Building2, MapPin, ArrowRight, Globe, Award, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Globe, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { universities } from '../data/universities';
+import UniversityCard from './shared/UniversityCard';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const partnerUniversities = [
-  {
-    id: 'dmu',
-    name: 'De Montfort University',
-    location: 'Leicester, United Kingdom',
-    country: 'UK',
-    tag: 'Top 50 UK University',
-    ranking: '#1 for Employability',
-  },
-  {
-    id: 'bpp',
-    name: 'BPP University',
-    location: 'London, United Kingdom',
-    country: 'UK',
-    tag: 'Premier Law & Business School',
-    ranking: 'Top Finance & Law Prep',
-  },
-  {
-    id: 'coventry',
-    name: 'Coventry University',
-    location: 'Coventry, United Kingdom',
-    country: 'UK',
-    tag: '5-Star QS Rated Institution',
-    ranking: '#1 Student Experience',
-  },
-  {
-    id: 'bangor',
-    name: 'Bangor University',
-    location: 'Bangor, Wales, UK',
-    country: 'UK',
-    tag: 'Top 10 for Teaching Quality',
-    ranking: 'Gold Teaching Excellence',
-  },
-  {
-    id: 'herts',
-    name: 'University of Hertfordshire',
-    location: 'Hatfield, United Kingdom',
-    country: 'UK',
-    tag: 'TEF Gold Rated University',
-    ranking: '96.5% Graduate Jobs',
-  },
-  {
-    id: 'greenwich',
-    name: 'University of Greenwich',
-    location: 'London, United Kingdom',
-    country: 'UK',
-    tag: 'UNESCO World Heritage Campus',
-    ranking: 'Top 10 International Students',
-  },
-  {
-    id: 'ue-germany',
-    name: 'UE Applied Sciences',
-    location: 'Berlin / Hamburg, Germany',
-    country: 'EU',
-    tag: 'Top German Tech University',
-    ranking: 'Top 10 European Tech',
-  },
-  {
-    id: 'northeastern',
-    name: 'Northeastern University',
-    location: 'Boston, USA',
-    country: 'USA',
-    tag: 'Tier-1 US Research Institution',
-    ranking: 'Global Co-op Leader',
-  },
-];
-
 // Tripled list for a perfectly seamless infinite horizontal scroll loop
 const infinitePartnerList = [
-  ...partnerUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.id}-1-${i}` })),
-  ...partnerUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.id}-2-${i}` })),
-  ...partnerUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.id}-3-${i}` })),
+  ...universities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-1-${i}` })),
+  ...universities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-2-${i}` })),
+  ...universities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-3-${i}` })),
 ];
 
-export default function UniversityPartnersSection({ onViewAllUniversities }) {
+export default function UniversityPartnersSection() {
   const sectionRef = useRef(null);
   const carouselRef = useRef(null);
   const cardsRef = useRef([]);
@@ -117,7 +53,7 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
       // Entrance animation for first set of visible cards
       if (cardsRef.current.length > 0) {
         gsap.fromTo(
-          cardsRef.current.slice(0, partnerUniversities.length),
+          cardsRef.current.slice(0, universities.length),
           { opacity: 0, y: 35 },
           {
             opacity: 1,
@@ -153,7 +89,6 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
 
           el.scrollLeft = scrollPosRef.current;
         } else if (!isMouseDownRef.current) {
-          // Sync internal scroll position accumulator with manual scrolling (trackpad/touch)
           scrollPosRef.current = el.scrollLeft;
         }
       }
@@ -187,12 +122,10 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
     }
   };
 
-  // Mouse Click & Drag to Scroll Handlers (Desktop)
   const handleMouseDown = (e) => {
-    if (!carouselRef.current) return;
     isMouseDownRef.current = true;
     setIsDragging(true);
-    isPausedRef.current = true;
+    pauseAutoScrollTemporarily(10000);
     startXRef.current = e.pageX - carouselRef.current.offsetLeft;
     startScrollLeftRef.current = carouselRef.current.scrollLeft;
   };
@@ -225,24 +158,20 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
       <div className="absolute bottom-1/4 right-0 translate-x-1/2 w-[550px] h-[550px] bg-[#C9A84C]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1280px] mx-auto relative z-10">
-
         {/* SECTION HEADING & CONTROLS */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16">
           <div className="text-left max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-[#C9A84C]/20 border border-[#C9A84C]/40 px-4 py-1.5 rounded-full text-[#DFBE7A] text-xs font-bold tracking-wider uppercase mb-4 shadow-sm">
               <Globe className="w-3.5 h-3.5 text-[#C9A84C]" />
-              <span>GLOBAL NETWORK</span>
+              <span>PARTNER UNIVERSITIES</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-white tracking-tight leading-[1.16]">
-              Leading Universities We{' '}
-              <span className="text-[#C9A84C] relative inline-block">
-                Collaborate With
-              </span>
+              Universities we work with
             </h2>
 
             <p className="text-base sm:text-lg text-gray-300 font-normal leading-relaxed mt-3">
-              We partner with top-ranked institutions across the UK, Europe, USA, Canada, Australia and more.
+              We help students apply to universities across the UK and Europe, and we're adding more every intake. Tap a university to see courses, fees and entry requirements.
             </p>
           </div>
 
@@ -270,10 +199,19 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
         {/* UNIVERSITY PARTNERS HORIZONTAL CAROUSEL WITH AUTO-SCROLL & DRAG support */}
         <div
           ref={carouselRef}
-          onMouseEnter={() => { isPausedRef.current = true; }}
-          onMouseLeave={() => { handleMouseUpOrLeave(); isPausedRef.current = false; }}
-          onTouchStart={() => { isPausedRef.current = true; }}
-          onTouchEnd={() => { pauseAutoScrollTemporarily(2500); }}
+          onMouseEnter={() => {
+            isPausedRef.current = true;
+          }}
+          onMouseLeave={() => {
+            handleMouseUpOrLeave();
+            isPausedRef.current = false;
+          }}
+          onTouchStart={() => {
+            isPausedRef.current = true;
+          }}
+          onTouchEnd={() => {
+            pauseAutoScrollTemporarily(2500);
+          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -286,62 +224,24 @@ export default function UniversityPartnersSection({ onViewAllUniversities }) {
             <div
               key={univ.uniqueKey}
               ref={addCardRef}
-              className="w-[280px] sm:w-[310px] lg:w-[330px] shrink-0 bg-white/5 border border-white/15 backdrop-blur-md rounded-[24px] p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 group hover:border-[#C9A84C] hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(201,168,76,0.15)] relative overflow-hidden"
+              className="w-[280px] sm:w-[310px] lg:w-[330px] shrink-0"
             >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C9A84C]/20 to-transparent rounded-tr-[24px] pointer-events-none" />
-
-              <div>
-                {/* Header Icon + Country Badge */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-[#C9A84C]/20 text-[#C9A84C] group-hover:bg-[#C9A84C] group-hover:text-[#0B1F3A] flex items-center justify-center transition-colors shadow-md">
-                    <Building2 className="w-6 h-6" />
-                  </div>
-                  <span className="text-xs font-bold text-[#DFBE7A] bg-white/10 border border-white/20 px-3 py-1 rounded-full uppercase tracking-wider">
-                    {univ.country}
-                  </span>
-                </div>
-
-                {/* University Name */}
-                <h3 className="text-xl font-bold text-white mb-2 leading-snug group-hover:text-[#DFBE7A] transition-colors">
-                  {univ.name}
-                </h3>
-
-                {/* Location */}
-                <div className="flex items-center gap-2 text-xs text-gray-300 mb-6 font-normal">
-                  <MapPin className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
-                  <span className="truncate">{univ.location}</span>
-                </div>
-              </div>
-
-              {/* Ranking & Highlight Tags */}
-              <div className="pt-4 border-t border-white/10 space-y-2">
-                <div className="flex items-center gap-2 text-xs font-semibold text-gray-200">
-                  <Award className="w-4 h-4 text-[#C9A84C] shrink-0" />
-                  <span className="truncate">{univ.tag}</span>
-                </div>
-                <div className="flex items-center gap-2 text-[11px] font-medium text-gray-400">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A84C]/80 shrink-0" />
-                  <span className="truncate">{univ.ranking}</span>
-                </div>
-              </div>
+              <UniversityCard university={univ} variant="dark" />
             </div>
           ))}
         </div>
 
         {/* CENTERED CTA BUTTON */}
         <div className="text-center mt-12 sm:mt-16">
-          <button
-            type="button"
-            onClick={onViewAllUniversities}
+          <Link
+            to="/universities"
             className="inline-flex items-center gap-3 bg-[#C9A84C] text-[#0B1F3A] hover:bg-white hover:text-[#0B1F3A] font-extrabold text-base py-4 px-9 rounded-2xl cursor-pointer transition-all duration-300 shadow-xl hover:shadow-2xl group border border-[#C9A84C]"
           >
             <span>View All Universities</span>
             <ArrowRight className="w-5 h-5 text-[#0B1F3A] group-hover:translate-x-1.5 transition-transform duration-300" />
-          </button>
+          </Link>
         </div>
-
       </div>
     </section>
   );
 }
-
