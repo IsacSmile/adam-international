@@ -10,16 +10,34 @@ import {
   ArrowUpRight 
 } from 'lucide-react';
 import { services } from '../data/services';
+import { successStories } from '../data/successStories';
+import { galleryItems } from '../data/gallery';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 
-const quickLinks = [
+const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlaceholder);
+const hasGallery = SHOW_PLACEHOLDERS
+  ? Array.isArray(galleryItems) && galleryItems.length > 0
+  : galleryItems.some((i) => !i.isPlaceholder);
+
+const baseQuickLinks = [
   { name: 'About Us', href: '/about' },
   { name: 'Services', href: '/services' },
-
   { name: 'Countries', href: '/countries' },
   { name: 'Universities', href: '/universities' },
   { name: 'Success Stories', href: '/success-stories' },
+  { name: 'Gallery', href: '/gallery' },
   { name: 'Contact Us', href: '/#contact' },
 ];
+
+const quickLinks = baseQuickLinks.filter((link) => {
+  if ((link.href === '/success-stories' || link.name === 'Success Stories') && !hasStories) {
+    return false;
+  }
+  if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
+    return false;
+  }
+  return true;
+});
 
 export default function Footer({ onOpenModal }) {
   return (

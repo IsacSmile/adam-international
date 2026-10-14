@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Sparkles } from 'lucide-react';
 import { visaApprovals } from '../data/visaApprovals';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import VisaApprovalCard from './shared/VisaApprovalCard';
 
 if (typeof window !== 'undefined') {
@@ -22,8 +23,12 @@ export default function VisaSuccessSection() {
     }
   };
 
+  const filteredApprovals = SHOW_PLACEHOLDERS
+    ? visaApprovals
+    : visaApprovals.filter((v) => !v.isPlaceholder);
+
   // Sort by approvalDate descending and display the 6 most recent approvals
-  const recentApprovals = [...visaApprovals]
+  const recentApprovals = [...filteredApprovals]
     .sort((a, b) => new Date(b.approvalDate || 0) - new Date(a.approvalDate || 0))
     .slice(0, 6);
 
@@ -71,6 +76,10 @@ export default function VisaSuccessSection() {
 
     return () => ctx.revert();
   }, []);
+
+  if (recentApprovals.length === 0) {
+    return null;
+  }
 
   return (
     <section

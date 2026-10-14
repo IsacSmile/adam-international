@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { successStories } from '../data/successStories';
 import { countries } from '../data/countries';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -41,9 +42,13 @@ const avatarColors = [
 ];
 
 export default function TestimonialsSection() {
+  const filteredStories = SHOW_PLACEHOLDERS
+    ? successStories
+    : successStories.filter((s) => !s.isPlaceholder);
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
-  const activeStudent = successStories[activeIndex] || successStories[0];
+  const activeStudent = filteredStories[activeIndex] || filteredStories[0];
 
   const sectionRef = useRef(null);
   const cardRef = useRef(null);
@@ -52,14 +57,14 @@ export default function TestimonialsSection() {
 
   // Auto-play timer (changes testimonial every 6s unless paused)
   useEffect(() => {
-    if (isAutoplayPaused) return;
+    if (isAutoplayPaused || filteredStories.length <= 1) return;
 
     const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev === successStories.length - 1 ? 0 : prev + 1));
+      setActiveIndex((prev) => (prev >= filteredStories.length - 1 ? 0 : prev + 1));
     }, 6000);
 
     return () => clearInterval(timer);
-  }, [isAutoplayPaused]);
+  }, [isAutoplayPaused, filteredStories.length]);
 
   // Animate Card Change with GSAP
   useEffect(() => {
@@ -115,18 +120,22 @@ export default function TestimonialsSection() {
 
   const handlePrev = () => {
     setIsAutoplayPaused(true);
-    setActiveIndex((prev) => (prev === 0 ? successStories.length - 1 : prev - 1));
+    setActiveIndex((prev) => (prev === 0 ? filteredStories.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
     setIsAutoplayPaused(true);
-    setActiveIndex((prev) => (prev === successStories.length - 1 ? 0 : prev + 1));
+    setActiveIndex((prev) => (prev === filteredStories.length - 1 ? 0 : prev + 1));
   };
 
   const handlePillClick = (idx) => {
     setIsAutoplayPaused(true);
     setActiveIndex(idx);
   };
+
+  if (filteredStories.length === 0 || !activeStudent) {
+    return null;
+  }
 
   const countryObj = countries.find((c) => c.slug === activeStudent.country);
   const activeAvatarBg = avatarColors[activeIndex % avatarColors.length];
@@ -165,7 +174,7 @@ export default function TestimonialsSection() {
 
         {/* 3. STUDENT AVATAR SELECTOR PILLS */}
         <div className="grid grid-cols-4 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-12 max-w-4xl mx-auto px-1">
-          {successStories.map((student, idx) => {
+          {filteredStories.map((student, idx) => {
             const isSelected = idx === activeIndex;
             const firstName = student.studentName.split(' ')[0];
             const initials = getInitials(student.studentName);
@@ -203,6 +212,11 @@ export default function TestimonialsSection() {
           onMouseEnter={() => setIsAutoplayPaused(true)}
           className="bg-white border border-gray-200 rounded-[24px] sm:rounded-[28px] p-5 sm:p-10 shadow-xl relative max-w-3xl mx-auto overflow-hidden"
         >
+          {activeStudent.isPlaceholder && (
+            <span className="absolute top-3.5 left-4 z-20 bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-extrabold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
+              SAMPLE
+            </span>
+          )}
           {/* Large Light Gold Quotation Mark */}
           <div className="absolute top-4 right-5 sm:top-6 sm:right-8 text-[#C9A84C]/25 select-none pointer-events-none">
             <Quote className="w-12 h-12 sm:w-20 sm:h-20" />
@@ -298,7 +312,7 @@ export default function TestimonialsSection() {
         {/* 5. SLIDER CONTROLS (Student X of Y + PAUSED indicator + Navigation Arrows) */}
         <div className="flex items-center justify-between max-w-3xl mx-auto mt-5 sm:mt-6 px-1 text-xs sm:text-sm text-gray-500 font-medium">
           <div className="flex items-center gap-2">
-            <span>Student <strong className="text-[#0B1F3A] font-bold">{activeIndex + 1}</strong> of <strong className="text-[#0B1F3A] font-bold">{successStories.length}</strong></span>
+            <span>Student <strong className="text-[#0B1F3A] font-bold">{activeIndex + 1}</strong> of <strong className="text-[#0B1F3A] font-bold">{filteredStories.length}</strong></span>
             
             {isAutoplayPaused && (
               <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 border border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">

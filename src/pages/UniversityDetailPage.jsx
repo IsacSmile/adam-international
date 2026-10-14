@@ -11,6 +11,7 @@ import { universities } from '../data/universities';
 import { countries } from '../data/countries';
 import { visaApprovals } from '../data/visaApprovals';
 import { successStories } from '../data/successStories';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
 
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
@@ -32,11 +33,17 @@ export default function UniversityDetailPage() {
 
   // Matching visa approvals and success stories
   const matchingApprovals = useMemo(() => {
-    return visaApprovals.filter((v) => v.universitySlug === university.slug);
+    const list = SHOW_PLACEHOLDERS
+      ? visaApprovals
+      : visaApprovals.filter((v) => !v.isPlaceholder);
+    return list.filter((v) => v.universitySlug === university.slug);
   }, [university.slug]);
 
   const matchingStories = useMemo(() => {
-    return successStories.filter((s) => s.universitySlug === university.slug);
+    const list = SHOW_PLACEHOLDERS
+      ? successStories
+      : successStories.filter((s) => !s.isPlaceholder);
+    return list.filter((s) => s.universitySlug === university.slug);
   }, [university.slug]);
 
   const hasStudentsHelped = matchingApprovals.length > 0 || matchingStories.length > 0;

@@ -28,6 +28,7 @@ import { useAppointment } from '../context/AppointmentContext';
 import { countries } from '../data/countries';
 import { branches } from '../data/branches';
 import { successStories } from '../data/successStories';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -171,11 +172,14 @@ export default function AboutPage() {
     .filter(Boolean);
 
   // 4. Testimonials (Exact 3 stories from successStories.js, preferring consentOnFile)
-  const storiesWithConsent = successStories.filter((s) => s.consentOnFile);
+  const filteredStories = SHOW_PLACEHOLDERS
+    ? successStories
+    : successStories.filter((s) => !s.isPlaceholder);
+  const storiesWithConsent = filteredStories.filter((s) => s.consentOnFile);
   const displayStories =
     storiesWithConsent.length >= 3
       ? storiesWithConsent.slice(0, 3)
-      : successStories.slice(0, 3);
+      : filteredStories.slice(0, 3);
 
   return (
     <div className="w-full bg-white text-[#0B1F3A] overflow-x-hidden">
@@ -501,7 +505,8 @@ export default function AboutPage() {
       {/* =========================================================================
           SECTION 5: WHAT OUR STUDENTS SAY (EXACTLY 3 STORIES FROM DATA)
       ========================================================================= */}
-      <section className="w-full py-16 sm:py-20 lg:py-24 px-5 sm:px-6 lg:px-8 bg-slate-50 border-b border-slate-200/60">
+      {displayStories.length > 0 && (
+        <section className="w-full py-16 sm:py-20 lg:py-24 px-5 sm:px-6 lg:px-8 bg-slate-50 border-b border-slate-200/60">
         <div className="max-w-[1280px] mx-auto space-y-10 sm:space-y-12">
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -528,8 +533,13 @@ export default function AboutPage() {
               return (
                 <div
                   key={story.id}
-                  className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                  className="relative bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
+                  {story.isPlaceholder && (
+                    <span className="absolute top-2.5 left-2.5 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
+                      SAMPLE
+                    </span>
+                  )}
                   <div className="space-y-4">
                     {/* Stars (Only if rating exists) */}
                     {story.rating ? (
@@ -601,6 +611,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* =========================================================================
           SECTION 6: VISIT US (INTERACTIVE 6 BRANCHES + EMBEDDED MAP)

@@ -21,6 +21,7 @@ import NotFoundPage from './NotFoundPage';
 import { countries } from '../data/countries';
 import { universities } from '../data/universities';
 import { successStories } from '../data/successStories';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
 
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
@@ -40,7 +41,11 @@ export default function CountryDetailPage() {
   const countryUniversities = universities.filter((u) => u.country === country.slug);
 
   // Filter stories for this country (slug or name matching)
-  const countryStories = (successStories || []).filter(
+  const availableStories = SHOW_PLACEHOLDERS
+    ? (successStories || [])
+    : (successStories || []).filter((s) => !s.isPlaceholder);
+
+  const countryStories = availableStories.filter(
     (s) =>
       s.country === country.slug ||
       s.country?.toLowerCase() === country.slug.toLowerCase() ||

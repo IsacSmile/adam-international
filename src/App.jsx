@@ -14,6 +14,7 @@ const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'));
 const UniversitiesPage = lazy(() => import('./pages/UniversitiesPage'));
 const UniversityDetailPage = lazy(() => import('./pages/UniversityDetailPage'));
 const SuccessStoriesPage = lazy(() => import('./pages/SuccessStoriesPage'));
+const GalleryPage = lazy(() => import('./pages/GalleryPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
@@ -72,6 +73,7 @@ export default function App() {
                   <Route path="universities" element={<UniversitiesPage />} />
                   <Route path="universities/:slug" element={<UniversityDetailPage />} />
                   <Route path="success-stories" element={<SuccessStoriesPage />} />
+                  <Route path="gallery" element={<GalleryPage />} />
                   <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
                   <Route path="terms" element={<TermsPage />} />
                   <Route path="credits" element={<CreditsPage />} />

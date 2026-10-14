@@ -20,6 +20,9 @@ import {
   Luggage,
 } from 'lucide-react';
 import { services } from '../data/services';
+import { successStories } from '../data/successStories';
+import { galleryItems } from '../data/gallery';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
 
 // Register GSAP Plugins safely
@@ -37,20 +40,35 @@ const iconMap = {
   Luggage,
 };
 
-const navLinks = [
+const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlaceholder);
+const hasGallery = SHOW_PLACEHOLDERS
+  ? Array.isArray(galleryItems) && galleryItems.length > 0
+  : galleryItems.some((i) => !i.isPlaceholder);
+
+const baseNavLinks = [
   { name: 'Home', href: '/' },
   { name: 'About Us', href: '/about' },
   {
-
     name: 'Services',
     href: '/services',
     isDropdown: true,
   },
   { name: 'Countries', href: '/countries' },
-  { name: 'Gallery', href: '/#gallery' }, // TODO: page not built yet
+  { name: 'Success Stories', href: '/success-stories' },
+  { name: 'Gallery', href: '/gallery' },
   { name: 'Blog', href: '/#blog' }, // TODO: page not built yet
   { name: 'Contact Us', href: '/#contact' },
 ];
+
+const navLinks = baseNavLinks.filter((link) => {
+  if ((link.href === '/success-stories' || link.name === 'Success Stories') && !hasStories) {
+    return false;
+  }
+  if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
+    return false;
+  }
+  return true;
+});
 
 export default function Header({ onBookAppointment }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);

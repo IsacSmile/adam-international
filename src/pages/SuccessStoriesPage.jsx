@@ -11,6 +11,7 @@ import { useLenis } from '../components/SmoothScroll';
 import { successStories } from '../data/successStories';
 import { visaApprovals } from '../data/visaApprovals';
 import { countries } from '../data/countries';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
 
 export default function SuccessStoriesPage() {
@@ -19,6 +20,18 @@ export default function SuccessStoriesPage() {
   const { openAppointment } = useAppointment();
 
   const [selectedCountry, setSelectedCountry] = useState('all');
+
+  const allStories = useMemo(() => {
+    return SHOW_PLACEHOLDERS
+      ? successStories
+      : successStories.filter((s) => !s.isPlaceholder);
+  }, []);
+
+  const allVisaApprovals = useMemo(() => {
+    return SHOW_PLACEHOLDERS
+      ? visaApprovals
+      : visaApprovals.filter((v) => !v.isPlaceholder);
+  }, []);
 
   // Lightbox state
   const [lightboxState, setLightboxState] = useState({
@@ -30,20 +43,20 @@ export default function SuccessStoriesPage() {
   // Only countries that have at least one story
   const availableCountries = useMemo(() => {
     return countries.filter((country) =>
-      successStories.some((s) => s.country === country.slug)
+      allStories.some((s) => s.country === country.slug)
     );
-  }, []);
+  }, [allStories]);
 
   // Filtered stories based on country chip
   const filteredStories = useMemo(() => {
-    if (selectedCountry === 'all') return successStories;
-    return successStories.filter((s) => s.country === selectedCountry);
-  }, [selectedCountry]);
+    if (selectedCountry === 'all') return allStories;
+    return allStories.filter((s) => s.country === selectedCountry);
+  }, [selectedCountry, allStories]);
 
   // Only stories with a video (for the "Featured videos" strip)
   const storiesWithVideo = useMemo(() => {
-    return successStories.filter((s) => Boolean(s.video));
-  }, []);
+    return allStories.filter((s) => Boolean(s.video));
+  }, [allStories]);
 
   // Handle scrolling to hash anchor (#adith-dinesh, etc.) with Lenis & header offset
   useEffect(() => {
@@ -51,7 +64,7 @@ export default function SuccessStoriesPage() {
       const targetId = location.hash.replace('#', '');
 
       // If the target story is in a specific country, ensure it isn't filtered out
-      const matchingStory = successStories.find((s) => s.id === targetId);
+      const matchingStory = allStories.find((s) => s.id === targetId);
       if (matchingStory && selectedCountry !== 'all' && matchingStory.country !== selectedCountry) {
         setSelectedCountry('all');
       }
@@ -99,13 +112,55 @@ export default function SuccessStoriesPage() {
     setLightboxState((prev) => ({ ...prev, index: newIndex }));
   };
 
+  if (allStories.length === 0) {
+    return (
+      <>
+        <Helmet>
+          <title>Student success stories | Adam International</title>
+          <meta
+            name="description"
+            content="Students who studied abroad with our support, in their own words."
+          />
+        </Helmet>
+
+        {/* Navy Page Hero Band */}
+        <PageHero
+          breadcrumbItems={[
+            { label: 'Home', href: '/' },
+            { label: 'Success Stories' },
+          ]}
+          title="Student success stories"
+          subtitle="Students who studied abroad with our support, in their own words."
+        />
+
+        <div className="bg-[#F8FAFC] py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-[720px] mx-auto text-center bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 shadow-sm space-y-6">
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+              We're collecting stories from our students. Check back soon, or talk to an advisor about your own study-abroad plans.
+            </p>
+            <div>
+              <button
+                type="button"
+                onClick={() => openAppointment()}
+                className="inline-flex items-center justify-center gap-2 bg-[#C9A84C] hover:bg-[#DFBE7A] text-[#0B1F3A] font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl shadow-md transition-all duration-200 cursor-pointer active:scale-98"
+              >
+                <span>Book a Free Consultation</span>
+                <ArrowRight className="w-4 h-4 text-[#0B1F3A]" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Helmet>
         <title>Student success stories | Adam International</title>
         <meta
           name="description"
-          content="Real students, real offers, real visas. Here's how it went for them, in their own words."
+          content="Students who studied abroad with our support, in their own words."
         />
       </Helmet>
 
@@ -116,7 +171,7 @@ export default function SuccessStoriesPage() {
           { label: 'Success Stories' },
         ]}
         title="Student success stories"
-        subtitle="Real students, real offers, real visas. Here's how it went for them, in their own words."
+        subtitle="Students who studied abroad with our support, in their own words."
       />
 
       <div className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
@@ -187,19 +242,21 @@ export default function SuccessStoriesPage() {
           </div>
 
           {/* Visa Approvals Grid */}
-          <section className="mt-16 sm:mt-24 pt-16 border-t border-slate-200">
-            <div className="mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A]">
-                Recent visa approvals
-              </h2>
-            </div>
+          {allVisaApprovals.length > 0 && (
+            <section className="mt-16 sm:mt-24 pt-16 border-t border-slate-200">
+              <div className="mb-8 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A]">
+                  Recent visa approvals
+                </h2>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {visaApprovals.map((approval) => (
-                <VisaApprovalCard key={approval.id} approval={approval} />
-              ))}
-            </div>
-          </section>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {allVisaApprovals.map((approval) => (
+                  <VisaApprovalCard key={approval.id} approval={approval} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
 

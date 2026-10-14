@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { successStories } from '../../../data/successStories';
 import { countries } from '../../../data/countries';
+import { SHOW_PLACEHOLDERS } from '../../../lib/contentFlags';
 
 function CompactStoryCard({ story }) {
   if (!story) return null;
@@ -52,7 +53,12 @@ function CompactStoryCard({ story }) {
   ) : null;
 
   return (
-    <article className="h-full bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-[0_2px_12px_rgba(11,31,58,0.04)] hover:border-[#C9A84C] hover:shadow-[0_12px_28px_rgba(11,31,58,0.08)] transition-all duration-300 flex flex-col justify-between group">
+    <article className="h-full bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-[0_2px_12px_rgba(11,31,58,0.04)] hover:border-[#C9A84C] hover:shadow-[0_12px_28px_rgba(11,31,58,0.08)] transition-all duration-300 flex flex-col justify-between group relative">
+      {story.isPlaceholder && (
+        <span className="absolute top-2 left-2 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
+          SAMPLE
+        </span>
+      )}
       <div>
         {/* Header: Photo/Initials, Name, University, Flag */}
         <div className="flex items-center gap-3.5 mb-4">
@@ -124,7 +130,10 @@ export default function StoryStripSection({
   stories,
   button = { label: 'Read Student Stories', to: '/success-stories' },
 }) {
-  let filteredStories = stories || successStories || [];
+  const baseStories = stories || successStories || [];
+  let filteredStories = SHOW_PLACEHOLDERS
+    ? baseStories
+    : baseStories.filter((s) => !s.isPlaceholder);
 
   if (!stories && tag === 'training') {
     filteredStories = filteredStories.filter((s) => s.training === true);
