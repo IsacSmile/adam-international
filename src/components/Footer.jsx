@@ -13,11 +13,13 @@ import { services } from '../data/services';
 import { successStories } from '../data/successStories';
 import { galleryItems } from '../data/gallery';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
+import { hasVisibleBlogPosts } from '../lib/blog';
 
 const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlaceholder);
 const hasGallery = SHOW_PLACEHOLDERS
   ? Array.isArray(galleryItems) && galleryItems.length > 0
   : galleryItems.some((i) => !i.isPlaceholder);
+const hasBlog = hasVisibleBlogPosts();
 
 const baseQuickLinks = [
   { name: 'About Us', href: '/about' },
@@ -26,6 +28,7 @@ const baseQuickLinks = [
   { name: 'Universities', href: '/universities' },
   { name: 'Success Stories', href: '/success-stories' },
   { name: 'Gallery', href: '/gallery' },
+  { name: 'Blog', href: '/blog' },
   { name: 'Contact Us', href: '/#contact' },
 ];
 
@@ -34,6 +37,9 @@ const quickLinks = baseQuickLinks.filter((link) => {
     return false;
   }
   if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
+    return false;
+  }
+  if ((link.href === '/blog' || link.name === 'Blog') && !hasBlog) {
     return false;
   }
   return true;

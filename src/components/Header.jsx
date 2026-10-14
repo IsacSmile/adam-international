@@ -23,6 +23,7 @@ import { services } from '../data/services';
 import { successStories } from '../data/successStories';
 import { galleryItems } from '../data/gallery';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
+import { hasVisibleBlogPosts } from '../lib/blog';
 import { useAppointment } from '../context/AppointmentContext';
 
 // Register GSAP Plugins safely
@@ -44,6 +45,7 @@ const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlacehol
 const hasGallery = SHOW_PLACEHOLDERS
   ? Array.isArray(galleryItems) && galleryItems.length > 0
   : galleryItems.some((i) => !i.isPlaceholder);
+const hasBlog = hasVisibleBlogPosts();
 
 const baseNavLinks = [
   { name: 'Home', href: '/' },
@@ -56,7 +58,7 @@ const baseNavLinks = [
   { name: 'Countries', href: '/countries' },
   { name: 'Success Stories', href: '/success-stories' },
   { name: 'Gallery', href: '/gallery' },
-  { name: 'Blog', href: '/#blog' }, // TODO: page not built yet
+  { name: 'Blog', href: '/blog' },
   { name: 'Contact Us', href: '/#contact' },
 ];
 
@@ -65,6 +67,9 @@ const navLinks = baseNavLinks.filter((link) => {
     return false;
   }
   if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
+    return false;
+  }
+  if ((link.href === '/blog' || link.name === 'Blog') && !hasBlog) {
     return false;
   }
   return true;
@@ -146,6 +151,9 @@ export default function Header({ onBookAppointment }) {
     if (link.href.startsWith('/#')) {
       const targetHash = link.href.slice(1);
       return location.pathname === '/' && location.hash === targetHash;
+    }
+    if (link.href === '/blog') {
+      return location.pathname === '/blog' || location.pathname.startsWith('/blog/');
     }
     return location.pathname === link.href;
   };

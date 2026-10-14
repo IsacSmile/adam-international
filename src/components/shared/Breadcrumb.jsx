@@ -16,7 +16,7 @@ export default function Breadcrumb({ items = [], className = '' }) {
               {index > 0 && (
                 <ChevronRight className="w-3.5 h-3.5 text-[#C9A84C]/70 shrink-0" aria-hidden="true" />
               )}
-              {isLast || !item.href ? (
+              {!item.href ? (
                 <span
                   className="text-[#DFBE7A] font-semibold truncate max-w-[200px] sm:max-w-none"
                   aria-current="page"
@@ -26,7 +26,9 @@ export default function Breadcrumb({ items = [], className = '' }) {
               ) : (
                 <Link
                   to={item.href}
-                  className="text-gray-300 hover:text-white transition-colors duration-200"
+                  className={`${
+                    isLast ? 'text-[#DFBE7A] hover:text-white font-semibold' : 'text-gray-300 hover:text-white'
+                  } transition-colors duration-200`}
                 >
                   {item.label}
                 </Link>

@@ -15,6 +15,8 @@ const UniversitiesPage = lazy(() => import('./pages/UniversitiesPage'));
 const UniversityDetailPage = lazy(() => import('./pages/UniversityDetailPage'));
 const SuccessStoriesPage = lazy(() => import('./pages/SuccessStoriesPage'));
 const GalleryPage = lazy(() => import('./pages/GalleryPage'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
@@ -74,6 +76,8 @@ export default function App() {
                   <Route path="universities/:slug" element={<UniversityDetailPage />} />
                   <Route path="success-stories" element={<SuccessStoriesPage />} />
                   <Route path="gallery" element={<GalleryPage />} />
+                  <Route path="blog" element={<BlogPage />} />
+                  <Route path="blog/:slug" element={<BlogPostPage />} />
                   <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
                   <Route path="terms" element={<TermsPage />} />
                   <Route path="credits" element={<CreditsPage />} />
