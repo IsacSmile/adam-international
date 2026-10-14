@@ -1,6 +1,7 @@
 import { sql } from '../_lib/db.js';
 import { requireAdmin } from '../_lib/session.js';
 import { verifyOrigin } from '../_lib/origin.js';
+import { FIELD_LABELS, FORM_TYPE_LABELS, FORM_TYPES } from '../../src/data/formFields.js';
 
 const VALID_STATUSES = ['new', 'contacted', 'follow_up', 'converted', 'not_interested'];
 
@@ -53,6 +54,30 @@ function getISTDateString() {
 }
 
 /**
+ * Formats details JSON into 'Label: value; Label: value' for CSV export.
+ */
+function formatDetailsForCsv(details) {
+  if (!details) return '';
+  let obj = details;
+  if (typeof obj === 'string') {
+    try {
+      obj = JSON.parse(obj);
+    } catch {
+      return obj;
+    }
+  }
+  if (typeof obj !== 'object' || Array.isArray(obj)) return '';
+  const pairs = [];
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== null && v !== undefined && String(v).trim() !== '') {
+      const label = FIELD_LABELS[k] || k;
+      pairs.push(`${label}: ${v}`);
+    }
+  }
+  return pairs.join('; ');
+}
+
+/**
  * Neutralizes Excel spreadsheet formula injection and escapes CSV quotes.
  * Phone is excluded from formula prefixing as it is server-normalized (+91 followed by digits).
  */
@@ -98,6 +123,9 @@ export default async function handler(req, res) {
       const rawStatus = query.status ? query.status.trim() : '';
       const status = VALID_STATUSES.includes(rawStatus) ? rawStatus : null;
 
+      const rawFormType = query.form_type || query.formType || '';
+      const formType = FORM_TYPES.includes(rawFormType.trim()) ? rawFormType.trim() : null;
+
       const country = query.country && query.country.trim() && query.country !== 'all'
         ? query.country.trim()
         : null;
@@ -121,6 +149,7 @@ export default async function handler(req, res) {
           WHERE
             (${searchPattern}::text IS NULL OR name ILIKE ${searchPattern} OR email ILIKE ${searchPattern} OR phone ILIKE ${searchPattern})
             AND (${status}::text IS NULL OR status = ${status}::lead_status)
+            AND (${formType}::text IS NULL OR form_type = ${formType})
             AND (${country}::text IS NULL OR country = ${country})
             AND (${service}::text IS NULL OR service = ${service})
             AND (${branch}::text IS NULL OR branch = ${branch})
@@ -136,14 +165,18 @@ export default async function handler(req, res) {
         const csvHeader = [
           'ID',
           'Date (IST)',
+          'Form Type',
           'Name',
           'Email',
           'Phone',
+          'WhatsApp',
           'Country',
           'Service',
           'Branch',
           'University',
           'Source Page',
+          'Message',
+          'Details',
           'Status',
           'Notes',
           'Assigned To',
@@ -153,14 +186,18 @@ export default async function handler(req, res) {
           [
             sanitizeCsvCell(l.id),
             sanitizeCsvCell(formatISTDate(l.created_at)),
+            sanitizeCsvCell(FORM_TYPE_LABELS[l.form_type] || l.form_type || ''),
             sanitizeCsvCell(l.name),
             sanitizeCsvCell(l.email),
             sanitizeCsvCell(l.phone, true),
+            sanitizeCsvCell(l.whatsapp === true ? 'Yes' : (l.whatsapp === false ? 'No' : '')),
             sanitizeCsvCell(l.country),
             sanitizeCsvCell(l.service),
             sanitizeCsvCell(l.branch),
             sanitizeCsvCell(l.university),
             sanitizeCsvCell(l.source_page),
+            sanitizeCsvCell(l.message),
+            sanitizeCsvCell(formatDetailsForCsv(l.details)),
             sanitizeCsvCell(l.status),
             sanitizeCsvCell(l.notes),
             sanitizeCsvCell(l.assigned_to),
@@ -192,6 +229,7 @@ export default async function handler(req, res) {
         FROM leads
         WHERE
           (${searchPattern}::text IS NULL OR name ILIKE ${searchPattern} OR email ILIKE ${searchPattern} OR phone ILIKE ${searchPattern})
+          AND (${formType}::text IS NULL OR form_type = ${formType})
           AND (${country}::text IS NULL OR country = ${country})
           AND (${service}::text IS NULL OR service = ${service})
           AND (${branch}::text IS NULL OR branch = ${branch})
@@ -231,11 +269,16 @@ export default async function handler(req, res) {
           consent_text,
           status,
           notes,
-          assigned_to
+          assigned_to,
+          form_type,
+          details,
+          message,
+          whatsapp
         FROM leads
         WHERE
           (${searchPattern}::text IS NULL OR name ILIKE ${searchPattern} OR email ILIKE ${searchPattern} OR phone ILIKE ${searchPattern})
           AND (${status}::text IS NULL OR status = ${status}::lead_status)
+          AND (${formType}::text IS NULL OR form_type = ${formType})
           AND (${country}::text IS NULL OR country = ${country})
           AND (${service}::text IS NULL OR service = ${service})
           AND (${branch}::text IS NULL OR branch = ${branch})

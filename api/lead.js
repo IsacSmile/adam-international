@@ -5,6 +5,7 @@ import {
   sanitizeBranch,
   sanitizeUniversity,
 } from './_lib/allowed.js';
+import { validateLeadPayload, FORM_TYPES } from '../src/data/formFields.js';
 
 function ensureResHelpers(res) {
   if (!res.status) {
@@ -55,6 +56,26 @@ export default async function handler(req, res) {
 
   // Server-side validation
   const fields = {};
+
+  // Form type: default 'appointment', reject unknown
+  const rawFormType = data.formType || data.form_type || 'appointment';
+  if (!FORM_TYPES.includes(rawFormType)) {
+    return res.status(400).json({
+      ok: false,
+      error: 'validation',
+      fields: { formType: `Unknown form type: ${rawFormType}` },
+    });
+  }
+
+  // Validate details and message according to formType
+  const payloadValidation = validateLeadPayload(rawFormType, data.details, data.message);
+  if (!payloadValidation.ok) {
+    return res.status(400).json({
+      ok: false,
+      error: 'validation',
+      fields: payloadValidation.fields,
+    });
+  }
 
   // name: required, trimmed, 2-100 characters
   const rawName = data.name !== undefined ? data.name : data.fullName;
@@ -113,10 +134,13 @@ export default async function handler(req, res) {
       return res.status(429).json({ ok: false, error: 'rate_limited' });
     }
 
-    // Duplicate guard: same phone submitted within last 10 minutes
+    const { formType, cleanDetails, cleanMessage } = payloadValidation;
+
+    // Duplicate guard: same phone + form_type submitted within last 10 minutes
     const [recentLead] = await sql`
       SELECT id FROM leads
       WHERE phone = ${normalizedPhone}
+        AND form_type = ${formType}
         AND created_at > now() - interval '10 minutes'
       LIMIT 1
     `;
@@ -126,7 +150,8 @@ export default async function handler(req, res) {
     }
 
     // Optional sanitized fields
-    const cleanCountry = sanitizeCountry(data.country);
+    const rawCountry = data.country || cleanDetails?.country;
+    const cleanCountry = sanitizeCountry(rawCountry);
     const cleanService = sanitizeService(data.service);
     const cleanBranch = sanitizeBranch(data.branch);
     const cleanUniversity = sanitizeUniversity(data.university);
@@ -136,6 +161,10 @@ export default async function handler(req, res) {
     const consentText = typeof data.consent_text === 'string' && data.consent_text.trim()
       ? data.consent_text.trim()
       : "I agree to Adam International contacting me by phone, email or WhatsApp about my enquiry, and I've read the Privacy Policy.";
+
+    const whatsappVal = typeof data.whatsapp === 'boolean'
+      ? data.whatsapp
+      : (data.whatsapp === 'true' ? true : (data.whatsapp === 'false' ? false : null));
 
     // Insert lead into database
     await sql`
@@ -150,7 +179,11 @@ export default async function handler(req, res) {
         source_page,
         consent,
         consent_text,
-        status
+        status,
+        form_type,
+        details,
+        message,
+        whatsapp
       ) VALUES (
         ${trimmedName},
         ${lowercasedEmail},
@@ -162,7 +195,11 @@ export default async function handler(req, res) {
         ${cleanSourcePage},
         true,
         ${consentText},
-        'new'
+        'new',
+        ${formType},
+        ${JSON.stringify(cleanDetails || {})}::jsonb,
+        ${cleanMessage},
+        ${whatsappVal}
       )
     `;
 

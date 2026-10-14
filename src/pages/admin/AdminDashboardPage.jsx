@@ -27,6 +27,7 @@ import {
 import { countries } from '../../data/countries';
 import { services } from '../../data/services';
 import { branches } from '../../data/branches';
+import { FORM_TYPE_LABELS, FIELD_LABELS } from '../../data/formFields';
 
 const STATUS_OPTIONS = [
   { value: 'new', label: 'New', color: 'bg-blue-50 text-blue-700 border-blue-200' },
@@ -70,6 +71,7 @@ export default function AdminDashboardPage({ admin }) {
   // Filter states derived from URL search params
   const searchQueryParam = searchParams.get('q') || '';
   const statusParam = searchParams.get('status') || 'all';
+  const formTypeParam = searchParams.get('form_type') || 'all';
   const countryParam = searchParams.get('country') || 'all';
   const serviceParam = searchParams.get('service') || 'all';
   const branchParam = searchParams.get('branch') || 'all';
@@ -163,6 +165,7 @@ export default function AdminDashboardPage({ admin }) {
     const query = new URLSearchParams();
     if (searchQueryParam) query.set('q', searchQueryParam);
     if (statusParam !== 'all') query.set('status', statusParam);
+    if (formTypeParam !== 'all') query.set('form_type', formTypeParam);
     if (countryParam !== 'all') query.set('country', countryParam);
     if (serviceParam !== 'all') query.set('service', serviceParam);
     if (branchParam !== 'all') query.set('branch', branchParam);
@@ -200,6 +203,7 @@ export default function AdminDashboardPage({ admin }) {
   }, [
     searchQueryParam,
     statusParam,
+    formTypeParam,
     countryParam,
     serviceParam,
     branchParam,
@@ -252,6 +256,7 @@ export default function AdminDashboardPage({ admin }) {
       query.set('export', 'csv');
       if (searchQueryParam) query.set('q', searchQueryParam);
       if (statusParam !== 'all') query.set('status', statusParam);
+      if (formTypeParam !== 'all') query.set('form_type', formTypeParam);
       if (countryParam !== 'all') query.set('country', countryParam);
       if (serviceParam !== 'all') query.set('service', serviceParam);
       if (branchParam !== 'all') query.set('branch', branchParam);
@@ -535,10 +540,10 @@ export default function AdminDashboardPage({ admin }) {
             FILTERS & SEARCH TOOLBAR
         ========================================================================= */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3">
             
             {/* 1. Search Box */}
-            <div className="lg:col-span-2 relative">
+            <div className="sm:col-span-2 lg:col-span-3 xl:col-span-2 relative">
               <input
                 type="text"
                 placeholder="Search name, email, or phone…"
@@ -558,7 +563,23 @@ export default function AdminDashboardPage({ admin }) {
               )}
             </div>
 
-            {/* 2. Country Filter */}
+            {/* 2. Form Type Filter */}
+            <div>
+              <select
+                value={formTypeParam}
+                onChange={(e) => updateFilter('form_type', e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
+              >
+                <option value="all">All Forms</option>
+                <option value="appointment">Booking form</option>
+                <option value="eligibility">Eligibility check</option>
+                <option value="admission">Admission enquiry</option>
+                <option value="visa">Visa enquiry</option>
+                <option value="training">Training enquiry</option>
+              </select>
+            </div>
+
+            {/* 3. Country Filter */}
             <div>
               <select
                 value={countryParam}
@@ -575,7 +596,7 @@ export default function AdminDashboardPage({ admin }) {
               </select>
             </div>
 
-            {/* 3. Service Filter */}
+            {/* 4. Service Filter */}
             <div>
               <select
                 value={serviceParam}
@@ -592,7 +613,7 @@ export default function AdminDashboardPage({ admin }) {
               </select>
             </div>
 
-            {/* 4. Branch Filter */}
+            {/* 5. Branch Filter */}
             <div>
               <select
                 value={branchParam}
@@ -614,7 +635,7 @@ export default function AdminDashboardPage({ admin }) {
 
             </div>
 
-            {/* 5. Date Range (IST) */}
+            {/* 6. Date Range (IST) */}
             <div>
               <select
                 value={rangeParam}
@@ -761,11 +782,16 @@ export default function AdminDashboardPage({ admin }) {
                             <div className="font-bold text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors">
                               {lead.name}
                             </div>
-                            {lead.assigned_to && (
-                              <div className="text-[10px] text-slate-500 font-medium">
-                                Assigned: {lead.assigned_to}
-                              </div>
-                            )}
+                            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                              <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                {FORM_TYPE_LABELS[lead.form_type] || 'Booking form'}
+                              </span>
+                              {lead.assigned_to && (
+                                <span className="text-[10px] text-slate-500 font-medium">
+                                  • {lead.assigned_to}
+                                </span>
+                              )}
+                            </div>
                           </td>
 
                           {/* Contact (Phone, WhatsApp, Email) */}
@@ -860,8 +886,13 @@ export default function AdminDashboardPage({ admin }) {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h3 className="font-bold text-[#0B1F3A] text-sm">{lead.name}</h3>
-                        <div className="text-[11px] text-slate-500 font-medium">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <h3 className="font-bold text-[#0B1F3A] text-sm">{lead.name}</h3>
+                          <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                            {FORM_TYPE_LABELS[lead.form_type] || 'Booking form'}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 font-medium mt-0.5">
                           {formatIST(lead.created_at)}
                         </div>
                         {formatSourcePage(lead.source_page) && (
@@ -1063,6 +1094,21 @@ export default function AdminDashboardPage({ admin }) {
                 </div>
 
                 <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/60">
+                  <span className="text-slate-500">WhatsApp:</span>
+                  <span className="font-semibold text-slate-800">
+                    {selectedLead.whatsapp === true ? (
+                      <span className="text-emerald-700 font-bold inline-flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" /> Yes
+                      </span>
+                    ) : selectedLead.whatsapp === false ? (
+                      <span className="text-slate-600">No</span>
+                    ) : (
+                      <span className="text-slate-400">Not specified</span>
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/60">
                   <span className="text-slate-500">Email:</span>
                   <a
                     href={`mailto:${selectedLead.email}`}
@@ -1075,6 +1121,12 @@ export default function AdminDashboardPage({ admin }) {
 
               {/* Details Grid */}
               <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Form Type</span>
+                  <span className="font-semibold text-slate-800">
+                    {FORM_TYPE_LABELS[selectedLead.form_type] || 'Booking form'}
+                  </span>
+                </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase font-semibold block">Date (IST)</span>
                   <span className="font-semibold text-slate-800">{formatIST(selectedLead.created_at)}</span>
@@ -1100,6 +1152,51 @@ export default function AdminDashboardPage({ admin }) {
                   <span className="font-semibold text-slate-800 truncate block">{selectedLead.university || '—'}</span>
                 </div>
               </div>
+
+              {/* Enquiry Details (JSON details rendered as labelled rows, hiding empty values) */}
+              {(() => {
+                let detailsObj = selectedLead.details;
+                if (typeof detailsObj === 'string') {
+                  try {
+                    detailsObj = JSON.parse(detailsObj);
+                  } catch {
+                    detailsObj = null;
+                  }
+                }
+                const detailEntries = (detailsObj && typeof detailsObj === 'object' && !Array.isArray(detailsObj))
+                  ? Object.entries(detailsObj).filter(([_, v]) => v !== null && v !== undefined && String(v).trim() !== '')
+                  : [];
+
+                if (detailEntries.length === 0) return null;
+
+                return (
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
+                    <div className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">
+                      Enquiry Details
+                    </div>
+                    <div className="divide-y divide-slate-200/60">
+                      {detailEntries.map(([k, v]) => (
+                        <div key={k} className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 py-1.5 first:pt-0 last:pb-0 text-xs">
+                          <span className="text-slate-500 font-medium">{FIELD_LABELS[k] || k}:</span>
+                          <span className="font-semibold text-slate-800 sm:text-right">{String(v)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Message */}
+              {selectedLead.message && (
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
+                  <div className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">
+                    Message
+                  </div>
+                  <p className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-normal bg-white p-3 rounded-xl border border-slate-200/80">
+                    {selectedLead.message}
+                  </p>
+                </div>
+              )}
 
               {/* Source Page & Consent */}
               <div className="space-y-2">

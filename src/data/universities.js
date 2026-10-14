@@ -7,6 +7,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -29,6 +30,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -51,6 +53,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -73,6 +76,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -95,6 +99,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -117,6 +122,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -139,6 +145,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -161,6 +168,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -183,6 +191,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -205,6 +214,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,
@@ -227,6 +237,7 @@ export const universities = [
     logo: null,
     coverImage: null,
     overview: null,
+    website: null,
     programs: [],
     requirements: {
       academic: null,

@@ -10,7 +10,6 @@ import {
   GraduationCap 
 } from 'lucide-react';
 import { countries } from '../data/countries';
-import { universities } from '../data/universities';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -350,8 +349,7 @@ export default function HeroShowcase({ onBookAppointment }) {
               <div className="overflow-hidden h-[420px] relative">
                  <div className="flex flex-col gap-3 animate-marquee-down">
                   {col1Duplicated.map((c, i) => {
-                    const hasUniversities = universities.some((u) => u.country === c.slug);
-                    const tileLink = hasUniversities ? `/universities?country=${c.slug}` : '/countries';
+                    const tileLink = `/countries/${c.slug}`;
 
                     return (
                       <Link
@@ -386,8 +384,7 @@ export default function HeroShowcase({ onBookAppointment }) {
               <div className="overflow-hidden h-[420px] relative">
                 <div className="flex flex-col gap-3 animate-marquee-up">
                   {col2Duplicated.map((c, i) => {
-                    const hasUniversities = universities.some((u) => u.country === c.slug);
-                    const tileLink = hasUniversities ? `/universities?country=${c.slug}` : '/countries';
+                    const tileLink = `/countries/${c.slug}`;
 
                     return (
                       <Link

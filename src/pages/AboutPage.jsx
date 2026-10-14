@@ -27,7 +27,6 @@ import Breadcrumb from '../components/shared/Breadcrumb';
 import { useAppointment } from '../context/AppointmentContext';
 import { countries } from '../data/countries';
 import { branches } from '../data/branches';
-import { universities } from '../data/universities';
 import { successStories } from '../data/successStories';
 
 if (typeof window !== 'undefined') {
@@ -199,9 +198,8 @@ export default function AboutPage() {
             alt="University of Debrecen main building in Hungary"
             className="w-full h-full object-cover object-center"
           />
-          {/* Deep Navy Gradient Overlay for optimal readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A]/95 via-[#0B1F3A]/85 to-[#0B1F3A]/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A] via-transparent to-transparent opacity-80" />
+          {/* Navy Gradient Overlay for optimal readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A]/90 via-[#0B1F3A]/65 to-[#0B1F3A]/40 pointer-events-none" />
         </div>
 
         {/* Hero Content */}
@@ -455,14 +453,13 @@ export default function AboutPage() {
 
           {/* 8 Cards Grid: 4 cols desktop, 2 cols tablet, 2 cols mobile */}
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {exploreCountries.map((c) => {
-              const univCount = universities.filter(
-                (u) => u.country === c.slug
-              ).length;
-              const hasUniversities = univCount > 0;
-
-              const cardContent = (
-                <div className="h-full bg-slate-50 rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col cursor-pointer">
+            {exploreCountries.map((c) => (
+              <Link
+                key={c.slug}
+                to={`/countries/${c.slug}`}
+                className="block h-full group"
+              >
+                <div className="h-full bg-slate-50 rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer">
                   {/* Country Image with gentle zoom */}
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-200">
                     <img
@@ -480,35 +477,12 @@ export default function AboutPage() {
 
                   {/* Card Footer Action */}
                   <div className="p-3.5 sm:p-4 mt-auto bg-white border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-bold text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors">
-                    <span>
-                      {hasUniversities
-                        ? 'Explore Universities'
-                        : 'Ask an Advisor'}
-                    </span>
+                    <span>Explore {c.name} →</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
-              );
-
-              return hasUniversities ? (
-                <Link
-                  key={c.slug}
-                  to={`/universities?country=${c.slug}`}
-                  className="block h-full"
-                >
-                  {cardContent}
-                </Link>
-              ) : (
-                <button
-                  key={c.slug}
-                  type="button"
-                  onClick={() => openAppointment({ country: c.name })}
-                  className="block h-full text-left w-full cursor-pointer focus:outline-none"
-                >
-                  {cardContent}
-                </button>
-              );
-            })}
+              </Link>
+            ))}
           </div>
 
           {/* Text link below the grid */}

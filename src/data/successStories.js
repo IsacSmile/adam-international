@@ -9,6 +9,7 @@ export const successStories = [
     course: 'B.Sc. Computer Science',
     intake: 'September 2024',
     quote: 'Adam International made my European study dream hassle-free. From document audit to mock visa prep, their team was beside me at every single step.',
+    // PLACEHOLDER — replace before launch
     story: [
       'Adith approached Adam International seeking a Computer Science program in Europe within an optimal budget. Our counseling team executed his university application to the University of Debrecen, optimized his motivation letter, audited financial proof documentation, and conducted 3 intensive embassy mock interviews.',
       'His student visa was stamped in just 18 days with zero queries, enabling him to begin his classes on schedule in Hungary.',
@@ -19,9 +20,7 @@ export const successStories = [
       { label: 'Visa approved', date: 'October 2024' },
       { label: 'Landed', date: 'October 2024' },
     ],
-    gallery: [
-      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?q=80&w=800&auto=format&fit=crop',
-    ],
+    gallery: [],
     video: null,
     rating: 5,
     consentOnFile: false,

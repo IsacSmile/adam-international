@@ -5,17 +5,14 @@ import { ArrowRight, MessageSquare } from 'lucide-react';
 import PageHero from '../components/shared/PageHero';
 import SectionSkeleton from '../components/SectionSkeleton';
 import { countries } from '../data/countries';
-import { universities } from '../data/universities';
 import { useAppointment } from '../context/AppointmentContext';
 
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
 
 function CountryCard({ country, onTalkToAdvisor }) {
-  const hasUniversities = universities.some((u) => u.country === country.slug);
-
   return (
     <article className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between group">
-      <div>
+      <Link to={`/countries/${country.slug}`} className="block flex-1 group">
         {/* Country Image */}
         <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
           <img
@@ -43,46 +40,38 @@ function CountryCard({ country, onTalkToAdvisor }) {
 
         {/* Content */}
         <div className="p-5 sm:p-6">
-          <h3 className="text-xl font-bold text-[#0B1F3A] mb-2 leading-snug">
+          <h3 className="text-xl font-bold text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors mb-2 leading-snug">
             {country.name}
           </h3>
           <p className="text-sm text-slate-600 leading-relaxed font-normal">
             {country.blurb}
           </p>
         </div>
-      </div>
+      </Link>
 
       {/* Card Actions */}
-      <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 mt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-        {hasUniversities ? (
-          <>
-            <Link
-              to={`/universities?country=${country.slug}`}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1F3A] hover:bg-[#13335F] text-white text-xs sm:text-sm font-bold transition-colors shadow-sm"
-            >
-              <span>See universities</span>
-              <ArrowRight className="w-4 h-4 text-[#C9A84C]" />
-            </Link>
+      <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 mt-2 flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center lg:items-stretch xl:items-center gap-2">
+        <Link
+          to={`/countries/${country.slug}`}
+          aria-label={`Explore ${country.name}`}
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#0B1F3A] hover:bg-[#13335F] text-white text-xs sm:text-sm font-bold transition-colors shadow-sm whitespace-nowrap h-10 w-full sm:w-auto lg:w-full xl:w-auto"
+        >
+          <span>Explore</span>
+          <ArrowRight className="w-4 h-4 text-[#C9A84C] shrink-0" aria-hidden="true" />
+        </Link>
 
-            <button
-              type="button"
-              onClick={() => onTalkToAdvisor(country.slug)}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 hover:border-[#0B1F3A] text-slate-700 hover:text-[#0B1F3A] text-xs sm:text-sm font-semibold transition-colors cursor-pointer bg-white"
-            >
-              <MessageSquare className="w-3.5 h-3.5 text-[#C9A84C]" />
-              <span>Talk to an advisor</span>
-            </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={() => onTalkToAdvisor(country.slug)}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1F3A] hover:bg-[#13335F] text-white text-xs sm:text-sm font-bold transition-colors shadow-sm cursor-pointer"
-          >
-            <MessageSquare className="w-3.5 h-3.5 text-[#C9A84C]" />
-            <span>Talk to an advisor</span>
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onTalkToAdvisor(country.slug);
+          }}
+          className="inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl border border-slate-300 hover:border-[#0B1F3A] text-slate-700 hover:text-[#0B1F3A] text-xs sm:text-sm font-semibold transition-colors cursor-pointer bg-white whitespace-nowrap h-10 w-full sm:w-auto lg:w-full xl:w-auto"
+        >
+          <MessageSquare className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" aria-hidden="true" />
+          <span>Talk to an advisor</span>
+        </button>
       </div>
     </article>
   );

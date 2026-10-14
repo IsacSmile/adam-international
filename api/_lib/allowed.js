@@ -50,7 +50,9 @@ export function sanitizeService(value) {
   const match = services.find(
     (s) =>
       s.title.toLowerCase() === trimmed.toLowerCase() ||
-      s.slug.toLowerCase() === trimmed.toLowerCase()
+      s.slug.toLowerCase() === trimmed.toLowerCase() ||
+      s.title.toLowerCase().replace('counselling', 'counseling') ===
+        trimmed.toLowerCase().replace('counselling', 'counseling')
   );
   return match ? match.title : null;
 }

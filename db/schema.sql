@@ -56,3 +56,15 @@ $$ language plpgsql;
 drop trigger if exists leads_updated_at on leads;
 create trigger leads_updated_at before update on leads
   for each row execute function set_updated_at();
+
+-- Multiple enquiry form types & extra details
+alter table leads add column if not exists form_type text not null default 'appointment';
+alter table leads add column if not exists details jsonb not null default '{}'::jsonb;
+alter table leads add column if not exists message text;
+alter table leads add column if not exists whatsapp boolean;
+do $$ begin
+  alter table leads add constraint leads_form_type_chk
+    check (form_type in ('appointment','eligibility','admission','visa','training'));
+exception when duplicate_object then null; end $$;
+create index if not exists leads_form_type_idx on leads (form_type);
+

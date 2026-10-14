@@ -399,7 +399,7 @@ export default function Header({ onBookAppointment }) {
                             className="flex items-center justify-between px-4 py-2 text-[13px] font-bold text-[#0B1F3A] hover:text-[#C9A84C] hover:bg-slate-50 transition-colors rounded-lg mx-1"
                             role="menuitem"
                           >
-                            <span>All Services →</span>
+                            <span>All Services</span>
                             <ArrowRight className="w-4 h-4 text-[#C9A84C]" />
                           </Link>
                         </div>

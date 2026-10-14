@@ -44,6 +44,7 @@ export default function Footer({ onOpenModal }) {
               </div>
             </Link>
 
+            {/* CONFIRM WITH CLIENT: "since 2008" */}
             <p className="text-gray-300 text-sm leading-relaxed mb-6 font-normal">
               Top-tier overseas education consultancy helping students achieve their global academic dreams since 2008.
             </p>

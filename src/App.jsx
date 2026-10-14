@@ -8,6 +8,7 @@ import SectionSkeleton from './components/SectionSkeleton';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const CountriesPage = lazy(() => import('./pages/CountriesPage'));
+const CountryDetailPage = lazy(() => import('./pages/CountryDetailPage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'));
 const UniversitiesPage = lazy(() => import('./pages/UniversitiesPage'));
@@ -64,6 +65,7 @@ export default function App() {
                   <Route index element={<HomePage />} />
                   <Route path="about" element={<AboutPage />} />
                   <Route path="countries" element={<CountriesPage />} />
+                  <Route path="countries/:slug" element={<CountryDetailPage />} />
 
                   <Route path="services" element={<ServicesPage />} />
                   <Route path="services/:slug" element={<ServiceDetailPage />} />

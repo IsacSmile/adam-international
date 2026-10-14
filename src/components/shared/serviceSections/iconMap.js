@@ -1,0 +1,78 @@
+import React from 'react';
+import {
+  Compass,
+  GraduationCap,
+  BookOpen,
+  BookOpenCheck,
+  School,
+  Building2,
+  HelpCircle,
+  Globe2,
+  Wallet,
+  ClipboardCheck,
+  FileEdit,
+  FileCheck2,
+  PenLine,
+  RefreshCw,
+  MailCheck,
+  Languages,
+  Users,
+  Award,
+  ShieldCheck,
+  Plane,
+  Luggage,
+  HeartHandshake,
+  MapPin,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Phone,
+  MessageCircle,
+  Info,
+  Calendar,
+  Check,
+  ArrowRight,
+} from 'lucide-react';
+
+export const ICON_MAP = {
+  Compass,
+  GraduationCap,
+  BookOpen,
+  BookOpenCheck,
+  School,
+  Building2,
+  HelpCircle,
+  Globe2,
+  Wallet,
+  ClipboardCheck,
+  FileEdit,
+  FileCheck2,
+  PenLine,
+  RefreshCw,
+  MailCheck,
+  Languages,
+  Users,
+  Award,
+  ShieldCheck,
+  Plane,
+  Luggage,
+  HeartHandshake,
+  MapPin,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Phone,
+  MessageCircle,
+  Info,
+  Calendar,
+  Check,
+  ArrowRight,
+};
+
+export function getIconComponent(name) {
+  if (!name) return Sparkles;
+  if (typeof name === 'function' || (typeof name === 'object' && name !== null)) {
+    return name;
+  }
+  return ICON_MAP[name] || Sparkles;
+}

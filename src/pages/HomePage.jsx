@@ -20,7 +20,7 @@ export default function HomePage() {
         <title>Overseas Education Consultancy in Kochi, Kerala | Adam International</title>
         <meta
           name="description"
-          content="Adam International is an overseas education consultancy based in Kochi, Kerala helping students with university admissions, student visas, scholarships, and career counseling."
+          content="Adam International is an overseas education consultancy based in Kochi, Kerala helping students with university admissions, student visas, scholarships, and career counselling."
         />
       </Helmet>
 
