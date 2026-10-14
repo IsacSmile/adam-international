@@ -12,8 +12,9 @@ import {
 import { services } from '../data/services';
 
 const quickLinks = [
-  { name: 'About Us', href: '/#about' }, // TODO: page not built yet
+  { name: 'About Us', href: '/about' },
   { name: 'Services', href: '/services' },
+
   { name: 'Countries', href: '/countries' },
   { name: 'Universities', href: '/universities' },
   { name: 'Success Stories', href: '/success-stories' },
@@ -189,6 +190,8 @@ export default function Footer({ onOpenModal }) {
             <Link to="/privacy-policy" className="hover:text-[#C9A84C] transition-colors">Privacy Policy</Link>
             <span className="text-gray-600">•</span>
             <Link to="/terms" className="hover:text-[#C9A84C] transition-colors">Terms & Conditions</Link>
+            <span className="text-gray-600">•</span>
+            <Link to="/credits" className="hover:text-[#C9A84C] transition-colors">Image Credits</Link>
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ export function AppointmentProvider({ children }) {
     service: '',
     country: '',
     university: '',
+    branch: '',
   });
 
   const openAppointment = useCallback((data = {}) => {
@@ -15,9 +16,11 @@ export function AppointmentProvider({ children }) {
       service: data.service || '',
       country: data.country || '',
       university: data.university || '',
+      branch: data.branch || '',
     });
     setIsOpen(true);
   }, []);
+
 
   const closeAppointment = useCallback(() => {
     setIsOpen(false);

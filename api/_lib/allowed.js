@@ -13,7 +13,8 @@ export const allowedServiceTitles = services.map((s) => s.title);
 export const allowedServiceSlugs = services.map((s) => s.slug);
 export const allowedServices = [...allowedServiceTitles, 'Not sure yet'];
 
-export const allowedBranches = [...branches, 'Not sure yet'];
+export const allowedBranchNames = branches.map((b) => (typeof b === 'object' ? b.name : b));
+export const allowedBranches = [...allowedBranchNames, 'Not sure yet'];
 export const allowedUniversitySlugs = universities.map((u) => u.slug);
 
 /**
@@ -65,11 +66,17 @@ export function sanitizeBranch(value) {
   if (!trimmed) return null;
   if (trimmed.toLowerCase() === 'not sure yet') return 'Not sure yet';
 
-  const match = branches.find(
-    (b) => b.toLowerCase() === trimmed.toLowerCase()
-  );
-  return match || null;
+  const match = branches.find((b) => {
+    const name = typeof b === 'object' ? b.name : b;
+    const slug = typeof b === 'object' ? b.slug : b;
+    return (
+      name.toLowerCase() === trimmed.toLowerCase() ||
+      slug.toLowerCase() === trimmed.toLowerCase()
+    );
+  });
+  return match ? (typeof match === 'object' ? match.name : match) : null;
 }
+
 
 /**
  * Sanitizes university input.

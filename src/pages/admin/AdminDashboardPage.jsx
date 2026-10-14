@@ -601,12 +601,17 @@ export default function AdminDashboardPage({ admin }) {
               >
                 <option value="all">All Branches</option>
                 <option value="Not sure yet">Not sure yet</option>
-                {branches.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
+                {branches.map((b) => {
+
+                  const name = typeof b === 'object' ? b.name : b;
+                  return (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  );
+                })}
               </select>
+
             </div>
 
             {/* 5. Date Range (IST) */}

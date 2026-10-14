@@ -13,9 +13,12 @@ const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'));
 const UniversitiesPage = lazy(() => import('./pages/UniversitiesPage'));
 const UniversityDetailPage = lazy(() => import('./pages/UniversityDetailPage'));
 const SuccessStoriesPage = lazy(() => import('./pages/SuccessStoriesPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
+const CreditsPage = lazy(() => import('./pages/CreditsPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+
 
 // Admin routes lazy-loaded outside public bundle
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
@@ -59,7 +62,9 @@ export default function App() {
                 {/* Public site routes inside MainLayout */}
                 <Route path="/" element={<MainLayout />}>
                   <Route index element={<HomePage />} />
+                  <Route path="about" element={<AboutPage />} />
                   <Route path="countries" element={<CountriesPage />} />
+
                   <Route path="services" element={<ServicesPage />} />
                   <Route path="services/:slug" element={<ServiceDetailPage />} />
                   <Route path="universities" element={<UniversitiesPage />} />
@@ -67,6 +72,7 @@ export default function App() {
                   <Route path="success-stories" element={<SuccessStoriesPage />} />
                   <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
                   <Route path="terms" element={<TermsPage />} />
+                  <Route path="credits" element={<CreditsPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Routes>

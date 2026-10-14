@@ -79,18 +79,33 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
         matchedUnivSlug = foundU ? foundU.slug : appointmentData.university;
       }
 
+      let matchedBranchName = 'Not sure yet';
+      if (appointmentData?.branch) {
+        const foundB = branches.find(
+          (b) =>
+            (typeof b === 'object' ? b.name : b).toLowerCase() ===
+              appointmentData.branch.toLowerCase() ||
+            (typeof b === 'object' ? b.slug : b).toLowerCase() ===
+              appointmentData.branch.toLowerCase()
+        );
+        matchedBranchName = foundB
+          ? (typeof foundB === 'object' ? foundB.name : foundB)
+          : appointmentData.branch;
+      }
+
       setFormData({
         fullName: '',
         email: '',
         phone: '',
         country: matchedCountryName,
         service: matchedServiceTitle,
-        branch: 'Not sure yet',
+        branch: matchedBranchName,
         university: matchedUnivName,
         universitySlug: matchedUnivSlug,
         company_website: '',
         consent: false,
       });
+
       setErrors({});
       setSubmitError(null);
       setIsSuccess(false);
@@ -418,12 +433,16 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
                   className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent bg-white text-slate-800"
                 >
                   <option value="Not sure yet">Not sure yet</option>
-                  {branches.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
+                  {branches.map((b) => {
+                    const name = typeof b === 'object' ? b.name : b;
+                    return (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    );
+                  })}
                 </select>
+
               </div>
 
               {/* Required Consent Checkbox */}
