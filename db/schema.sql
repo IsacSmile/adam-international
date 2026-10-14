@@ -62,9 +62,9 @@ alter table leads add column if not exists form_type text not null default 'appo
 alter table leads add column if not exists details jsonb not null default '{}'::jsonb;
 alter table leads add column if not exists message text;
 alter table leads add column if not exists whatsapp boolean;
-do $$ begin
-  alter table leads add constraint leads_form_type_chk
-    check (form_type in ('appointment','eligibility','admission','visa','training'));
-exception when duplicate_object then null; end $$;
+alter table leads drop constraint if exists leads_form_type_chk;
+alter table leads add constraint leads_form_type_chk
+  check (form_type in ('appointment','eligibility','admission','visa','training','contact'));
 create index if not exists leads_form_type_idx on leads (form_type);
+
 

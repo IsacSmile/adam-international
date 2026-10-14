@@ -17,6 +17,7 @@ import Lightbox from '../components/shared/Lightbox';
 import { galleryItems, galleryTypes } from '../data/gallery';
 import { countries } from '../data/countries';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
+import { whatsappLink } from '../data/contact';
 import { useAppointment } from '../context/AppointmentContext';
 import { useLenis } from '../components/SmoothScroll';
 
@@ -813,7 +814,7 @@ export default function GalleryPage() {
             </button>
 
             <a
-              href="https://wa.me/919895890500"
+              href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-400 hover:text-white font-extrabold text-base transition-all duration-300 shadow-md active:scale-95 backdrop-blur-md"

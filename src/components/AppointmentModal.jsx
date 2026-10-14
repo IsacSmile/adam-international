@@ -5,6 +5,7 @@ import { countries } from '../data/countries';
 import { services } from '../data/services';
 import { branches } from '../data/branches';
 import { universities } from '../data/universities';
+import { contact } from '../data/contact';
 
 export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnClose }) {
   let contextAppointment = null;
@@ -221,12 +222,12 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
         setErrors({});
       } else {
         setSubmitError(
-          "Sorry, something went wrong and your request wasn't sent. Please try again, or call us on +91 9895 890 500."
+          `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
         );
       }
     } catch (err) {
       setSubmitError(
-        "Sorry, something went wrong and your request wasn't sent. Please try again, or call us on +91 9895 890 500."
+        `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
       );
     } finally {
       setIsSubmitting(false);
@@ -496,10 +497,10 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
             <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
               An advisor will call you back, usually within one working day. If it's urgent, call us on{' '}
               <a
-                href="tel:+919895890500"
+                href={`tel:${contact.phoneTel}`}
                 className="text-[#0B1F3A] font-semibold hover:text-[#C9A84C] whitespace-nowrap"
               >
-                +91 9895 890 500
+                {contact.phoneDisplay}
               </a>.
             </p>
             <div className="pt-2">

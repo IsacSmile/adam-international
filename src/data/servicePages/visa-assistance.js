@@ -1,3 +1,5 @@
+import { contact } from '../contact.js';
+
 export const visaAssistanceData = {
   seo: {
     title: 'Visa Assistance',
@@ -131,7 +133,7 @@ export const visaAssistanceData = {
         },
         {
           q: 'How can I book a visa consultation with Adam International?',
-          a: 'Fill in the form on this page, use Book a Free Consultation, message us on WhatsApp, or call +91 9895 890 500.',
+          a: `Fill in the form on this page, use Book a Free Consultation, message us on WhatsApp, or call ${contact.phoneDisplay}.`,
         },
       ],
     },

@@ -12,6 +12,7 @@ import { successStories } from '../data/successStories';
 import { visaApprovals } from '../data/visaApprovals';
 import { countries } from '../data/countries';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
+import { whatsappLink } from '../data/contact';
 import { useAppointment } from '../context/AppointmentContext';
 
 export default function SuccessStoriesPage() {
@@ -279,7 +280,7 @@ export default function SuccessStoriesPage() {
             </button>
 
             <a
-              href="https://wa.me/919895890500"
+              href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm sm:text-base px-6 sm:px-7 py-3.5 rounded-xl shadow-md transition-all duration-200"

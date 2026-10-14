@@ -24,6 +24,7 @@ import { successStories } from '../data/successStories';
 import { galleryItems } from '../data/gallery';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { hasVisibleBlogPosts } from '../lib/blog';
+import { contact, whatsappLink } from '../data/contact';
 import { useAppointment } from '../context/AppointmentContext';
 
 // Register GSAP Plugins safely
@@ -59,7 +60,7 @@ const baseNavLinks = [
   { name: 'Success Stories', href: '/success-stories' },
   { name: 'Gallery', href: '/gallery' },
   { name: 'Blog', href: '/blog' },
-  { name: 'Contact Us', href: '/#contact' },
+  { name: 'Contact Us', href: '/contact' },
 ];
 
 const navLinks = baseNavLinks.filter((link) => {
@@ -154,6 +155,9 @@ export default function Header({ onBookAppointment }) {
     }
     if (link.href === '/blog') {
       return location.pathname === '/blog' || location.pathname.startsWith('/blog/');
+    }
+    if (link.href === '/contact') {
+      return location.pathname === '/contact';
     }
     return location.pathname === link.href;
   };
@@ -592,14 +596,14 @@ export default function Header({ onBookAppointment }) {
             {/* Direct Contact Bar */}
             <div className="grid grid-cols-2 gap-2.5 text-xs font-semibold text-gray-200">
               <a
-                href="tel:+919895890500"
+                href={`tel:${contact.phoneTel}`}
                 className="flex items-center gap-2 bg-white/10 border border-white/15 p-2.5 rounded-xl hover:bg-white/20 transition-colors truncate"
               >
                 <Phone className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
-                <span className="truncate">+91 9895 890 500</span>
+                <span className="truncate">{contact.phoneDisplay}</span>
               </a>
               <a
-                href="https://wa.me/919895890500"
+                href={whatsappLink()}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 p-2.5 rounded-xl hover:bg-emerald-500/30 transition-colors truncate"

@@ -15,6 +15,7 @@ import Breadcrumb from '../components/shared/Breadcrumb';
 import BlogCard from '../components/blog/BlogCard';
 import NotFoundPage from './NotFoundPage';
 import { getPostBySlug, getAllPosts, formatBlogDate } from '../lib/blog';
+import { whatsappLink } from '../data/contact';
 import { useAppointment } from '../context/AppointmentContext';
 
 export default function BlogPostPage() {
@@ -214,7 +215,7 @@ export default function BlogPostPage() {
                 </button>
 
                 <a
-                  href="https://wa.me/919895890500"
+                  href={whatsappLink()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base transition-colors shadow-md active:scale-98"

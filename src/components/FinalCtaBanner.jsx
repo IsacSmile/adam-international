@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Phone, MessageSquare, Sparkles, Clock } from 'lucide-react';
+import { contact, whatsappLink } from '../data/contact';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -148,7 +149,7 @@ export default function FinalCtaBanner({ onBookCounseling }) {
 
               {/* Secondary WhatsApp Button */}
               <a
-                href="https://wa.me/919895890500"
+                href={whatsappLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-emerald-500/15 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-400 hover:text-white font-extrabold text-base sm:text-lg py-4 px-8 rounded-2xl transition-all duration-300 shadow-md active:scale-95 backdrop-blur-md group"
@@ -167,10 +168,10 @@ export default function FinalCtaBanner({ onBookCounseling }) {
               <span>
                 Or call us directly at{' '}
                 <a
-                  href="tel:+919895890500"
+                  href={`tel:${contact.phoneTel}`}
                   className="text-white hover:text-[#C9A84C] font-extrabold underline underline-offset-4 transition-colors"
                 >
-                  +91 9895 890 500
+                  {contact.phoneDisplay}
                 </a>
               </span>
             </div>

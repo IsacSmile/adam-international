@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, MessageCircle, CheckCircle2, AlertCircle } from 'lucide-react';
-import { getFormFieldDefinitions } from '../../data/formFields';
+import { getFormFieldDefinitions, PREFERRED_TIME_OPTIONS } from '../../data/formFields';
+import { contact, whatsappLink } from '../../data/contact';
 
 export default function InlineEnquiryForm({
   formType = 'appointment',
@@ -15,9 +16,19 @@ export default function InlineEnquiryForm({
 }) {
   const formDefs = getFormFieldDefinitions();
 
+  const effectiveFields = useMemo(() => {
+    if (fields && fields.length > 0) return fields;
+    if (formType === 'contact') return ['country', 'message'];
+    return [];
+  }, [fields, formType]);
+
   // Merge default per-formType overrides with passed fieldLabels
   const defaultOverrides =
-    formType === 'visa' ? { country: 'Preferred study destination' } : {};
+    formType === 'visa'
+      ? { country: 'Preferred study destination' }
+      : formType === 'contact'
+      ? { country: 'Preferred Study Destination', message: 'Your Message' }
+      : {};
   const mergedFieldLabels = { ...defaultOverrides, ...fieldLabels };
 
   const [formData, setFormData] = useState(() => {
@@ -29,17 +40,32 @@ export default function InlineEnquiryForm({
       consent: false,
       company_website: '',
       message: '',
+      preferredDate: '',
+      preferredTime: '',
     };
-    fields.forEach((fKey) => {
+    effectiveFields.forEach((fKey) => {
       initial[fKey] = initialValues[fKey] || '';
     });
     return initial;
   });
 
+  const [bookConsultation, setBookConsultation] = useState(false);
+  const [submittedConsultation, setSubmittedConsultation] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const istLimits = useMemo(() => {
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const [y, m, d] = todayStr.split('-').map(Number);
+    const tomorrow = new Date(Date.UTC(y, m - 1, d + 1));
+    const maxDate = new Date(Date.UTC(y, m - 1, d + 60));
+    return {
+      min: tomorrow.toISOString().slice(0, 10),
+      max: maxDate.toISOString().slice(0, 10),
+    };
+  }, []);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -72,6 +98,44 @@ export default function InlineEnquiryForm({
       newErrors.phone = 'Please enter a valid 10-digit Indian mobile number.';
     }
 
+    if (formType === 'contact') {
+      const msg = (formData.message || '').trim();
+      if (!msg || msg.length < 10) {
+        newErrors.message = 'Please enter a message of at least 10 characters.';
+      }
+      if (bookConsultation) {
+        if (!formData.preferredDate) {
+          newErrors.preferredDate = 'Please choose a working day within the next 60 days.';
+        } else {
+          const match = formData.preferredDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if (!match) {
+            newErrors.preferredDate = 'Please choose a working day within the next 60 days.';
+          } else {
+            const [_, y, m, d] = match.map(Number);
+            const chosen = new Date(Date.UTC(y, m - 1, d));
+            const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+            const [tY, tM, tD] = todayStr.split('-').map(Number);
+            const tomorrow = new Date(Date.UTC(tY, tM - 1, tD + 1));
+            const maxDate = new Date(Date.UTC(tY, tM - 1, tD + 60));
+            const workingDays = contact.workingDays || [1, 2, 3, 4, 5];
+            if (
+              chosen.getUTCFullYear() !== y ||
+              chosen.getUTCMonth() !== m - 1 ||
+              chosen.getUTCDate() !== d ||
+              chosen < tomorrow ||
+              chosen > maxDate ||
+              !workingDays.includes(chosen.getUTCDay())
+            ) {
+              newErrors.preferredDate = 'Please choose a working day within the next 60 days.';
+            }
+          }
+        }
+        if (!formData.preferredTime) {
+          newErrors.preferredTime = 'Please select a preferred time.';
+        }
+      }
+    }
+
     if (formData.consent !== true) {
       newErrors.consent = 'Please tick the box so we can contact you.';
     }
@@ -93,11 +157,16 @@ export default function InlineEnquiryForm({
 
     try {
       const details = {};
-      fields.forEach((key) => {
+      effectiveFields.forEach((key) => {
         if (key !== 'message' && formData[key] !== undefined && formData[key] !== '') {
           details[key] = formData[key];
         }
       });
+
+      if (formType === 'contact' && bookConsultation) {
+        if (formData.preferredDate) details.preferredDate = formData.preferredDate;
+        if (formData.preferredTime) details.preferredTime = formData.preferredTime;
+      }
 
       const payload = {
         formType,
@@ -123,16 +192,31 @@ export default function InlineEnquiryForm({
       const data = await res.json().catch(() => null);
 
       if (res.ok && data?.ok) {
+        if (formType === 'contact' && bookConsultation && formData.preferredDate && formData.preferredTime) {
+          const [y, m, d] = formData.preferredDate.split('-').map(Number);
+          const dt = new Date(Date.UTC(y, m - 1, d));
+          const formattedDate = dt.toLocaleDateString('en-GB', {
+            timeZone: 'UTC',
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          });
+          setSubmittedConsultation({
+            formattedDate,
+            time: formData.preferredTime,
+          });
+        }
         setIsSuccess(true);
         setErrors({});
       } else {
         setSubmitError(
-          "Sorry, something went wrong and your request wasn't sent. Please try again, or call us on +91 9895 890 500."
+          `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
         );
       }
     } catch (err) {
       setSubmitError(
-        "Sorry, something went wrong and your request wasn't sent. Please try again, or call us on +91 9895 890 500."
+        `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
       );
     } finally {
       setIsSubmitting(false);
@@ -150,10 +234,15 @@ export default function InlineEnquiryForm({
         </h3>
         <p className="text-sm sm:text-base text-slate-600 max-w-lg mx-auto leading-relaxed">
           {successText}
+          {submittedConsultation && (
+            <span className="block mt-2 font-medium text-slate-800">
+              We'll call you to confirm your consultation on {submittedConsultation.formattedDate}, {submittedConsultation.time}.
+            </span>
+          )}
         </p>
         <div className="pt-2 flex items-center justify-center gap-6 text-xs sm:text-sm font-semibold">
           <a
-            href="https://wa.me/919895890500"
+            href={whatsappLink()}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-emerald-700 hover:text-emerald-800"
@@ -163,11 +252,11 @@ export default function InlineEnquiryForm({
           </a>
           <span className="text-slate-300">•</span>
           <a
-            href="tel:+919895890500"
+            href={`tel:${contact.phoneTel}`}
             className="inline-flex items-center gap-1.5 text-[#0B1F3A] hover:text-[#C9A84C]"
           >
             <Phone className="w-4 h-4 text-[#C9A84C]" />
-            <span>Call +91 9895 890 500</span>
+            <span>Call {contact.phoneDisplay}</span>
           </a>
         </div>
       </div>
@@ -199,7 +288,7 @@ export default function InlineEnquiryForm({
             placeholder="Your full name"
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
-            className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+            className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
               errors.name
                 ? 'border-rose-400 focus:ring-rose-200'
                 : 'border-slate-200 focus:ring-[#C9A84C] focus:border-transparent'
@@ -217,10 +306,11 @@ export default function InlineEnquiryForm({
           </label>
           <input
             type="email"
+            inputMode="email"
             placeholder="you@example.com"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
-            className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+            className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
               errors.email
                 ? 'border-rose-400 focus:ring-rose-200'
                 : 'border-slate-200 focus:ring-[#C9A84C] focus:border-transparent'
@@ -238,10 +328,11 @@ export default function InlineEnquiryForm({
           </label>
           <input
             type="tel"
+            inputMode="tel"
             placeholder="10-digit mobile number"
             value={formData.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
-            className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+            className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
               errors.phone
                 ? 'border-rose-400 focus:ring-rose-200'
                 : 'border-slate-200 focus:ring-[#C9A84C] focus:border-transparent'
@@ -264,24 +355,29 @@ export default function InlineEnquiryForm({
         </div>
 
         {/* Dynamic Optional Fields */}
-        {fields.map((fKey) => {
+        {effectiveFields.map((fKey) => {
           const def = formDefs[fKey];
           if (!def) return null;
 
-          const isFullWidth = def.type === 'textarea' || fKey === 'budget';
+          const isFullWidth = def.type === 'textarea' || fKey === 'budget' || fKey === 'message';
           const label = mergedFieldLabels[fKey] || def.label;
+          const isRequired = formType === 'contact' && fKey === 'message';
 
           return (
             <div key={fKey} className={isFullWidth ? 'md:col-span-2' : ''}>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                {label}
+                {label} {isRequired && <span className="text-rose-500">*</span>}
               </label>
 
               {def.type === 'select' ? (
                 <select
                   value={formData[fKey] || ''}
                   onChange={(e) => handleChange(fKey, e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
+                  className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 ${
+                    errors[fKey]
+                      ? 'border-rose-400 focus:ring-rose-200'
+                      : 'border-slate-200 focus:ring-[#C9A84C]'
+                  }`}
                 >
                   <option value="">Select option…</option>
                   {def.options.map((opt) => (
@@ -297,7 +393,11 @@ export default function InlineEnquiryForm({
                   placeholder={def.placeholder || ''}
                   value={formData[fKey] || ''}
                   onChange={(e) => handleChange(fKey, e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
+                  className={`w-full min-h-[100px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+                    errors[fKey]
+                      ? 'border-rose-400 focus:ring-rose-200'
+                      : 'border-slate-200 focus:ring-[#C9A84C]'
+                  }`}
                 />
               ) : (
                 <input
@@ -306,7 +406,11 @@ export default function InlineEnquiryForm({
                   placeholder={def.placeholder || ''}
                   value={formData[fKey] || ''}
                   onChange={(e) => handleChange(fKey, e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
+                  className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+                    errors[fKey]
+                      ? 'border-rose-400 focus:ring-rose-200'
+                      : 'border-slate-200 focus:ring-[#C9A84C]'
+                  }`}
                 />
               )}
 
@@ -316,6 +420,86 @@ export default function InlineEnquiryForm({
             </div>
           );
         })}
+
+        {/* Consultation Option (for contact form) */}
+        {formType === 'contact' && (
+          <div className="md:col-span-2 pt-2 border-t border-slate-100 space-y-4">
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={bookConsultation}
+                onChange={(e) => {
+                  setBookConsultation(e.target.checked);
+                  if (!e.target.checked) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.preferredDate;
+                      delete next.preferredTime;
+                      return next;
+                    });
+                  }
+                }}
+                className="w-4 h-4 rounded border-slate-300 text-[#0B1F3A] focus:ring-[#C9A84C] cursor-pointer"
+              />
+              <span className="text-sm font-semibold text-[#0B1F3A]">
+                I'd like to book a consultation
+              </span>
+            </label>
+
+            {bookConsultation && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80">
+                {/* Preferred Date */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Preferred date <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    min={istLimits.min}
+                    max={istLimits.max}
+                    value={formData.preferredDate || ''}
+                    onChange={(e) => handleChange('preferredDate', e.target.value)}
+                    className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 appearance-none max-w-full ${
+                      errors.preferredDate
+                        ? 'border-rose-400 focus:ring-rose-200'
+                        : 'border-slate-200 focus:ring-[#C9A84C]'
+                    }`}
+                  />
+                  <p className="text-[11px] text-slate-500 mt-1">Choose a working day.</p>
+                  {errors.preferredDate && (
+                    <p className="text-xs text-rose-500 font-medium mt-1">{errors.preferredDate}</p>
+                  )}
+                </div>
+
+                {/* Preferred Time */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Preferred time <span className="text-rose-500">*</span>
+                  </label>
+                  <select
+                    value={formData.preferredTime || ''}
+                    onChange={(e) => handleChange('preferredTime', e.target.value)}
+                    className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 ${
+                      errors.preferredTime
+                        ? 'border-rose-400 focus:ring-rose-200'
+                        : 'border-slate-200 focus:ring-[#C9A84C]'
+                    }`}
+                  >
+                    <option value="">Select time…</option>
+                    {PREFERRED_TIME_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.preferredTime && (
+                    <p className="text-xs text-rose-500 font-medium mt-1">{errors.preferredTime}</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Consent Checkbox */}
@@ -366,7 +550,7 @@ export default function InlineEnquiryForm({
       {/* Contact Quick Row Under Button */}
       <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-600">
         <a
-          href="https://wa.me/919895890500"
+          href={whatsappLink()}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
@@ -376,13 +560,14 @@ export default function InlineEnquiryForm({
         </a>
         <span className="text-slate-300">•</span>
         <a
-          href="tel:+919895890500"
+          href={`tel:${contact.phoneTel}`}
           className="inline-flex items-center gap-1.5 font-semibold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors"
         >
           <Phone className="w-3.5 h-3.5 text-[#C9A84C]" />
-          <span>Call +91 9895 890 500</span>
+          <span>Call {contact.phoneDisplay}</span>
         </a>
       </div>
     </form>
   );
 }
+

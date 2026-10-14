@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppointment } from '../../../context/AppointmentContext';
 import { useLenis } from '../../SmoothScroll';
 import { ArrowRight, Phone, MessageCircle } from 'lucide-react';
+import { contact, whatsappLink } from '../../../data/contact';
 
 export function handleButtonAction(action, { openAppointment, navigate, lenis, defaultService } = {}) {
   if (!action) return;
@@ -36,9 +37,9 @@ export function handleButtonAction(action, { openAppointment, navigate, lenis, d
       }
     }
   } else if (type === 'whatsapp') {
-    window.open('https://wa.me/919895890500', '_blank', 'noopener,noreferrer');
+    window.open(whatsappLink(), '_blank', 'noopener,noreferrer');
   } else if (type === 'tel') {
-    window.location.href = 'tel:+919895890500';
+    window.location.href = `tel:${contact.phoneTel}`;
   }
 }
 

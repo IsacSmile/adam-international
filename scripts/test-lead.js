@@ -42,6 +42,44 @@ async function run() {
     }
   }
 
+  function getValidWorkingDayIST() {
+    for (let i = 1; i <= 60; i++) {
+      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+      const [y, m, d] = todayStr.split('-').map(Number);
+      const date = new Date(Date.UTC(y, m - 1, d + i));
+      const day = date.getUTCDay();
+      if (day >= 1 && day <= 5) {
+        return date.toISOString().slice(0, 10);
+      }
+    }
+  }
+
+  function getWeekendDayIST() {
+    for (let i = 1; i <= 60; i++) {
+      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+      const [y, m, d] = todayStr.split('-').map(Number);
+      const date = new Date(Date.UTC(y, m - 1, d + i));
+      const day = date.getUTCDay();
+      if (day === 0 || day === 6) {
+        return date.toISOString().slice(0, 10);
+      }
+    }
+  }
+
+  function getPastDateIST() {
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const [y, m, d] = todayStr.split('-').map(Number);
+    const date = new Date(Date.UTC(y, m - 1, d - 2));
+    return date.toISOString().slice(0, 10);
+  }
+
+  function getFarFutureDateIST() {
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const [y, m, d] = todayStr.split('-').map(Number);
+    const date = new Date(Date.UTC(y, m - 1, d + 70));
+    return date.toISOString().slice(0, 10);
+  }
+
   // ---------------------------------------------------------------------------
   // 1. Basic Appointment Form (default formType)
   // ---------------------------------------------------------------------------
@@ -230,6 +268,156 @@ async function run() {
     resTrain
   );
   assert(resTrain.statusCode === 200 && resTrain.body?.ok === true, 'Training enquiry accepted with 200');
+
+  // Clear IP log
+  await sql`DELETE FROM lead_ip_log WHERE ip = ${testIp}`;
+
+  // ---------------------------------------------------------------------------
+  // 7b. Form Type: Contact Enquiry (Valid without consultation)
+  // ---------------------------------------------------------------------------
+  console.log('\n7b. Test Form Type: Contact Enquiry:');
+  const resContact = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'contact',
+        name: 'Test Lead Contact',
+        email: 'contact@example.com',
+        phone: '+919895111020',
+        consent: true,
+        country: 'Germany',
+        message: 'This is an enquiry about studying in Germany.',
+      },
+    },
+    resContact
+  );
+  assert(resContact.statusCode === 200 && resContact.body?.ok === true, 'Contact enquiry accepted with 200');
+
+  // ---------------------------------------------------------------------------
+  // 7c. Form Type: Contact Enquiry (Valid with Consultation Date & Time)
+  // ---------------------------------------------------------------------------
+  console.log('\n7c. Test Form Type: Contact Enquiry with Consultation Date & Time:');
+  const validWorkingDay = getValidWorkingDayIST();
+  const resContactDateTime = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'contact',
+        name: 'Test Lead Contact DateTime',
+        email: 'contact-datetime@example.com',
+        phone: '+919895111021',
+        consent: true,
+        country: 'France',
+        message: 'I want to book an in-person consultation.',
+        details: {
+          preferredDate: validWorkingDay,
+          preferredTime: 'Morning (9:30 AM – 12:00 PM)',
+        },
+      },
+    },
+    resContactDateTime
+  );
+  assert(
+    resContactDateTime.statusCode === 200 && resContactDateTime.body?.ok === true,
+    'Contact enquiry with valid date & time accepted with 200'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 7d. Form Type: Contact Enquiry (Weekend Date Rejected)
+  // ---------------------------------------------------------------------------
+  console.log('\n7d. Test Contact Enquiry Weekend Date Rejected:');
+  const weekendDay = getWeekendDayIST();
+  const resContactWeekend = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'contact',
+        name: 'Test Lead Contact Weekend',
+        email: 'contact-weekend@example.com',
+        phone: '+919895111022',
+        consent: true,
+        message: 'This has a weekend consultation date.',
+        details: {
+          preferredDate: weekendDay,
+          preferredTime: 'Morning (9:30 AM – 12:00 PM)',
+        },
+      },
+    },
+    resContactWeekend
+  );
+  assert(
+    resContactWeekend.statusCode === 400 &&
+      resContactWeekend.body?.fields?.preferredDate === 'Please choose a working day within the next 60 days.',
+    'Contact enquiry with weekend date rejected with 400 validation error'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 7e. Form Type: Contact Enquiry (Past Date Rejected)
+  // ---------------------------------------------------------------------------
+  console.log('\n7e. Test Contact Enquiry Past Date Rejected:');
+  const pastDay = getPastDateIST();
+  const resContactPast = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'contact',
+        name: 'Test Lead Contact Past',
+        email: 'contact-past@example.com',
+        phone: '+919895111023',
+        consent: true,
+        message: 'This has a past consultation date.',
+        details: {
+          preferredDate: pastDay,
+          preferredTime: 'Morning (9:30 AM – 12:00 PM)',
+        },
+      },
+    },
+    resContactPast
+  );
+  assert(
+    resContactPast.statusCode === 400 &&
+      resContactPast.body?.fields?.preferredDate === 'Please choose a working day within the next 60 days.',
+    'Contact enquiry with past date rejected with 400 validation error'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 7f. Form Type: Contact Enquiry (Date > 60 Days Ahead Rejected)
+  // ---------------------------------------------------------------------------
+  console.log('\n7f. Test Contact Enquiry Date > 60 Days Ahead Rejected:');
+  const futureDay = getFarFutureDateIST();
+  const resContactFuture = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'contact',
+        name: 'Test Lead Contact FarFuture',
+        email: 'contact-future@example.com',
+        phone: '+919895111024',
+        consent: true,
+        message: 'This has a consultation date > 60 days.',
+        details: {
+          preferredDate: futureDay,
+          preferredTime: 'Morning (9:30 AM – 12:00 PM)',
+        },
+      },
+    },
+    resContactFuture
+  );
+  assert(
+    resContactFuture.statusCode === 400 &&
+      resContactFuture.body?.fields?.preferredDate === 'Please choose a working day within the next 60 days.',
+    'Contact enquiry with date > 60 days ahead rejected with 400 validation error'
+  );
 
   // Clear IP log
   await sql`DELETE FROM lead_ip_log WHERE ip = ${testIp}`;
@@ -471,8 +659,20 @@ async function run() {
     'DB Row: training has form_type="training" with matching programme'
   );
 
-  console.log('  Confirmed DB rows for all 5 form types:');
-  [apptRow, eligRow, admRow, visaRow, trainRow].forEach((r) => {
+  const contactRow = testRows.find((r) => r.name === 'Test Lead Contact');
+  assert(contactRow && contactRow.form_type === 'contact', 'DB Row: contact has form_type="contact"');
+
+  const contactDtRow = testRows.find((r) => r.name === 'Test Lead Contact DateTime');
+  assert(
+    contactDtRow &&
+    contactDtRow.form_type === 'contact' &&
+    contactDtRow.details?.preferredDate === validWorkingDay &&
+    contactDtRow.details?.preferredTime === 'Morning (9:30 AM – 12:00 PM)',
+    'DB Row: contact with date/time saved properly'
+  );
+
+  console.log('  Confirmed DB rows for all 6 form types:');
+  [apptRow, eligRow, admRow, visaRow, trainRow, contactRow, contactDtRow].forEach((r) => {
     if (r) {
       console.log(`   - [${r.form_type}] ${r.name}: details = ${JSON.stringify(r.details || {})}`);
     }

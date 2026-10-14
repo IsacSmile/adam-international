@@ -29,6 +29,7 @@ import { countries } from '../data/countries';
 import { branches } from '../data/branches';
 import { successStories } from '../data/successStories';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
+import { contact, whatsappLink } from '../data/contact';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -616,7 +617,7 @@ export default function AboutPage() {
       {/* =========================================================================
           SECTION 6: VISIT US (INTERACTIVE 6 BRANCHES + EMBEDDED MAP)
       ========================================================================= */}
-      <section className="w-full py-16 sm:py-20 lg:py-24 px-5 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
+      <section id="branches" className="w-full py-16 sm:py-20 lg:py-24 px-5 sm:px-6 lg:px-8 bg-white border-b border-slate-100 scroll-mt-24">
         <div className="max-w-[1280px] mx-auto space-y-10 sm:space-y-12">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -673,7 +674,7 @@ export default function AboutPage() {
             <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {branches.map((b) => {
                 const isSelected = selectedBranch.slug === b.slug;
-                const phoneToCall = b.phone || '+91 9895 890 500';
+                const phoneToCall = b.phone || contact.phoneDisplay;
 
                 return (
                   <div
@@ -771,16 +772,16 @@ export default function AboutPage() {
                       {selectedBranch.name}
                     </h4>
                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Full address coming soon. Call +91 9895 890 500 for
+                      Full address coming soon. Call {contact.phoneDisplay} for
                       directions.
                     </p>
                   </div>
                   <a
-                    href="tel:+919895890500"
+                    href={`tel:${contact.phoneTel}`}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#C9A84C] text-[#0B1F3A] font-bold text-xs"
                   >
                     <Phone className="w-3.5 h-3.5" />
-                    <span>Call +91 9895 890 500</span>
+                    <span>Call {contact.phoneDisplay}</span>
                   </a>
                 </div>
               )}
@@ -825,7 +826,7 @@ export default function AboutPage() {
             </button>
 
             <a
-              href="https://wa.me/919895890500"
+              href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-400 hover:text-white font-extrabold text-base transition-all duration-300 shadow-md active:scale-95 backdrop-blur-md"
@@ -839,10 +840,10 @@ export default function AboutPage() {
           <div className="pt-2 text-xs sm:text-sm text-slate-400 font-medium">
             <span>Or call us on </span>
             <a
-              href="tel:+919895890500"
+              href={`tel:${contact.phoneTel}`}
               className="text-white hover:text-[#C9A84C] font-bold underline underline-offset-4 transition-colors"
             >
-              +91 9895 890 500
+              {contact.phoneDisplay}
             </a>
           </div>
         </div>

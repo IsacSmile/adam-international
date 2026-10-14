@@ -1,5 +1,6 @@
 import { countries } from './countries.js';
 import { trainingProgrammes } from './trainingProgrammes.js';
+import { contact } from './contact.js';
 
 export const FORM_TYPES = [
   'appointment',
@@ -7,6 +8,7 @@ export const FORM_TYPES = [
   'admission',
   'visa',
   'training',
+  'contact',
 ];
 
 export const FORM_TYPE_LABELS = {
@@ -15,6 +17,7 @@ export const FORM_TYPE_LABELS = {
   admission: 'Admission enquiry',
   visa: 'Visa enquiry',
   training: 'Training enquiry',
+  contact: 'Contact enquiry',
 };
 
 export const FORM_TYPE_ALLOWLIST = {
@@ -30,6 +33,7 @@ export const FORM_TYPE_ALLOWLIST = {
   admission: ['qualification', 'score', 'courseInterest', 'country', 'intake'],
   visa: ['currentQualification', 'country', 'admissionStatus', 'message'],
   training: ['programme', 'message'],
+  contact: ['country', 'preferredDate', 'preferredTime', 'message'],
   appointment: [],
 };
 
@@ -63,6 +67,13 @@ export const ADMISSION_STATUS_OPTIONS = [
   "I've received an offer",
   "I'm applying",
   "I'm exploring options",
+];
+
+// CONFIRM WITH CLIENT: preferred time options must sit inside office hours
+export const PREFERRED_TIME_OPTIONS = [
+  'Morning (9:30 AM – 12:00 PM)',
+  'Afternoon (12:00 PM – 3:00 PM)',
+  'Late afternoon (3:00 PM – 5:30 PM)',
 ];
 
 export function getGraduationYearOptions(fromDate = new Date()) {
@@ -120,6 +131,8 @@ export const FIELD_LABELS = {
   admissionStatus: 'Admission status',
   programme: "Programme you're interested in",
   message: 'Message or question',
+  preferredDate: 'Preferred date',
+  preferredTime: 'Preferred time',
 };
 
 /**
@@ -209,6 +222,17 @@ export function getFormFieldDefinitions(now = new Date()) {
       maxLength: 2000,
       placeholder: 'Tell us about your requirements or questions…',
     },
+    preferredDate: {
+      key: 'preferredDate',
+      label: FIELD_LABELS.preferredDate,
+      type: 'date',
+    },
+    preferredTime: {
+      key: 'preferredTime',
+      label: FIELD_LABELS.preferredTime,
+      type: 'select',
+      options: PREFERRED_TIME_OPTIONS,
+    },
   };
 }
 
@@ -283,7 +307,66 @@ export function validateLeadPayload(rawFormType, rawDetails, rawMessage) {
       const def = fieldDefs[key];
       if (!def) continue;
 
-      if (def.type === 'select') {
+      if (key === 'preferredDate') {
+        if (typeof val !== 'string') {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { preferredDate: 'Please choose a working day within the next 60 days.' },
+          };
+        }
+        const trimmed = val.trim();
+        const dateMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!dateMatch) {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { preferredDate: 'Please choose a working day within the next 60 days.' },
+          };
+        }
+        const [_, y, m, d] = dateMatch.map(Number);
+        const chosenDate = new Date(Date.UTC(y, m - 1, d));
+        if (
+          chosenDate.getUTCFullYear() !== y ||
+          chosenDate.getUTCMonth() !== m - 1 ||
+          chosenDate.getUTCDate() !== d
+        ) {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { preferredDate: 'Please choose a working day within the next 60 days.' },
+          };
+        }
+
+        // Calculate tomorrow and 60 days ahead
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+        const [tY, tM, tD] = todayStr.split('-').map(Number);
+        const todayDate = new Date(Date.UTC(tY, tM - 1, tD));
+        const tomorrowDate = new Date(todayDate);
+        tomorrowDate.setUTCDate(tomorrowDate.getUTCDate() + 1);
+        const maxDate = new Date(todayDate);
+        maxDate.setUTCDate(maxDate.getUTCDate() + 60);
+
+        if (chosenDate < tomorrowDate || chosenDate > maxDate) {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { preferredDate: 'Please choose a working day within the next 60 days.' },
+          };
+        }
+
+        const dayOfWeek = chosenDate.getUTCDay(); // 0 = Sun, 1 = Mon ... 6 = Sat
+        const workingDays = contact.workingDays || [1, 2, 3, 4, 5];
+        if (!workingDays.includes(dayOfWeek)) {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { preferredDate: 'Please choose a working day within the next 60 days.' },
+          };
+        }
+
+        cleanDetails.preferredDate = trimmed;
+      } else if (def.type === 'select') {
         if (typeof val !== 'string') {
           return {
             ok: false,

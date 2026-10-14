@@ -14,6 +14,7 @@ import { successStories } from '../data/successStories';
 import { galleryItems } from '../data/gallery';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { hasVisibleBlogPosts } from '../lib/blog';
+import { contact } from '../data/contact';
 
 const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlaceholder);
 const hasGallery = SHOW_PLACEHOLDERS
@@ -29,7 +30,7 @@ const baseQuickLinks = [
   { name: 'Success Stories', href: '/success-stories' },
   { name: 'Gallery', href: '/gallery' },
   { name: 'Blog', href: '/blog' },
-  { name: 'Contact Us', href: '/#contact' },
+  { name: 'Contact Us', href: '/contact' },
 ];
 
 const quickLinks = baseQuickLinks.filter((link) => {
@@ -177,18 +178,18 @@ export default function Footer({ onOpenModal }) {
             <ul className="space-y-3 text-sm text-gray-300">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#C9A84C] shrink-0 mt-1" />
-                <span className="leading-snug">MAF Plaza, Edappally-Panvel Highway, Kochi, Kerala</span>
+                <span className="leading-snug">{contact.headOffice.address}</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#C9A84C] shrink-0" />
-                <a href="tel:+919895890500" className="hover:text-[#C9A84C] transition-colors font-medium">
-                  +91 9895 890 500
+                <a href={`tel:${contact.phoneTel}`} className="hover:text-[#C9A84C] transition-colors font-medium">
+                  {contact.phoneDisplay}
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[#C9A84C] shrink-0" />
-                <a href="mailto:info@adaminternational.in" className="hover:text-[#C9A84C] transition-colors font-medium">
-                  info@adaminternational.in
+                <a href={`mailto:${contact.email}`} className="hover:text-[#C9A84C] transition-colors font-medium">
+                  {contact.email}
                 </a>
               </li>
             </ul>

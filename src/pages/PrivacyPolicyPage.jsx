@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import PageHero from '../components/shared/PageHero';
+import { contact } from '../data/contact';
 
 export default function PrivacyPolicyPage() {
   return (
@@ -29,10 +30,10 @@ export default function PrivacyPolicyPage() {
             <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
               This page is being updated. For any questions, email{' '}
               <a
-                href="mailto:info@adaminternational.in"
+                href={`mailto:${contact.email}`}
                 className="text-[#0B1F3A] font-semibold underline hover:text-[#C9A84C] transition-colors"
               >
-                info@adaminternational.in
+                {contact.email}
               </a>.
             </p>
           </div>

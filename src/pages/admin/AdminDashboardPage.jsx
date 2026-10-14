@@ -576,6 +576,7 @@ export default function AdminDashboardPage({ admin }) {
                 <option value="admission">Admission enquiry</option>
                 <option value="visa">Visa enquiry</option>
                 <option value="training">Training enquiry</option>
+                <option value="contact">Contact enquiry</option>
               </select>
             </div>
 
@@ -786,6 +787,17 @@ export default function AdminDashboardPage({ admin }) {
                               <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                                 {FORM_TYPE_LABELS[lead.form_type] || 'Booking form'}
                               </span>
+                              {(() => {
+                                const d = typeof lead.details === 'string' ? (() => { try { return JSON.parse(lead.details); } catch { return null; } })() : lead.details;
+                                if (d?.preferredDate) {
+                                  return (
+                                    <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                      Consultation requested
+                                    </span>
+                                  );
+                                }
+                                return null;
+                              })()}
                               {lead.assigned_to && (
                                 <span className="text-[10px] text-slate-500 font-medium">
                                   • {lead.assigned_to}
@@ -891,6 +903,17 @@ export default function AdminDashboardPage({ admin }) {
                           <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                             {FORM_TYPE_LABELS[lead.form_type] || 'Booking form'}
                           </span>
+                          {(() => {
+                            const d = typeof lead.details === 'string' ? (() => { try { return JSON.parse(lead.details); } catch { return null; } })() : lead.details;
+                            if (d?.preferredDate) {
+                              return (
+                                <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  Consultation requested
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                         <div className="text-[11px] text-slate-500 font-medium mt-0.5">
                           {formatIST(lead.created_at)}
@@ -1178,7 +1201,21 @@ export default function AdminDashboardPage({ admin }) {
                       {detailEntries.map(([k, v]) => (
                         <div key={k} className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 py-1.5 first:pt-0 last:pb-0 text-xs">
                           <span className="text-slate-500 font-medium">{FIELD_LABELS[k] || k}:</span>
-                          <span className="font-semibold text-slate-800 sm:text-right">{String(v)}</span>
+                          <span className="font-semibold text-slate-800 sm:text-right">
+                            {k === 'preferredDate' && typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
+                              ? (() => {
+                                  const [y, m, d] = v.split('-').map(Number);
+                                  const dt = new Date(Date.UTC(y, m - 1, d));
+                                  return dt.toLocaleDateString('en-GB', {
+                                    timeZone: 'UTC',
+                                    weekday: 'short',
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                  });
+                                })()
+                              : String(v)}
+                          </span>
                         </div>
                       ))}
                     </div>

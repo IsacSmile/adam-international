@@ -3,6 +3,7 @@ export const countries = [
   {
     slug: 'united-kingdom',
     name: 'United Kingdom',
+    article: 'the',
     flag: '🇬🇧',
     region: 'Europe',
     universityCount: null, // CONFIRM WITH CLIENT: university count
@@ -29,6 +30,7 @@ export const countries = [
   {
     slug: 'united-states',
     name: 'United States',
+    article: 'the',
     flag: '🇺🇸',
     region: 'Other destinations',
     universityCount: null, // CONFIRM WITH CLIENT: university count
