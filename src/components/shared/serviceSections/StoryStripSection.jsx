@@ -23,6 +23,34 @@ function CompactStoryCard({ story }) {
         .toUpperCase()
     : 'S';
 
+  const isRealAndConsented = !story.isPlaceholder && story.consentOnFile === true;
+  const journey = isRealAndConsented && Array.isArray(story.journey) ? story.journey : [];
+  const visaMilestone = journey.find(
+    (m) =>
+      typeof m.label === 'string' &&
+      m.label.toLowerCase().includes('visa approved') &&
+      typeof m.date === 'string' &&
+      m.date.trim().length > 0
+  );
+  const admissionMilestone = journey.find(
+    (m) =>
+      typeof m.label === 'string' &&
+      (m.label.toLowerCase().includes('admission confirmed') ||
+       m.label.toLowerCase().includes('offer received')) &&
+      typeof m.date === 'string' &&
+      m.date.trim().length > 0
+  );
+
+  const milestonePill = visaMilestone ? (
+    <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+      Visa approved
+    </span>
+  ) : admissionMilestone ? (
+    <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+      Admission confirmed
+    </span>
+  ) : null;
+
   return (
     <article className="h-full bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-[0_2px_12px_rgba(11,31,58,0.04)] hover:border-[#C9A84C] hover:shadow-[0_12px_28px_rgba(11,31,58,0.08)] transition-all duration-300 flex flex-col justify-between group">
       <div>
@@ -55,6 +83,16 @@ function CompactStoryCard({ story }) {
               <p className="text-xs text-slate-500 font-medium truncate">
                 {story.university}
               </p>
+            )}
+            {(story.course || story.intake) && (
+              <p className="text-xs text-slate-400 font-normal truncate mt-0.5">
+                {[story.course, story.intake].filter(Boolean).join(' · ')}
+              </p>
+            )}
+            {milestonePill && (
+              <div className="mt-1.5">
+                {milestonePill}
+              </div>
             )}
           </div>
         </div>

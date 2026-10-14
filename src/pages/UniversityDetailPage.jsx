@@ -156,7 +156,7 @@ export default function UniversityDetailPage() {
 
           {/* If placeholder with almost all fields empty */}
           {!hasFullDetails && (
-            <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center max-w-2xl mx-auto shadow-sm">
+            <div id="requirements" className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center max-w-2xl mx-auto shadow-sm">
               <div className="w-14 h-14 rounded-2xl bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 text-[#0B1F3A] flex items-center justify-center mx-auto mb-5">
                 <Building2 className="w-7 h-7 text-[#C9A84C]" />
               </div>
@@ -276,7 +276,7 @@ export default function UniversityDetailPage() {
           {/* 4. ENTRY REQUIREMENTS (Only if data exists) */}
           {hasFullDetails && university.requirements && (
             (university.requirements.academic || university.requirements.english || university.requirements.other) && (
-              <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-8 shadow-sm">
+              <section id="requirements" className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-8 shadow-sm">
                 <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] mb-6">
                   Entry requirements
                 </h2>

@@ -11,8 +11,17 @@ export default function UniversityGridSection({
   limit = 6,
   showDetails = true,
   buttonText = 'View All Universities',
+  region,
+  universities: customUniversities,
 }) {
-  const displayUniversities = universities.slice(0, limit);
+  let list = customUniversities || universities;
+  if (region) {
+    list = list.filter((u) => {
+      const c = countries.find((country) => country.slug === u.country);
+      return c?.region === region;
+    });
+  }
+  const displayUniversities = list.slice(0, limit);
 
   return (
     <section id={id} className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
@@ -46,7 +55,8 @@ export default function UniversityGridSection({
           {displayUniversities.map((uni) => {
             const countryObj = countries.find((c) => c.slug === uni.country);
             const countryFlag = countryObj ? countryObj.flag : '🌍';
-            const cityDisplay = uni.city || countryObj?.name || uni.country?.replace('-', ' ');
+            const countryName = countryObj ? countryObj.name : uni.country?.replace('-', ' ');
+            const locationDisplay = [uni.city, countryName].filter(Boolean).join(', ');
 
             // Extract unique programme subject areas (up to 3)
             const subjectAreas = Array.from(
@@ -59,7 +69,7 @@ export default function UniversityGridSection({
                 className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-[0_2px_12px_rgba(11,31,58,0.04)] hover:shadow-[0_12px_28px_rgba(11,31,58,0.08)] hover:border-[#C9A84C] transition-all flex flex-col justify-between group"
               >
                 <div>
-                  {/* Top Bar: Logo / Building Icon + Flag & City */}
+                  {/* Top Bar: Logo / Building Icon + Flag & Location */}
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-[#0B1F3A] shrink-0">
                       {uni.logo ? (
@@ -75,7 +85,7 @@ export default function UniversityGridSection({
 
                     <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
                       <span className="text-sm leading-none">{countryFlag}</span>
-                      <span>{cityDisplay}</span>
+                      <span>{locationDisplay}</span>
                     </div>
                   </div>
 
@@ -105,17 +115,36 @@ export default function UniversityGridSection({
                         </div>
                       )}
 
-                      {/* General Requirements */}
-                      {uni.requirements?.academic && (
+                      {/* Language of Instruction */}
+                      {uni.languageOfInstruction && (
                         <div>
                           <span className="text-[10px] text-slate-400 uppercase font-bold block mb-0.5">
-                            Academic Requirements
+                            Language of Instruction
                           </span>
-                          <p className="line-clamp-2 text-slate-700 font-normal">
-                            {uni.requirements.academic}
+                          <p className="text-slate-700 font-normal">
+                            {uni.languageOfInstruction}
                           </p>
                         </div>
                       )}
+
+                      {/* Admission Requirements */}
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold block mb-0.5">
+                          Admission Requirements
+                        </span>
+                        {uni.requirements?.academic ? (
+                          <p className="line-clamp-2 text-slate-700 font-normal">
+                            {uni.requirements.academic}
+                          </p>
+                        ) : (
+                          <Link
+                            to={`/universities/${uni.slug}#requirements`}
+                            className="text-[#0B1F3A] hover:text-[#C9A84C] font-semibold underline underline-offset-2 transition-colors inline-block"
+                          >
+                            View requirements
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

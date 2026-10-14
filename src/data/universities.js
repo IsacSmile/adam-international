@@ -8,6 +8,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -31,6 +32,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -54,6 +56,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -77,6 +80,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -100,6 +104,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -123,6 +128,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -146,6 +152,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -169,6 +176,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -192,6 +200,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -215,6 +224,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,
@@ -238,6 +248,7 @@ export const universities = [
     coverImage: null,
     overview: null,
     website: null,
+    languageOfInstruction: null,
     programs: [],
     requirements: {
       academic: null,

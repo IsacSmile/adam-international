@@ -9,6 +9,8 @@ export default function PageHero({
   subtitle,
   primaryAction,
   secondaryAction,
+  actions,
+  children,
 }) {
   return (
     <div className="relative bg-[#0B1F3A] text-white py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-white/10">
@@ -45,7 +47,11 @@ export default function PageHero({
         </div>
 
         {/* Action Buttons (Optional) */}
-        {(primaryAction || secondaryAction) && (
+        {actions ? (
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8 pt-2">
+            {actions}
+          </div>
+        ) : (primaryAction || secondaryAction) ? (
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8 pt-2">
             {primaryAction && (
               <button
@@ -68,7 +74,9 @@ export default function PageHero({
               </a>
             )}
           </div>
-        )}
+        ) : null}
+
+        {children}
       </div>
     </div>
   );

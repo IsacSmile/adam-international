@@ -1,7 +1,18 @@
 import React, { lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Building2, MessageSquare, ArrowRight, ExternalLink, MapPin } from 'lucide-react';
+import {
+  Building2,
+  MessageSquare,
+  ArrowRight,
+  ExternalLink,
+  MapPin,
+  Wallet,
+  BookOpen,
+  Languages,
+  Briefcase,
+  Calendar,
+} from 'lucide-react';
 import Breadcrumb from '../components/shared/Breadcrumb';
 import UniversityCard from '../components/shared/UniversityCard';
 import StoryStripSection from '../components/shared/serviceSections/StoryStripSection';
@@ -174,6 +185,126 @@ export default function CountryDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 1.5 AT A GLANCE (Only if comparison data exists) */}
+      {(() => {
+        const comp = country.comparison;
+        if (!comp) return null;
+
+        const tuitionText = comp.tuition
+          ? (comp.tuition.min && comp.tuition.max
+              ? `€${comp.tuition.min}–${comp.tuition.max} ${comp.tuition.period || 'per year'} (${comp.tuition.academicYear || ''})`
+              : comp.tuition.min
+              ? `From €${comp.tuition.min} ${comp.tuition.period || 'per year'} (${comp.tuition.academicYear || ''})`
+              : comp.tuition.note || null)
+          : null;
+
+        const livingText = comp.livingMonthly
+          ? (comp.livingMonthly.min && comp.livingMonthly.max
+              ? `€${comp.livingMonthly.min}–${comp.livingMonthly.max} per month`
+              : comp.livingMonthly.min
+              ? `From €${comp.livingMonthly.min} per month`
+              : comp.livingMonthly.note || null)
+          : null;
+
+        const coursesText = Array.isArray(comp.popularFields) && comp.popularFields.length > 0
+          ? `${comp.popularFields.join(', ')}${comp.englishTaught ? ' · English-taught programmes available' : ''}`
+          : null;
+
+        const languageText = comp.languageRequirements || null;
+
+        const workText = comp.partTimeWork?.text || null;
+        const workSourceUrl = comp.partTimeWork?.sourceUrl || null;
+
+        const lastCheckedText = comp.lastChecked || null;
+
+        const facts = [
+          tuitionText && {
+            icon: Wallet,
+            title: 'Tuition fees',
+            content: tuitionText,
+          },
+          livingText && {
+            icon: Building2,
+            title: 'Living expenses',
+            content: livingText,
+          },
+          coursesText && {
+            icon: BookOpen,
+            title: 'Available courses',
+            content: coursesText,
+          },
+          languageText && {
+            icon: Languages,
+            title: 'Language requirements',
+            content: languageText,
+          },
+          workText && {
+            icon: Briefcase,
+            title: 'Part-time work',
+            content: workText,
+            link: workSourceUrl ? { url: workSourceUrl, label: 'Official source ↗' } : null,
+          },
+          lastCheckedText && {
+            icon: Calendar,
+            title: 'Last checked',
+            content: lastCheckedText,
+          },
+        ].filter(Boolean);
+
+        if (facts.length === 0) return null;
+
+        return (
+          <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-slate-50 border-b border-slate-200/80">
+            <div className="max-w-[1240px] mx-auto">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A] tracking-tight mb-8">
+                At a Glance
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {facts.map((fact, idx) => {
+                  const Icon = fact.icon;
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="w-10 h-10 rounded-xl bg-[#0B1F3A]/5 text-[#C9A84C] flex items-center justify-center mb-3">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                          {fact.title}
+                        </h3>
+                        <p className="text-sm font-semibold text-slate-800 leading-relaxed">
+                          {fact.content}
+                        </p>
+                      </div>
+
+                      {fact.link && (
+                        <div className="mt-3 pt-3 border-t border-slate-100">
+                          <a
+                            href={fact.link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-bold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors inline-flex items-center gap-1"
+                          >
+                            <span>{fact.link.label}</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="text-xs text-slate-500 mt-6 font-normal">
+                Fees and living costs vary by university, city and course. Figures are checked regularly. Last checked: {lastCheckedText || 'Recently'}. Always confirm current figures with the university or an advisor.
+              </p>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* 2. INTRO SECTION (only if country.intro exists) */}
       {country.intro && (
