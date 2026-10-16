@@ -24,6 +24,7 @@ import { countries } from '../data/countries';
 export default function ContactPage() {
   const containerRef = useRef(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
   // GSAP animation with cleanup
   useEffect(() => {
@@ -279,14 +280,16 @@ export default function ContactPage() {
             id="enquiry"
             className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-slate-200/90 shadow-sm scroll-mt-28"
           >
-            <div className="mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A] tracking-tight">
-                Send Us an Enquiry
-              </h2>
-              <p className="text-sm sm:text-base text-slate-600 mt-2 leading-relaxed">
-                Fill in your details and our team can assist you with your enquiry.
-              </p>
-            </div>
+            {!isFormSubmitted && (
+              <div className="mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A] tracking-tight">
+                  Send Us an Enquiry
+                </h2>
+                <p className="text-sm sm:text-base text-slate-600 mt-2 leading-relaxed">
+                  Fill in your details and our team can assist you with your enquiry.
+                </p>
+              </div>
+            )}
 
             <InlineEnquiryForm
               formType="contact"
@@ -299,6 +302,7 @@ export default function ContactPage() {
               note="Our team will contact you regarding your enquiry during working hours."
               successTitle="Thanks, we've received your enquiry."
               successText="Our team will contact you regarding your enquiry during working hours."
+              onSuccess={(status) => setIsFormSubmitted(Boolean(status))}
             />
           </div>
 

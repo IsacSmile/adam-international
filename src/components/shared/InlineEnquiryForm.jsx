@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Phone, Check, Calendar, AlertCircle } from 'lucide-react';
 import { getFormFieldDefinitions, PREFERRED_TIME_OPTIONS } from '../../data/formFields';
 import { contact, whatsappLink } from '../../data/contact';
 import { countries } from '../../data/countries';
@@ -16,6 +16,7 @@ export default function InlineEnquiryForm({
   successText = 'Our team will contact you, usually within one working day.',
   note = null,
   initialValues = {},
+  onSuccess,
 }) {
   const formDefs = getFormFieldDefinitions();
 
@@ -221,6 +222,7 @@ export default function InlineEnquiryForm({
         }
         setIsSuccess(true);
         setErrors({});
+        if (onSuccess) onSuccess(true);
       } else {
         setSubmitError(
           `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
@@ -237,39 +239,75 @@ export default function InlineEnquiryForm({
 
   if (isSuccess) {
     return (
-      <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-8 sm:p-10 text-center space-y-4 animate-fadeIn">
-        <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-          <CheckCircle2 className="w-8 h-8" />
+      <div className="py-6 sm:py-10 text-center space-y-6 animate-fadeIn">
+        {/* Elegant Check Icon */}
+        <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto text-emerald-600 shadow-xs">
+          <Check className="w-8 h-8 stroke-[2.5]" />
         </div>
-        <h3 className="text-xl sm:text-2xl font-bold text-[#0B1F3A]">
-          {successTitle}
-        </h3>
-        <p className="text-sm sm:text-base text-slate-600 max-w-lg mx-auto leading-relaxed">
-          {successText}
-          {submittedConsultation && (
-            <span className="block mt-2 font-medium text-slate-800">
-              We'll call you to confirm your consultation on {submittedConsultation.formattedDate}, {submittedConsultation.time}.
-            </span>
-          )}
-        </p>
-        <div className="pt-2 flex items-center justify-center gap-6 text-xs sm:text-sm font-semibold">
+
+        {/* Heading & Subtext */}
+        <div className="space-y-2 max-w-lg mx-auto">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A] tracking-tight">
+            {successTitle}
+          </h3>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+            {successText}
+          </p>
+        </div>
+
+        {/* Requested Consultation Summary Card */}
+        {submittedConsultation && (
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 max-w-md mx-auto text-left flex items-start gap-3.5 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-[#C9A84C]/15 flex items-center justify-center shrink-0 mt-0.5">
+              <Calendar className="w-5 h-5 text-[#0B1F3A]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                Requested Consultation
+              </span>
+              <p className="text-sm font-bold text-[#0B1F3A] truncate">
+                {submittedConsultation.formattedDate}
+              </p>
+              <p className="text-xs text-slate-600 mt-0.5">
+                {submittedConsultation.time}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
           <a
             href={whatsappLink()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-emerald-700 hover:text-emerald-800"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-xs sm:text-sm font-semibold border border-emerald-200/80 transition-colors shadow-xs active:scale-98"
           >
-            <WhatsAppIcon className="w-4 h-4 text-emerald-700" />
+            <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
             <span>Chat on WhatsApp</span>
           </a>
-          <span className="text-slate-300">•</span>
           <a
             href={`tel:${contact.phoneTel}`}
-            className="inline-flex items-center gap-1.5 text-[#0B1F3A] hover:text-[#C9A84C]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-[#0B1F3A] text-xs sm:text-sm font-semibold border border-slate-200 transition-colors shadow-xs active:scale-98"
           >
             <Phone className="w-4 h-4 text-[#C9A84C]" />
             <span>Call {contact.phoneDisplay}</span>
           </a>
+        </div>
+
+        {/* Reset / Send another message */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => {
+              setIsSuccess(false);
+              setSubmittedConsultation(null);
+              if (onSuccess) onSuccess(false);
+            }}
+            className="text-xs font-semibold text-slate-400 hover:text-[#0B1F3A] transition-colors cursor-pointer"
+          >
+            Send another enquiry
+          </button>
         </div>
       </div>
     );
