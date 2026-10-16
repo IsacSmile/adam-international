@@ -27,14 +27,18 @@ export default function ContactPage() {
 
   // GSAP animation with cleanup
   useEffect(() => {
+    if (!containerRef.current) return;
     const ctx = gsap.context(() => {
-      gsap.from('.contact-card', {
-        y: 20,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.08,
-        ease: 'power2.out',
-      });
+      const cards = containerRef.current?.querySelectorAll('.contact-card');
+      if (cards && cards.length > 0) {
+        gsap.from(cards, {
+          y: 20,
+          opacity: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+        });
+      }
     }, containerRef);
     return () => ctx.revert();
   }, []);
@@ -100,7 +104,7 @@ export default function ContactPage() {
         a: "For your first consultation, bring your academic mark sheets and certificates, your passport if you have one, any English test scores, and your CV if you've worked. If you don't have everything yet, come anyway, and we'll tell you exactly what you'll need.",
       },
     ],
-    [formattedEuropeanCountries]
+    [europeanFaqAnswer]
   );
 
   // LocalBusiness structured data
