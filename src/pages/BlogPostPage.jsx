@@ -97,10 +97,6 @@ export default function BlogPostPage() {
         {post.image && <meta property="og:image" content={post.image} />}
         <meta property="og:type" content="article" />
 
-        {/* noindex if isPlaceholder is true */}
-        {post.isPlaceholder && (
-          <meta name="robots" content="noindex, nofollow" />
-        )}
 
         {/* Article JSON-LD */}
         <script type="application/ld+json">

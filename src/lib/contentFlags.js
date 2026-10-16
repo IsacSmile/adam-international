@@ -1,2 +1,2 @@
-export const SHOW_PLACEHOLDERS =
-  import.meta.env.DEV || import.meta.env.VITE_SHOW_PLACEHOLDERS === 'true';
+// Set to false to hide all sample content (isPlaceholder / clientListed:false).
+export const SHOW_PLACEHOLDERS = true;
