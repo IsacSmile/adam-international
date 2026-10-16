@@ -29,18 +29,34 @@ export default function ContactPage() {
   // GSAP animation with cleanup
   useEffect(() => {
     if (!containerRef.current) return;
+    const cards = containerRef.current.querySelectorAll('.contact-card');
+    if (!cards || cards.length === 0) return;
+
+    // Reset any stuck inline styles so cards are always fully visible
+    cards.forEach((card) => {
+      card.style.opacity = '';
+      card.style.transform = '';
+    });
+
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
     const ctx = gsap.context(() => {
-      const cards = containerRef.current?.querySelectorAll('.contact-card');
-      if (cards && cards.length > 0) {
-        gsap.from(cards, {
-          y: 20,
-          opacity: 0,
-          duration: 0.5,
+      gsap.fromTo(
+        cards,
+        { y: 16, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.45,
           stagger: 0.08,
           ease: 'power2.out',
-        });
-      }
+          clearProps: 'opacity,transform',
+        }
+      );
     }, containerRef);
+
     return () => ctx.revert();
   }, []);
 
@@ -250,7 +266,7 @@ export default function ContactPage() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
                   Visit Our Office
                 </span>
-                <span className="font-semibold text-xs sm:text-sm text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors line-clamp-2">
+                <span className="font-bold text-xs sm:text-sm text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors line-clamp-2">
                   MAF Plaza, Edappally–Panvel Highway, Kochi
                 </span>
               </div>
