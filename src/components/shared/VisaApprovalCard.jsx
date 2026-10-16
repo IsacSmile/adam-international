@@ -35,11 +35,6 @@ export default function VisaApprovalCard({ approval }) {
           {/* Top Row: Country Badge + Approved Pill */}
           <div className="flex items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-2 flex-wrap">
-              {approval.isPlaceholder && (
-                <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-extrabold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider">
-                  SAMPLE
-                </span>
-              )}
               {/* Country Badge */}
               <div className="inline-flex items-center gap-2 bg-[#0B1F3A] text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold shadow-sm border border-white/20">
                 <span className="text-base leading-none">{countryFlag}</span>

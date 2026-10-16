@@ -212,11 +212,6 @@ export default function TestimonialsSection() {
           onMouseEnter={() => setIsAutoplayPaused(true)}
           className="bg-white border border-gray-200 rounded-[24px] sm:rounded-[28px] p-5 sm:p-10 shadow-xl relative max-w-3xl mx-auto overflow-hidden"
         >
-          {activeStudent.isPlaceholder && (
-            <span className="absolute top-3.5 left-4 z-20 bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-extrabold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-              SAMPLE
-            </span>
-          )}
           {/* Large Light Gold Quotation Mark */}
           <div className="absolute top-4 right-5 sm:top-6 sm:right-8 text-[#C9A84C]/25 select-none pointer-events-none">
             <Quote className="w-12 h-12 sm:w-20 sm:h-20" />

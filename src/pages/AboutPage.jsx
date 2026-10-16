@@ -536,11 +536,6 @@ export default function AboutPage() {
                   key={story.id}
                   className="relative bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
-                  {story.isPlaceholder && (
-                    <span className="absolute top-2.5 left-2.5 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-                      SAMPLE
-                    </span>
-                  )}
                   <div className="space-y-4">
                     {/* Stars (Only if rating exists) */}
                     {story.rating ? (

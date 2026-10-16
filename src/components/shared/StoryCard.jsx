@@ -32,11 +32,6 @@ export default function StoryCard({ story, onImageClick }) {
       id={story.id}
       className="relative bg-white rounded-3xl border border-gray-200/80 p-6 sm:p-8 lg:p-10 shadow-sm hover:shadow-md transition-shadow scroll-mt-28"
     >
-      {story.isPlaceholder && (
-        <span className="absolute top-3.5 left-4 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-extrabold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-          SAMPLE
-        </span>
-      )}
       {/* Header: Student Info & Photo */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-gray-100">
         <div className="flex items-center gap-4 sm:gap-6">

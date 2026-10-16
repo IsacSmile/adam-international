@@ -119,11 +119,6 @@ export default function BlogPostPage() {
       <header className="pt-10 sm:pt-14 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-[820px] mx-auto space-y-4 sm:space-y-6">
           <div className="flex items-center gap-2 flex-wrap">
-            {post.isPlaceholder && (
-              <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-extrabold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider">
-                SAMPLE
-              </span>
-            )}
             {post.category && (
               <Link
                 to={post.categorySlug ? `/blog?category=${post.categorySlug}` : '/blog'}

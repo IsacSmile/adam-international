@@ -397,11 +397,6 @@ export default function GalleryPage() {
                         {/* Top Badge: Type & Flag */}
                         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            {item.isPlaceholder && (
-                              <span className="bg-slate-200 text-slate-700 border border-slate-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider">
-                                SAMPLE
-                              </span>
-                            )}
                             <span className="bg-[#0B1F3A]/80 backdrop-blur-md text-[#DFBE7A] text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full border border-white/20 uppercase tracking-wider">
                               {item.type || 'Visa approval'}
                             </span>
@@ -556,11 +551,6 @@ export default function GalleryPage() {
                     >
                       {/* Media Container */}
                       <div className="relative w-full overflow-hidden bg-slate-100">
-                        {item.isPlaceholder && (
-                          <span className="absolute top-3 left-3 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-                            SAMPLE
-                          </span>
-                        )}
                         <img
                           src={item.image}
                           alt={item.alt || item.caption || item.type || 'Event photo'}
@@ -688,11 +678,6 @@ export default function GalleryPage() {
                     >
                       {/* Media Container */}
                       <div className="relative w-full overflow-hidden bg-slate-100">
-                        {item.isPlaceholder && (
-                          <span className="absolute top-3 left-3 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-                            SAMPLE
-                          </span>
-                        )}
                         <img
                           src={item.image}
                           alt={item.alt || item.caption || item.type || 'Student life photo'}

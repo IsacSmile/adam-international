@@ -166,11 +166,6 @@ export default function BlogPage() {
                   >
                     {/* Image Column */}
                     <div className="lg:col-span-7 relative aspect-video lg:aspect-auto overflow-hidden bg-slate-100 min-h-[260px] sm:min-h-[340px]">
-                      {featuredPost.isPlaceholder && (
-                        <span className="absolute top-4 left-4 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[10px] font-extrabold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-                          SAMPLE
-                        </span>
-                      )}
                       <img
                         src={featuredPost.image}
                         alt={featuredPost.imageAlt || featuredPost.title}

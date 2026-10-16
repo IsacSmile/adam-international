@@ -16,11 +16,6 @@ export default function BlogCard({ post }) {
       >
         {/* Featured Image Container (16:9) */}
         <div className="relative w-full aspect-video overflow-hidden bg-slate-100 shrink-0">
-          {post.isPlaceholder && (
-            <span className="absolute top-3 left-3 z-10 bg-slate-200 text-slate-700 border border-slate-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider pointer-events-none">
-              SAMPLE
-            </span>
-          )}
           {post.image ? (
             <img
               src={post.image}
