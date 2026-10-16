@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet-async';
 import { gsap } from 'gsap';
 import {
   ArrowRight,
-  MessageSquare,
   Play,
   Calendar,
   MapPin,
@@ -12,6 +11,7 @@ import {
   Sparkles,
   Images,
 } from 'lucide-react';
+import WhatsAppIcon from '../components/shared/WhatsAppIcon';
 import Breadcrumb from '../components/shared/Breadcrumb';
 import Lightbox from '../components/shared/Lightbox';
 import { galleryItems, galleryTypes } from '../data/gallery';
@@ -804,7 +804,7 @@ export default function GalleryPage() {
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-400 hover:text-white font-extrabold text-base transition-all duration-300 shadow-md active:scale-95 backdrop-blur-md"
             >
-              <MessageSquare className="w-5 h-5 fill-current" />
+              <WhatsAppIcon className="w-5 h-5" />
               <span>WhatsApp Us</span>
             </a>
           </div>

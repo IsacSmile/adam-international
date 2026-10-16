@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, Phone, MessageSquare, Sparkles, Clock } from 'lucide-react';
+import { ArrowRight, Phone, Sparkles, Clock } from 'lucide-react';
 import { contact, whatsappLink } from '../data/contact';
+import WhatsAppIcon from './shared/WhatsAppIcon';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -154,7 +155,7 @@ export default function FinalCtaBanner({ onBookCounseling }) {
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-emerald-500/15 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-400 hover:text-white font-extrabold text-base sm:text-lg py-4 px-8 rounded-2xl transition-all duration-300 shadow-md active:scale-95 backdrop-blur-md group"
               >
-                <MessageSquare className="w-5 h-5 fill-current text-emerald-400 group-hover:text-white transition-colors" />
+                <WhatsAppIcon className="w-5 h-5 text-emerald-400 group-hover:text-white transition-colors" />
                 <span>WhatsApp Us</span>
               </a>
             </div>

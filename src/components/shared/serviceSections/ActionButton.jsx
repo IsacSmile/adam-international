@@ -2,8 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppointment } from '../../../context/AppointmentContext';
 import { useLenis } from '../../SmoothScroll';
-import { ArrowRight, Phone, MessageCircle } from 'lucide-react';
+import { ArrowRight, Phone } from 'lucide-react';
 import { contact, whatsappLink } from '../../../data/contact';
+import WhatsAppIcon from '../WhatsAppIcon';
 
 export function handleButtonAction(action, { openAppointment, navigate, lenis, defaultService } = {}) {
   if (!action) return;
@@ -99,7 +100,7 @@ export default function ActionButton({
       <span>{content}</span>
       {icon === true ? (
         action?.type === 'whatsapp' ? (
-          <MessageCircle className="w-4 h-4" />
+          <WhatsAppIcon className="w-4 h-4" />
         ) : action?.type === 'tel' ? (
           <Phone className="w-4 h-4" />
         ) : (

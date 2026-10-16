@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MessageSquare, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import WhatsAppIcon from '../components/shared/WhatsAppIcon';
 import PageHero from '../components/shared/PageHero';
 import StoryCard from '../components/shared/StoryCard';
 import VisaApprovalCard from '../components/shared/VisaApprovalCard';
@@ -285,7 +286,7 @@ export default function SuccessStoriesPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm sm:text-base px-6 sm:px-7 py-3.5 rounded-xl shadow-md transition-all duration-200"
             >
-              <MessageSquare className="w-4 h-4 text-white" />
+              <WhatsAppIcon className="w-4 h-4 text-white" />
               <span>WhatsApp Us</span>
             </a>
           </div>

@@ -8,9 +8,9 @@ import {
   Calendar,
   Clock,
   User,
-  MessageSquare,
   Sparkles,
 } from 'lucide-react';
+import WhatsAppIcon from '../components/shared/WhatsAppIcon';
 import Breadcrumb from '../components/shared/Breadcrumb';
 import BlogCard from '../components/blog/BlogCard';
 import NotFoundPage from './NotFoundPage';
@@ -215,7 +215,7 @@ export default function BlogPostPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base transition-colors shadow-md active:scale-98"
                 >
-                  <MessageSquare className="w-4 h-4 fill-current" />
+                  <WhatsAppIcon className="w-4 h-4" />
                   <span>WhatsApp Us</span>
                 </a>
               </div>

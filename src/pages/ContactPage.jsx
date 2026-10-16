@@ -5,7 +5,6 @@ import gsap from 'gsap';
 import {
   Phone,
   Mail,
-  MessageCircle,
   MapPin,
   Clock,
   ExternalLink,
@@ -16,6 +15,7 @@ import PageHero from '../components/shared/PageHero';
 import InlineEnquiryForm from '../components/shared/InlineEnquiryForm';
 import FaqAccordion from '../components/shared/FaqAccordion';
 import FinalCtaBanner from '../components/FinalCtaBanner';
+import WhatsAppIcon from '../components/shared/WhatsAppIcon';
 
 import { contact, whatsappLink } from '../data/contact';
 import { branches } from '../data/branches';
@@ -188,7 +188,7 @@ export default function ContactPage() {
             >
               <div className="flex items-start gap-3.5">
                 <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
-                  <MessageCircle className="w-5 h-5" />
+                  <WhatsAppIcon className="w-5 h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
@@ -426,7 +426,7 @@ export default function ContactPage() {
             rel="noopener noreferrer"
             className="flex-1 min-h-[44px] py-2.5 px-4 rounded-xl bg-emerald-600 active:bg-emerald-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
           >
-            <MessageCircle className="w-4 h-4" />
+            <WhatsAppIcon className="w-4 h-4" />
             <span>WhatsApp</span>
           </a>
         )}

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, MessageCircle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Phone, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getFormFieldDefinitions, PREFERRED_TIME_OPTIONS } from '../../data/formFields';
 import { contact, whatsappLink } from '../../data/contact';
 import { countries } from '../../data/countries';
 import SelectField from './SelectField';
+import WhatsAppIcon from './WhatsAppIcon';
 
 export default function InlineEnquiryForm({
   formType = 'appointment',
@@ -258,7 +259,7 @@ export default function InlineEnquiryForm({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-emerald-700 hover:text-emerald-800"
           >
-            <MessageCircle className="w-4 h-4" />
+            <WhatsAppIcon className="w-4 h-4 text-emerald-700" />
             <span>Chat on WhatsApp</span>
           </a>
           <span className="text-slate-300">•</span>
@@ -562,7 +563,7 @@ export default function InlineEnquiryForm({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
         >
-          <MessageCircle className="w-3.5 h-3.5" />
+          <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-700" />
           <span>Chat on WhatsApp</span>
         </a>
         <span className="text-slate-300">•</span>

@@ -9,7 +9,6 @@ import {
   ArrowRight,
   Sparkles,
   Phone,
-  MessageSquare,
   Mail,
   GraduationCap,
   Compass,
@@ -26,6 +25,7 @@ import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { hasVisibleBlogPosts } from '../lib/blog';
 import { contact, whatsappLink } from '../data/contact';
 import { useAppointment } from '../context/AppointmentContext';
+import WhatsAppIcon from './shared/WhatsAppIcon';
 
 // Register GSAP Plugins safely
 if (typeof window !== 'undefined') {
@@ -608,7 +608,7 @@ export default function Header({ onBookAppointment }) {
                 rel="noreferrer"
                 className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 p-2.5 rounded-xl hover:bg-emerald-500/30 transition-colors truncate"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span className="truncate">WhatsApp Chat</span>
               </a>
             </div>

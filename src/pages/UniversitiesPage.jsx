@@ -1,7 +1,7 @@
 import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, X, MessageSquare, ArrowRight } from 'lucide-react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import PageHero from '../components/shared/PageHero';
 import UniversityCard from '../components/shared/UniversityCard';
 import SectionSkeleton from '../components/SectionSkeleton';

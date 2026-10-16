@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Phone,
-  MessageCircle,
   Mail,
   ExternalLink,
   Calendar,
@@ -23,6 +22,7 @@ import {
   MapPin,
   CheckCircle2,
 } from 'lucide-react';
+import WhatsAppIcon from '../../components/shared/WhatsAppIcon';
 
 import { countries } from '../../data/countries';
 import { services } from '../../data/services';
@@ -838,7 +838,7 @@ export default function AdminDashboardPage({ admin }) {
                                   className="text-emerald-600 hover:text-emerald-700 transition-colors p-0.5 rounded hover:bg-emerald-50"
                                   title="Open WhatsApp chat"
                                 >
-                                  <MessageCircle className="w-3.5 h-3.5" />
+                                  <WhatsAppIcon className="w-3.5 h-3.5" />
                                 </a>
                               )}
                             </div>
@@ -980,7 +980,7 @@ export default function AdminDashboardPage({ admin }) {
                             onClick={(e) => e.stopPropagation()}
                             className="inline-flex items-center gap-1 text-emerald-600 font-semibold hover:text-emerald-700"
                           >
-                            <MessageCircle className="w-3.5 h-3.5" />
+                            <WhatsAppIcon className="w-3.5 h-3.5" />
                             <span>WhatsApp</span>
                           </a>
                         )}
@@ -1122,7 +1122,7 @@ export default function AdminDashboardPage({ admin }) {
                         className="text-emerald-600 hover:text-emerald-700 p-1 bg-white rounded-md border border-slate-200"
                         title="Chat on WhatsApp"
                       >
-                        <MessageCircle className="w-3.5 h-3.5" />
+                        <WhatsAppIcon className="w-3.5 h-3.5" />
                       </a>
                     )}
                   </div>
