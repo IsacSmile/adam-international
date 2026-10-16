@@ -1,6 +1,6 @@
 // Add only real Adam International photos. Student photos need written consent (consentOnFile: true).
 export const galleryItems = [
-  // --- VISA (4 items, 1 video) ---
+  // --- VISA (3 items) ---
   {
     id: 'placeholder-visa-01',
     category: 'visa',
@@ -57,26 +57,6 @@ export const galleryItems = [
     message: 'I received comprehensive guidance for my Latvia visa filing. The counsellors were always accessible and resolved every query promptly.',
     date: '2026-02-28',
     location: 'Trivandrum branch',
-    consentOnFile: true,
-    isPlaceholder: true,
-    featured: false,
-  },
-  {
-    id: 'placeholder-visa-04-video',
-    category: 'visa',
-    type: 'Visa approval',
-    image: '/images/gallery/_placeholder/visa-04-video.jpg',
-    width: 1200,
-    height: 675,
-    alt: 'Abhinav Menon sharing his Swedish student visa experience',
-    video: { provider: 'youtube', id: 'dQw4w9WgXcQ' },
-    caption: 'Abhinav sharing his study abroad journey and visa approval for Halmstad University, Sweden.',
-    studentName: 'Abhinav Menon',
-    country: 'sweden',
-    university: 'Halmstad University',
-    message: 'Applying to Sweden seemed daunting until I met the team at Adam International. Their university shortlisting and visa support were top notch.',
-    date: '2026-02-20',
-    location: 'Calicut branch',
     consentOnFile: true,
     isPlaceholder: true,
     featured: false,

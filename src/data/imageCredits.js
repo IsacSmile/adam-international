@@ -456,18 +456,6 @@ export const imageCredits = [
     changesNote: 'Resized and compressed',
   },
   {
-    id: 'gallery-visa-04-video',
-    section: 'Gallery — Visa Approval Video Story 4',
-    landmark: 'Student portrait (Abhinav at WikiConference India 2026, Kerala)',
-    image: '/images/gallery/_placeholder/visa-04-video.jpg',
-    author: 'JyotiPN',
-    license: 'CC BY-SA 4.0',
-    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
-    sourceUrl: 'https://commons.wikimedia.org/wiki/File:Abhinav_during_Wikiconference_India_2026_in_Kerala.jpg',
-    changes: 'Resized and compressed',
-    changesNote: 'Resized and compressed',
-  },
-  {
     id: 'gallery-event-01',
     section: 'Gallery — University Delegate Visit',
     landmark: 'Discussion session at WikiConference India 2026, Kochi',
