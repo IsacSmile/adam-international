@@ -391,14 +391,22 @@ export function validateLeadPayload(rawFormType, rawDetails, rawMessage) {
         }
         const trimmed = val.trim();
         // Check if value is in allowed options
-        if (!def.options.includes(trimmed)) {
+        let matchedOption = def.options.find((opt) => opt === trimmed);
+        if (!matchedOption) {
+          // Robust fallback: match by normalizing en-dash, em-dash, and standard hyphen
+          const normalizedTrimmed = trimmed.replace(/[\u2013\u2014-]/g, '-');
+          matchedOption = def.options.find(
+            (opt) => opt.replace(/[\u2013\u2014-]/g, '-') === normalizedTrimmed
+          );
+        }
+        if (!matchedOption) {
           return {
             ok: false,
             error: 'validation',
             fields: { [key]: `Invalid option for ${def.label}.` },
           };
         }
-        cleanDetails[key] = trimmed;
+        cleanDetails[key] = matchedOption;
       } else if (def.type === 'text') {
         if (typeof val !== 'string') {
           return {
