@@ -1,5 +1,21 @@
+import { neonConfig } from '@neondatabase/serverless';
 import handler from '../api/lead.js';
 import { sql } from '../api/_lib/db.js';
+
+// Resilient retry wrapper for test runner across network latency
+const originalFetch = globalThis.fetch;
+neonConfig.fetchFunction = async (url, options) => {
+  let attempts = 0;
+  while (attempts < 4) {
+    try {
+      attempts++;
+      return await originalFetch(url, options);
+    } catch (err) {
+      if (attempts >= 4) throw err;
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  }
+};
 
 function createMockRes() {
   return {
@@ -608,17 +624,86 @@ async function run() {
   assert(resGet.statusCode === 405, 'GET method rejected with 405');
 
   // ---------------------------------------------------------------------------
+  // 11b. Country Validation Tests (Sweden, Czech Republic, United States)
+  // ---------------------------------------------------------------------------
+  console.log('\n11b. Country Validation Tests (Sweden, Czech Republic, United States):');
+
+  // Test Sweden is saved
+  const resSweden = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        name: 'Test Lead Sweden',
+        email: 'sweden@example.com',
+        phone: '+919895111020',
+        consent: true,
+        country: 'Sweden',
+      },
+    },
+    resSweden
+  );
+  assert(resSweden.statusCode === 200 && resSweden.body?.ok === true, 'Lead with country Sweden accepted');
+
+  // Test Czech Republic is saved
+  const resCzech = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        name: 'Test Lead Czech Republic',
+        email: 'czech@example.com',
+        phone: '+919895111021',
+        consent: true,
+        country: 'Czech Republic',
+      },
+    },
+    resCzech
+  );
+  assert(resCzech.statusCode === 200 && resCzech.body?.ok === true, 'Lead with country Czech Republic accepted');
+
+  // Test United States is stored as null
+  const resUS = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        name: 'Test Lead United States',
+        email: 'us@example.com',
+        phone: '+919895111022',
+        consent: true,
+        country: 'United States',
+      },
+    },
+    resUS
+  );
+  assert(resUS.statusCode === 200 && resUS.body?.ok === true, 'Lead with country United States accepted');
+
+  // ---------------------------------------------------------------------------
   // 12. Database Verification & Cleanup
   // ---------------------------------------------------------------------------
   console.log('\n12. Database Verification & Cleanup:');
   const testRows = await sql`
-    SELECT id, name, email, phone, form_type, details
+    SELECT id, name, email, phone, country, form_type, details
     FROM leads
     WHERE name LIKE 'Test Lead%'
     ORDER BY id ASC
   `;
   console.log(`  Total test rows created in database: ${testRows.length}`);
   assert(testRows.length > 0, 'Test leads were recorded in Neon database');
+
+  // Verify Sweden, Czech Republic, and United States
+  const swedenRow = testRows.find((r) => r.name === 'Test Lead Sweden');
+  assert(swedenRow && swedenRow.country === 'Sweden', 'DB Row: country Sweden is saved correctly');
+
+  const czechRow = testRows.find((r) => r.name === 'Test Lead Czech Republic');
+  assert(czechRow && czechRow.country === 'Czech Republic', 'DB Row: country Czech Republic is saved correctly');
+
+  const usRow = testRows.find((r) => r.name === 'Test Lead United States');
+  assert(usRow && usRow.country === null, 'DB Row: country United States is stored as null');
 
   // Verify each of the 5 form types
   const apptRow = testRows.find((r) => r.name === 'Test Lead Appointment');

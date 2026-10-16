@@ -67,15 +67,21 @@ export default function ContactPage() {
   }, []);
 
   // European countries for FAQ answer #2
-  const formattedEuropeanCountries = useMemo(() => {
-    const euroCountries = countries
-      .filter((c) => c.region === 'Europe')
+  const europeanFaqAnswer = useMemo(() => {
+    const euroCountries = countries.filter((c) => c.region === 'Europe');
+    const n = euroCountries.length;
+    const featuredEuroCountries = euroCountries
+      .filter((c) => c.featured)
       .map((c) => (c.article ? `${c.article} ${c.name}` : c.name));
-    if (euroCountries.length === 0) return '';
-    if (euroCountries.length === 1) return euroCountries[0];
-    return `${euroCountries.slice(0, -1).join(', ')} and ${
-      euroCountries[euroCountries.length - 1]
-    }`;
+    let featuredList = '';
+    if (featuredEuroCountries.length === 1) {
+      featuredList = featuredEuroCountries[0];
+    } else if (featuredEuroCountries.length > 1) {
+      featuredList = `${featuredEuroCountries.slice(0, -1).join(', ')} and ${
+        featuredEuroCountries[featuredEuroCountries.length - 1]
+      }`;
+    }
+    return `We currently help students apply to universities in ${n} European countries, including ${featuredList}. You can see the full list on our Countries page. If you're considering another destination, ask us and we'll tell you what's possible.`;
   }, []);
 
   // FAQs per Section 4.4
@@ -87,7 +93,7 @@ export default function ContactPage() {
       },
       {
         q: 'Which European countries do you support?',
-        a: `We currently help students apply to universities in ${formattedEuropeanCountries}. If you're considering another destination, ask us and we'll tell you what's possible.`,
+        a: europeanFaqAnswer,
       },
       {
         q: 'What documents should I prepare?',

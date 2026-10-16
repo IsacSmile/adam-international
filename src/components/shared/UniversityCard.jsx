@@ -66,7 +66,7 @@ export default function UniversityCard({ university, variant = 'light' }) {
           }`}
         >
           <MapPin className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
-          <span>{university.city}</span>
+          <span>{university.city ? `${university.city}, ${countryName}` : countryName}</span>
         </div>
       </div>
 

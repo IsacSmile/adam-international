@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Phone, MessageCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getFormFieldDefinitions, PREFERRED_TIME_OPTIONS } from '../../data/formFields';
 import { contact, whatsappLink } from '../../data/contact';
+import { countries } from '../../data/countries';
 
 export default function InlineEnquiryForm({
   formType = 'appointment',
@@ -44,7 +45,16 @@ export default function InlineEnquiryForm({
       preferredTime: '',
     };
     effectiveFields.forEach((fKey) => {
-      initial[fKey] = initialValues[fKey] || '';
+      let val = initialValues[fKey] || '';
+      if (fKey === 'country' && val) {
+        const found = countries.find(
+          (c) =>
+            c.slug.toLowerCase() === val.toLowerCase() ||
+            c.name.toLowerCase() === val.toLowerCase()
+        );
+        if (found) val = found.name;
+      }
+      initial[fKey] = val;
     });
     return initial;
   });
@@ -380,11 +390,30 @@ export default function InlineEnquiryForm({
                   }`}
                 >
                   <option value="">Select option…</option>
-                  {def.options.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
+                  {def.optgroups ? (
+                    <>
+                      {def.optgroups.map((group) => (
+                        <optgroup key={group.label} label={group.label}>
+                          {group.options.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                      {def.trailingOption && (
+                        <option value={def.trailingOption}>
+                          {def.trailingOption}
+                        </option>
+                      )}
+                    </>
+                  ) : (
+                    def.options.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))
+                  )}
                 </select>
               ) : def.type === 'textarea' ? (
                 <textarea

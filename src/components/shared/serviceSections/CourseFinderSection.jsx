@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight, Info } from 'lucide-react';
-import { universities } from '../../../data/universities';
+import { getVisibleUniversities } from '../../../lib/universities';
 import { countries } from '../../../data/countries';
 
 export default function CourseFinderSection({
@@ -11,39 +11,43 @@ export default function CourseFinderSection({
 }) {
   const navigate = useNavigate();
 
+  const visibleUniversities = useMemo(() => getVisibleUniversities(), []);
+
   // Extract available countries from universities list
   const availableCountries = useMemo(() => {
-    const uniCountrySlugs = new Set(universities.map((u) => u.country).filter(Boolean));
-    return countries.filter((c) => uniCountrySlugs.has(c.slug));
-  }, []);
+    const uniCountrySlugs = new Set(visibleUniversities.map((u) => u.country).filter(Boolean));
+    return countries
+      .filter((c) => uniCountrySlugs.has(c.slug))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [visibleUniversities]);
 
   // Extract study levels from available programmes
   const availableLevels = useMemo(() => {
     const levels = new Set();
-    universities.forEach((u) => {
+    visibleUniversities.forEach((u) => {
       (u.programs || []).forEach((p) => {
         if (p.level) levels.add(p.level);
       });
     });
     return Array.from(levels);
-  }, []);
+  }, [visibleUniversities]);
 
   // Extract subject areas from available programmes
   const availableSubjects = useMemo(() => {
     const subjects = new Set();
-    universities.forEach((u) => {
+    visibleUniversities.forEach((u) => {
       (u.programs || []).forEach((p) => {
         const name = p.name || p.title;
         if (name) subjects.add(name);
       });
     });
     return Array.from(subjects);
-  }, []);
+  }, [visibleUniversities]);
 
   // Extract intakes from available programmes
   const availableIntakes = useMemo(() => {
     const intakes = new Set();
-    universities.forEach((u) => {
+    visibleUniversities.forEach((u) => {
       (u.programs || []).forEach((p) => {
         if (Array.isArray(p.intakes)) {
           p.intakes.forEach((intk) => intakes.add(intk));
@@ -53,7 +57,7 @@ export default function CourseFinderSection({
       });
     });
     return Array.from(intakes);
-  }, []);
+  }, [visibleUniversities]);
 
   // Filter selections
   const [selectedCountry, setSelectedCountry] = useState('');

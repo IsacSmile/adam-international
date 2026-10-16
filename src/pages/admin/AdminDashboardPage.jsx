@@ -29,6 +29,9 @@ import { services } from '../../data/services';
 import { branches } from '../../data/branches';
 import { FORM_TYPE_LABELS, FIELD_LABELS } from '../../data/formFields';
 
+const europeCountries = countries.filter((c) => c.region === 'Europe');
+const otherCountries = countries.filter((c) => c.region !== 'Europe');
+
 const STATUS_OPTIONS = [
   { value: 'new', label: 'New', color: 'bg-blue-50 text-blue-700 border-blue-200' },
   { value: 'contacted', label: 'Contacted', color: 'bg-amber-50 text-amber-700 border-amber-200' },
@@ -588,12 +591,21 @@ export default function AdminDashboardPage({ admin }) {
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
               >
                 <option value="all">All Countries</option>
+                <optgroup label="Europe">
+                  {europeCountries.map((c) => (
+                    <option key={c.slug} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Other destinations">
+                  {otherCountries.map((c) => (
+                    <option key={c.slug} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </optgroup>
                 <option value="Not sure yet">Not sure yet</option>
-                {countries.map((c) => (
-                  <option key={c.slug} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
               </select>
             </div>
 

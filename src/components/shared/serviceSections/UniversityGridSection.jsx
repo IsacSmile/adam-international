@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, ExternalLink, ArrowRight, GraduationCap } from 'lucide-react';
-import { universities } from '../../../data/universities';
+import { getVisibleUniversities, sortUniversitiesFeaturedFirst } from '../../../lib/universities';
 import { countries } from '../../../data/countries';
 
 export default function UniversityGridSection({
@@ -14,14 +14,14 @@ export default function UniversityGridSection({
   region,
   universities: customUniversities,
 }) {
-  let list = customUniversities || universities;
+  let list = customUniversities || getVisibleUniversities();
   if (region) {
     list = list.filter((u) => {
       const c = countries.find((country) => country.slug === u.country);
       return c?.region === region;
     });
   }
-  const displayUniversities = list.slice(0, limit);
+  const displayUniversities = sortUniversitiesFeaturedFirst(list).slice(0, limit);
 
   return (
     <section id={id} className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">

@@ -53,7 +53,7 @@ const featuresData = [
     id: 'university-network',
     title: 'Strong University Network',
     badge: '450+ Global Partners',
-    description: 'Direct tie-ups and priority application processing with over 450 leading universities across UK, USA, Canada, Europe & Australia.',
+    description: 'Direct tie-ups and priority application processing with universities across Europe and other study destinations.',
     extendedDetail: 'Application fee waivers, fast-track offer letters within 48 hours, and exclusive institutional scholarship access.',
     icon: Globe,
     image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800&auto=format&fit=crop',

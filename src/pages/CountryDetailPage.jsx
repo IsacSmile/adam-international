@@ -19,7 +19,7 @@ import StoryStripSection from '../components/shared/serviceSections/StoryStripSe
 import LinkCardsSection from '../components/shared/serviceSections/LinkCardsSection';
 import NotFoundPage from './NotFoundPage';
 import { countries } from '../data/countries';
-import { universities } from '../data/universities';
+import { getVisibleUniversities } from '../lib/universities';
 import { successStories } from '../data/successStories';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
@@ -37,8 +37,8 @@ export default function CountryDetailPage() {
     return <NotFoundPage />;
   }
 
-  // Filter universities for this country
-  const countryUniversities = universities.filter((u) => u.country === country.slug);
+  // Filter visible universities for this country (no limit)
+  const countryUniversities = getVisibleUniversities().filter((u) => u.country === country.slug);
 
   // Filter stories for this country (slug or name matching)
   const availableStories = SHOW_PLACEHOLDERS

@@ -7,7 +7,7 @@ import VisaApprovalCard from '../components/shared/VisaApprovalCard';
 import StoryCard from '../components/shared/StoryCard';
 import SectionSkeleton from '../components/SectionSkeleton';
 import NotFoundPage from './NotFoundPage';
-import { universities } from '../data/universities';
+import { getVisibleUniversityBySlug } from '../lib/universities';
 import { countries } from '../data/countries';
 import { visaApprovals } from '../data/visaApprovals';
 import { successStories } from '../data/successStories';
@@ -20,7 +20,7 @@ export default function UniversityDetailPage() {
   const { slug } = useParams();
   const { openAppointment } = useAppointment();
 
-  const university = universities.find((u) => u.slug === slug);
+  const university = getVisibleUniversityBySlug(slug);
 
   // If university slug is not found, render NotFoundPage
   if (!university) {
@@ -78,7 +78,7 @@ export default function UniversityDetailPage() {
         <title>{`${university.name} | Adam International`}</title>
         <meta
           name="description"
-          content={`Study at ${university.name} in ${university.city}, ${countryName}. Courses, admission requirements, fees, and student guidance.`}
+          content={`Study at ${university.name} in ${university.city ? `${university.city}, ` : ''}${countryName}. Courses, admission requirements, fees, and student guidance.`}
         />
       </Helmet>
 
@@ -129,8 +129,7 @@ export default function UniversityDetailPage() {
                 <div className="flex items-center gap-3 mt-2 text-xs sm:text-sm text-slate-300 font-medium flex-wrap">
                   <div className="flex items-center gap-1.5">
                     <MapPin className="w-4 h-4 text-[#C9A84C] shrink-0" />
-                    <span>{university.city},</span>
-                    <span>{countryName}</span>
+                    <span>{university.city ? `${university.city}, ${countryName}` : countryName}</span>
                   </div>
                   <span role="img" aria-label={countryName} className="text-base leading-none">
                     {countryFlag}
@@ -171,7 +170,7 @@ export default function UniversityDetailPage() {
                 {university.name}
               </h2>
               <p className="text-sm text-slate-500 mb-5">
-                {university.city}, {countryName} {countryFlag}
+                {university.city ? `${university.city}, ` : ''}{countryName} {countryFlag}
               </p>
               <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal mb-6">
                 Full details for this university are being updated. Talk to an advisor for current courses, fees and entry requirements.

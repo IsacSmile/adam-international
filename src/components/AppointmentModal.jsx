@@ -7,6 +7,9 @@ import { branches } from '../data/branches';
 import { universities } from '../data/universities';
 import { contact } from '../data/contact';
 
+const europeCountries = countries.filter((c) => c.region === 'Europe');
+const otherCountries = countries.filter((c) => c.region !== 'Europe');
+
 export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnClose }) {
   let contextAppointment = null;
   try {
@@ -391,12 +394,21 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
                     }
                     className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent bg-white text-slate-800"
                   >
+                    <optgroup label="Europe">
+                      {europeCountries.map((c) => (
+                        <option key={c.slug} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Other destinations">
+                      {otherCountries.map((c) => (
+                        <option key={c.slug} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </optgroup>
                     <option value="Not sure yet">Not sure yet</option>
-                    {countries.map((c) => (
-                      <option key={c.slug} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))}
                   </select>
                 </div>
 

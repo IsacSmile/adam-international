@@ -18,19 +18,10 @@ if (typeof window !== 'undefined') {
 // Bright, inspiring, high-resolution Unsplash image of international students on campus
 const HERO_BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1920&auto=format&fit=crop";
 
-// Country Datasets for Vertical Scrolling Columns derived from countries.js
-const countryCol1 = [
-  countries.find((c) => c.slug === 'united-kingdom'),
-  countries.find((c) => c.slug === 'france'),
-  countries.find((c) => c.slug === 'germany'),
-  countries.find((c) => c.slug === 'hungary'),
-].filter(Boolean);
-
-const countryCol2 = [
-  countries.find((c) => c.slug === 'united-states'),
-  countries.find((c) => c.slug === 'canada'),
-  countries.find((c) => c.slug === 'australia'),
-].filter(Boolean);
+// Country Datasets for Vertical Scrolling Columns derived dynamically from featured countries in countries.js
+const featuredCountries = countries.filter((c) => c.featured);
+const countryCol1 = featuredCountries.filter((_, i) => i % 2 === 0);
+const countryCol2 = featuredCountries.filter((_, i) => i % 2 !== 0);
 
 // Tripled lists for seamless vertical infinite marquee
 const col1Duplicated = [...countryCol1, ...countryCol1, ...countryCol1];
@@ -369,11 +360,6 @@ export default function HeroShowcase({ onBookAppointment }) {
                             <span className="truncate">{c.name}</span>
                           </div>
                         </div>
-                        {Boolean(c.universityCount || c.count) && (
-                          <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
-                            {c.universityCount || c.count}
-                          </div>
-                        )}
                       </Link>
                     );
                   })}
@@ -406,11 +392,6 @@ export default function HeroShowcase({ onBookAppointment }) {
                             <span className="truncate">{c.name}</span>
                           </div>
                         </div>
-                        {Boolean(c.universityCount || c.count) && (
-                          <div className="text-[10px] font-bold text-gray-200 text-center tracking-wide py-0.5">
-                            {c.universityCount || c.count}
-                          </div>
-                        )}
                       </Link>
                     );
                   })}

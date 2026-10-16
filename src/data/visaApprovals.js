@@ -2,7 +2,7 @@ export const visaApprovals = [
   {
     id: 'va-001',
     studentName: 'Adith Dinesh',
-    photo: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=600&auto=format&fit=crop',
+    photo: '/images/_placeholder/students/adith-dinesh.jpg',
     country: 'hungary',
     university: 'University of Debrecen',
     universitySlug: 'university-of-debrecen',
@@ -17,7 +17,7 @@ export const visaApprovals = [
   {
     id: 'va-002',
     studentName: 'Kiran Sunil Kumar',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
+    photo: '/images/_placeholder/students/kiran-sunil-kumar.jpg',
     country: 'france',
     university: 'NEOMA Business School',
     universitySlug: 'neoma-business-school',
@@ -32,7 +32,7 @@ export const visaApprovals = [
   {
     id: 'va-003',
     studentName: 'Anagha Sabu',
-    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop',
+    photo: '/images/_placeholder/students/anagha-sabu.jpg',
     country: 'hungary',
     university: 'Eötvös Loránd University (ELTE)',
     universitySlug: 'eotvos-lorand-university',

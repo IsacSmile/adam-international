@@ -8,7 +8,7 @@ import CardGridSection from '../components/shared/serviceSections/CardGridSectio
 import UniversityGridSection from '../components/shared/serviceSections/UniversityGridSection';
 import StoryStripSection from '../components/shared/serviceSections/StoryStripSection';
 import { countries } from '../data/countries';
-import { universities } from '../data/universities';
+import { getVisibleUniversities } from '../lib/universities';
 import { budgetBands, courseCategories, studyLevels } from '../data/countryFilters';
 import { useAppointment } from '../context/AppointmentContext';
 import { useLenis } from '../components/SmoothScroll';
@@ -151,7 +151,7 @@ const COMPARISON_FACTORS = [
     key: 'universities',
     label: 'Universities',
     render: (c) => {
-      const unis = universities.filter((u) => u.country === c.slug);
+      const unis = getVisibleUniversities().filter((u) => u.country === c.slug);
       if (unis.length === 0) return null;
       const displayUnis = unis.slice(0, 3);
       const remaining = unis.length - 3;

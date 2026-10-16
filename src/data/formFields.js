@@ -112,6 +112,19 @@ export function getCountryOptions() {
   return [...list, 'Not sure yet'];
 }
 
+export function getCountryGroupedOptions() {
+  const europe = countries
+    .filter((c) => c.region === 'Europe')
+    .map((c) => c.name);
+  const other = countries
+    .filter((c) => c.region !== 'Europe')
+    .map((c) => c.name);
+  return [
+    { label: 'Europe', options: europe },
+    { label: 'Other destinations', options: other },
+  ];
+}
+
 export function getProgrammeOptions() {
   const list = (trainingProgrammes || []).map((p) => p.title);
   return [...list, 'Not sure yet'];
@@ -183,6 +196,8 @@ export function getFormFieldDefinitions(now = new Date()) {
       label: FIELD_LABELS.country,
       type: 'select',
       options: getCountryOptions(),
+      optgroups: getCountryGroupedOptions(),
+      trailingOption: 'Not sure yet',
     },
     budget: {
       key: 'budget',

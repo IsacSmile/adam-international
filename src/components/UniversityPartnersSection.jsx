@@ -3,18 +3,22 @@ import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Globe, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
-import { universities } from '../data/universities';
+import { getVisibleUniversities, sortUniversitiesFeaturedFirst } from '../lib/universities';
 import UniversityCard from './shared/UniversityCard';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Show at most 12 universities, prioritizing featured countries first
+const visibleUniversities = getVisibleUniversities();
+const prioritizedUniversities = sortUniversitiesFeaturedFirst(visibleUniversities).slice(0, 12);
+
 // Tripled list for a perfectly seamless infinite horizontal scroll loop
 const infinitePartnerList = [
-  ...universities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-1-${i}` })),
-  ...universities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-2-${i}` })),
-  ...universities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-3-${i}` })),
+  ...prioritizedUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-1-${i}` })),
+  ...prioritizedUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-2-${i}` })),
+  ...prioritizedUniversities.map((u, i) => ({ ...u, uniqueKey: `${u.slug}-3-${i}` })),
 ];
 
 export default function UniversityPartnersSection() {
@@ -53,7 +57,7 @@ export default function UniversityPartnersSection() {
       // Entrance animation for first set of visible cards
       if (cardsRef.current.length > 0) {
         gsap.fromTo(
-          cardsRef.current.slice(0, universities.length),
+          cardsRef.current.slice(0, prioritizedUniversities.length),
           { opacity: 0, y: 35 },
           {
             opacity: 1,
@@ -171,7 +175,7 @@ export default function UniversityPartnersSection() {
             </h2>
 
             <p className="text-base sm:text-lg text-gray-300 font-normal leading-relaxed mt-3">
-              We help students apply to universities across the UK and Europe, and we're adding more every intake. Tap a university to see courses, fees and entry requirements.
+              We help students apply to universities across Europe and other study destinations, and we're adding more every intake. Tap a university to see courses, fees and entry requirements.
             </p>
           </div>
 

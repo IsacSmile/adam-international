@@ -5,11 +5,17 @@ import { Search, X, MessageSquare, ArrowRight } from 'lucide-react';
 import PageHero from '../components/shared/PageHero';
 import UniversityCard from '../components/shared/UniversityCard';
 import SectionSkeleton from '../components/SectionSkeleton';
-import { universities } from '../data/universities';
+import { getVisibleUniversities } from '../lib/universities';
 import { countries } from '../data/countries';
 import { useAppointment } from '../context/AppointmentContext';
 
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
+
+const normalizeText = (str) =>
+  (str || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 
 export default function UniversitiesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,31 +23,50 @@ export default function UniversitiesPage() {
 
   const selectedCountrySlug = searchParams.get('country') || 'all';
   const [searchQuery, setSearchQuery] = useState('');
+  const [visibleCount, setVisibleCount] = useState(24);
 
-  // Only countries that have at least one university
+  const visibleUniversities = useMemo(() => getVisibleUniversities(), []);
+
+  // Only countries that have at least one visible university, sorted alphabetically
   const availableCountries = useMemo(() => {
-    return countries.filter((country) =>
-      universities.some((u) => u.country === country.slug)
-    );
-  }, []);
+    return countries
+      .filter((country) =>
+        visibleUniversities.some((u) => u.country === country.slug)
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [visibleUniversities]);
+
+  // Reset pagination when filter or search changes
+  React.useEffect(() => {
+    setVisibleCount(24);
+  }, [selectedCountrySlug, searchQuery]);
 
   // Filtered universities based on country chip and search input
   const filteredUniversities = useMemo(() => {
-    return universities.filter((uni) => {
+    const q = searchQuery.trim().toLowerCase();
+    const normQ = normalizeText(q);
+
+    return visibleUniversities.filter((uni) => {
       // Country filter
       const matchesCountry =
         selectedCountrySlug === 'all' || uni.country === selectedCountrySlug;
 
-      // Search query filter (university name or city)
-      const q = searchQuery.trim().toLowerCase();
+      // Search query filter (university name or city, with accent-insensitive support)
       const matchesSearch =
         !q ||
         uni.name.toLowerCase().includes(q) ||
-        uni.city.toLowerCase().includes(q);
+        normalizeText(uni.name).includes(normQ) ||
+        (Boolean(uni.city) &&
+          (uni.city.toLowerCase().includes(q) ||
+            normalizeText(uni.city).includes(normQ)));
 
       return matchesCountry && matchesSearch;
     });
-  }, [selectedCountrySlug, searchQuery]);
+  }, [visibleUniversities, selectedCountrySlug, searchQuery]);
+
+  const displayedUniversities = useMemo(() => {
+    return filteredUniversities.slice(0, visibleCount);
+  }, [filteredUniversities, visibleCount]);
 
   const handleCountrySelect = (slug) => {
     if (slug === 'all') {
@@ -138,11 +163,25 @@ export default function UniversitiesPage() {
 
           {/* Universities Grid or Empty State */}
           {filteredUniversities.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredUniversities.map((uni) => (
-                <UniversityCard key={uni.slug} university={uni} variant="light" />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {displayedUniversities.map((uni) => (
+                  <UniversityCard key={uni.slug} university={uni} variant="light" />
+                ))}
+              </div>
+
+              {visibleCount < filteredUniversities.length && (
+                <div className="mt-10 sm:mt-12 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + 24)}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-[#0B1F3A] font-bold text-sm shadow-sm transition-all hover:border-[#C9A84C] cursor-pointer"
+                  >
+                    <span>Load more</span>
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             /* Exact Empty State */
             <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-14 text-center max-w-xl mx-auto shadow-sm">
