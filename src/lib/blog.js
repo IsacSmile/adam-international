@@ -1,6 +1,7 @@
 import { marked } from 'marked';
-import { blogCategories } from '../data/blogCategories';
-import { SHOW_PLACEHOLDERS } from './contentFlags';
+import DOMPurify from 'dompurify';
+import { blogCategories } from '../data/blogCategories.js';
+import { SHOW_PLACEHOLDERS } from './contentFlags.js';
 
 // Configure custom marked renderer for external links
 const renderer = new marked.Renderer();
@@ -24,6 +25,26 @@ renderer.link = function (arg1, arg2, arg3) {
   const titleAttr = title ? ` title="${title}"` : '';
   return `<a href="${href || '#'}"${titleAttr}${targetAttr}>${text || ''}</a>`;
 };
+
+/**
+ * Parses markdown into HTML and sanitizes it with DOMPurify
+ */
+export function renderMarkdown(markdown = '') {
+  if (!markdown || typeof markdown !== 'string') return '';
+  const rawHtml = marked.parse(markdown, { renderer });
+
+  if (typeof window !== 'undefined') {
+    const purify = typeof DOMPurify?.sanitize === 'function' ? DOMPurify : DOMPurify(window);
+    return purify.sanitize(rawHtml, {
+      ADD_ATTR: ['target', 'rel'],
+    });
+  }
+
+  // Server/test fallback when window is not defined
+  return rawHtml
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/\bon\w+\s*=\s*(["'][^"']*["']|[^\s>]+)/gi, '');
+}
 
 /**
  * Simple Frontmatter Parser (YAML-like key: value lines)
@@ -112,130 +133,42 @@ export function calculateReadingTime(bodyText = '') {
   return Math.max(1, Math.ceil(words / 200));
 }
 
-// Load all markdown files in src/content/blog/*.md
-const markdownFiles = import.meta.glob('/src/content/blog/*.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-});
-
-/**
- * Process all raw markdown files into structured post objects
- */
-function loadAllRawPosts() {
-  const posts = [];
-
-  for (const [path, rawContent] of Object.entries(markdownFiles)) {
-    const { data, body } = parseFrontmatter(rawContent);
-
-    // Fallback slug from filepath if omitted
-    const fileSlug = path.split('/').pop().replace(/\.md$/, '');
-    const slug = data.slug || fileSlug;
-
-    // Validate category
-    const catObj = blogCategories.find(
-      (c) => c.name.toLowerCase() === data.category?.toLowerCase()
-    );
-
-    if (!catObj && import.meta.env.DEV) {
-      console.warn(
-        `[Blog] Unknown category "${data.category}" in post "${slug}". It will appear under "All" only.`
-      );
-    }
-
-    const readingTime = calculateReadingTime(body);
-    const htmlContent = marked.parse(body, { renderer });
-
-    posts.push({
-      ...data,
-      slug,
-      category: data.category || 'General',
-      categorySlug: catObj ? catObj.slug : null,
-      readingTime,
-      body,
-      htmlContent,
-      author: data.author || 'Adam International Team',
-      featured: Boolean(data.featured),
-      isPlaceholder: Boolean(data.isPlaceholder),
-    });
-  }
-
-  // Sort by date with newest first
-  posts.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-
-  return posts;
-}
-
-const allRawPosts = loadAllRawPosts();
-
-/**
- * Export getAllPosts()
- * Placeholders filtered by SHOW_PLACEHOLDERS
- */
-export function getAllPosts() {
-  if (SHOW_PLACEHOLDERS) {
-    return allRawPosts;
-  }
-  return allRawPosts.filter((post) => !post.isPlaceholder);
-}
-
-/**
- * Export getPostBySlug(slug)
- * Respects SHOW_PLACEHOLDERS
- */
-export function getPostBySlug(slug) {
-  if (!slug) return null;
-  const posts = getAllPosts();
-  return posts.find((p) => p.slug === slug) || null;
-}
-
-/**
- * Export getPostsByCategory(categorySlugOrName)
- * Respects SHOW_PLACEHOLDERS
- */
-export function getPostsByCategory(category) {
-  if (!category || category === 'All' || category === 'all') {
-    return getAllPosts();
-  }
-  const posts = getAllPosts();
-  return posts.filter(
-    (p) =>
-      p.categorySlug === category ||
-      p.category.toLowerCase() === category.toLowerCase()
-  );
-}
-
-/**
- * Helper to check whether there are any visible posts
- */
-export function hasVisibleBlogPosts() {
-  return getAllPosts().length > 0;
-}
-
 /**
  * Formats date like '14 Oct 2026'
  */
 export function formatBlogDate(dateStr) {
   if (!dateStr) return '';
-  const parts = String(dateStr).split('T')[0].split('-');
-  if (parts.length === 3) {
+  const str =
+    dateStr instanceof Date
+      ? new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(dateStr)
+      : String(dateStr).trim();
+
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
-    const day = parseInt(parts[2], 10);
-    const month = months[parseInt(parts[1], 10) - 1];
-    const year = parts[0];
+    const day = parseInt(match[3], 10);
+    const month = months[parseInt(match[2], 10) - 1];
+    const year = match[1];
     if (day && month && year) {
       return `${day} ${month} ${year}`;
     }
   }
   const date = new Date(dateStr);
   return isNaN(date.getTime())
-    ? dateStr
+    ? str
     : date.toLocaleDateString('en-GB', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
+        timeZone: 'Asia/Kolkata',
       });
 }
+

@@ -1,5 +1,3 @@
-import { events } from '../data/events.js';
-
 const MONTH_NAMES = [
   'January',
   'February',
@@ -25,11 +23,20 @@ export function getEventDateLabel(event) {
   if (!event) return '';
 
   if (event.date) {
-    const parts = String(event.date).split('-');
-    if (parts.length === 3) {
-      const year = Number(parts[0]);
-      const month = Number(parts[1]);
-      const day = Number(parts[2]);
+    const str =
+      event.date instanceof Date
+        ? new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(event.date)
+        : String(event.date).trim();
+    const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const year = Number(match[1]);
+      const month = Number(match[2]);
+      const day = Number(match[3]);
       if (!isNaN(year) && !isNaN(month) && !isNaN(day) && month >= 1 && month <= 12) {
         return `${day} ${MONTH_NAMES[month - 1]} ${year}`;
       }
@@ -64,8 +71,9 @@ export function getEventExpiryDate(event) {
   if (!event) return null;
 
   if (event.date) {
-    // End of that day in Asia/Kolkata
-    return new Date(`${event.date}T23:59:59.999+05:30`);
+    const match = String(event.date).match(/^(\d{4}-\d{2}-\d{2})/);
+    const dateStr = match ? match[1] : String(event.date).split('T')[0];
+    return new Date(`${dateStr}T23:59:59.999+05:30`);
   }
 
   if (event.month) {
@@ -73,7 +81,6 @@ export function getEventExpiryDate(event) {
     const year = Number(yStr);
     const month = Number(mStr);
     if (!isNaN(year) && !isNaN(month)) {
-      // Last day of month
       const lastDay = new Date(year, month, 0).getDate();
       const paddedDay = String(lastDay).padStart(2, '0');
       const paddedMonth = String(month).padStart(2, '0');
@@ -118,24 +125,38 @@ export function isEventPast(event, now = new Date()) {
 /**
  * Returns a list of upcoming spot admission events, sorted:
  * exact date first (ascending), then month (ascending), then year (ascending).
+ * Accepts either (eventList, now) or (now, eventList).
  */
-export function getUpcomingEvents(now = new Date(), eventList = events) {
+export function getUpcomingEvents(arg1 = [], arg2) {
+  let now = new Date();
+  let eventList = [];
+
+  if (Array.isArray(arg1)) {
+    eventList = arg1;
+    if (arg2 instanceof Date) now = arg2;
+  } else if (arg1 instanceof Date) {
+    now = arg1;
+    if (Array.isArray(arg2)) eventList = arg2;
+  } else if (Array.isArray(arg2)) {
+    eventList = arg2;
+  }
+
   const upcoming = (eventList || []).filter(
     (e) => e.type !== 'award' && getEventStatus(e, now) === 'upcoming'
   );
 
   return upcoming.sort((a, b) => {
-    // 1. Exact date compare
-    if (a.date && b.date) return a.date.localeCompare(b.date);
-    if (a.date && !b.date) return -1;
-    if (!a.date && b.date) return 1;
+    const dateA = a.date ? String(a.date).split('T')[0] : null;
+    const dateB = b.date ? String(b.date).split('T')[0] : null;
 
-    // 2. Month compare
+    if (dateA && dateB) return dateA.localeCompare(dateB);
+    if (dateA && !dateB) return -1;
+    if (!dateA && dateB) return 1;
+
     if (a.month && b.month) return a.month.localeCompare(b.month);
     if (a.month && !b.month) return -1;
     if (!a.month && b.month) return 1;
 
-    // 3. Year compare
     if (a.year && b.year) return String(a.year).localeCompare(String(b.year));
     return 0;
   });
@@ -144,8 +165,22 @@ export function getUpcomingEvents(now = new Date(), eventList = events) {
 /**
  * Returns recent news & achievements:
  * The award, plus any past events, newest first.
+ * Accepts either (eventList, now) or (now, eventList).
  */
-export function getPastEvents(now = new Date(), eventList = events) {
+export function getPastEvents(arg1 = [], arg2) {
+  let now = new Date();
+  let eventList = [];
+
+  if (Array.isArray(arg1)) {
+    eventList = arg1;
+    if (arg2 instanceof Date) now = arg2;
+  } else if (arg1 instanceof Date) {
+    now = arg1;
+    if (Array.isArray(arg2)) eventList = arg2;
+  } else if (Array.isArray(arg2)) {
+    eventList = arg2;
+  }
+
   const past = (eventList || []).filter((e) => getEventStatus(e, now) === 'past');
 
   return past.sort((a, b) => {
@@ -158,18 +193,93 @@ export function getPastEvents(now = new Date(), eventList = events) {
 /**
  * Returns an event by slug, or null if not found
  */
-export function getEventBySlug(slug, eventList = events) {
+export function getEventBySlug(slug, eventList = []) {
   if (!slug) return null;
   const cleanSlug = String(slug).toLowerCase().trim();
-  return (eventList || []).find((e) => e.slug.toLowerCase() === cleanSlug) || null;
+  return (eventList || []).find((e) => e.slug?.toLowerCase() === cleanSlug) || null;
+}
+
+/**
+ * Single source of truth for whether an event can accept registrations:
+ * - registration_open === true (supports registration_open and registrationOpen, and boolean strings)
+ * - status === 'published' (if status property is present on event)
+ * - event not ended (type !== 'award' and not past based on expiry date in IST;
+ *   month/year-only events count as not ended until the end of that month/year in IST)
+ */
+export function isRegistrationOpen(event, now = new Date()) {
+  if (!event || typeof event !== 'object') return false;
+
+  // 1. registration_open check (support both snake_case and camelCase, booleans and strings)
+  const rawReg = event.registration_open !== undefined ? event.registration_open : event.registrationOpen;
+  const isRegOpen = rawReg === true || rawReg === 'true' || rawReg === 'on' || rawReg === 1 || rawReg === '1';
+  if (!isRegOpen) return false;
+
+  // 2. status check: if status is provided, must be 'published'
+  if (event.status && event.status !== 'published') return false;
+
+  // 3. award type events never have open registration
+  if (event.type === 'award') return false;
+
+  // 4. event not ended (calculated in Asia/Kolkata IST)
+  if (getEventStatus(event, now) === 'past') return false;
+
+  return true;
 }
 
 /**
  * Returns events that can accept registrations right now
  * (registrationOpen: true and not past)
  */
-export function getActiveRegistrationEvents(now = new Date(), eventList = events) {
-  return (eventList || []).filter(
-    (e) => e.registrationOpen === true && getEventStatus(e, now) === 'upcoming'
-  );
+export function getActiveRegistrationEvents(arg1 = [], arg2) {
+  let now = new Date();
+  let eventList = [];
+
+  if (Array.isArray(arg1)) {
+    eventList = arg1;
+    if (arg2 instanceof Date) now = arg2;
+  } else if (arg1 instanceof Date) {
+    now = arg1;
+    if (Array.isArray(arg2)) eventList = arg2;
+  } else if (Array.isArray(arg2)) {
+    eventList = arg2;
+  }
+
+  return (eventList || []).filter((e) => isRegistrationOpen(e, now));
 }
+
+/**
+ * Returns registration status text for closed/non-open events:
+ * - If event is upcoming and registration_open is false: "Registration not open yet — talk to an advisor"
+ * - If event has ended (past): "Registration closed"
+ */
+export function getClosedRegistrationLabel(event, now = new Date()) {
+  if (!event) return 'Registration closed';
+  const status = getEventStatus(event, now);
+  if (status === 'past') {
+    return 'Registration closed';
+  }
+  return 'Registration not open yet — talk to an advisor';
+}
+
+/**
+ * Maps event-level error messages from /api/lead into user-friendly banner text
+ */
+export function formatEventErrorMessage(msg) {
+  if (!msg || typeof msg !== 'string') return 'Registration is unavailable for this event.';
+  const lower = msg.toLowerCase();
+  if (lower.includes('not open')) {
+    return 'Registration not open yet — talk to an advisor';
+  }
+  if (lower.includes('closed') || lower.includes('ended') || lower.includes('past')) {
+    return 'Registration closed';
+  }
+  if (
+    lower.includes('not available') ||
+    lower.includes('unknown event') ||
+    lower.includes('not found')
+  ) {
+    return 'This event is no longer available.';
+  }
+  return msg;
+}
+

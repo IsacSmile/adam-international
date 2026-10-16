@@ -1,27 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, GraduationCap, Building2 } from 'lucide-react';
-import { useAppointment } from '../context/AppointmentContext';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, CheckCircle, GraduationCap, Building2, AlertCircle, Calendar } from 'lucide-react';
+import { useOptionalAppointment } from '../context/AppointmentContext';
 import { countries } from '../data/countries';
 import { services } from '../data/services';
 import { branches } from '../data/branches';
 import { universities } from '../data/universities';
 import { contact } from '../data/contact';
+import { formatEventErrorMessage, isRegistrationOpen, getClosedRegistrationLabel, getEventStatus } from '../lib/events';
+import { useEvents } from '../hooks/useContent';
 import SelectField from './shared/SelectField';
 
 const europeCountries = countries.filter((c) => c.region === 'Europe');
 const otherCountries = countries.filter((c) => c.region !== 'Europe');
 
 export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnClose }) {
-  let contextAppointment = null;
-  try {
-    contextAppointment = useAppointment();
-  } catch (e) {
-    // Graceful fallback if rendered outside AppointmentProvider
-  }
+  const contextAppointment = useOptionalAppointment();
 
   const isOpen = propIsOpen !== undefined ? propIsOpen : contextAppointment?.isOpen;
   const onClose = propOnClose || contextAppointment?.closeAppointment;
   const appointmentData = contextAppointment?.appointmentData;
+
+  const { data: eventsList } = useEvents();
+
+  const targetEvent = useMemo(() => {
+    if (!appointmentData) return null;
+    if (appointmentData.event && typeof appointmentData.event === 'object') {
+      return appointmentData.event;
+    }
+    const slug =
+      appointmentData.eventSlug ||
+      (typeof appointmentData.event === 'string' ? appointmentData.event : null);
+    if (slug) {
+      return (eventsList || []).find((e) => e.slug === slug) || { slug, title: slug };
+    }
+    return null;
+  }, [appointmentData, eventsList]);
+
+  const isEventMode = Boolean(targetEvent);
+  const isEventOpen = isEventMode ? isRegistrationOpen(targetEvent) : true;
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -39,6 +55,7 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [bannerError, setBannerError] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Pre-fill from openAppointment(...) arguments
@@ -123,6 +140,7 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
     // Reset the form after the modal closes
     setIsSuccess(false);
     setSubmitError(null);
+    setBannerError(null);
     setErrors({});
     setIsSubmitting(false);
     setFormData({
@@ -188,6 +206,7 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError(null);
+    setBannerError(null);
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -210,6 +229,10 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
         consent: formData.consent,
         source_page: window.location.pathname || '/',
       };
+      if (isEventMode && targetEvent?.slug) {
+        payload.formType = 'event';
+        payload.details = { eventSlug: targetEvent.slug };
+      }
 
       const res = await fetch('/api/lead', {
         method: 'POST',
@@ -224,12 +247,70 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
       if (res.ok && data && data.ok) {
         setIsSuccess(true);
         setErrors({});
+        setBannerError(null);
+        setSubmitError(null);
+      } else if (res.status === 400 && data?.error === 'validation') {
+        const fields = data.fields || {};
+        const fieldErrors = { ...fields };
+
+        // Normalise name if returned as fullName
+        if (fieldErrors.fullName && !fieldErrors.name) {
+          fieldErrors.name = fieldErrors.fullName;
+        }
+
+        const eventMsg = fields.eventSlug || fields.event;
+        if (eventMsg) {
+          setBannerError(formatEventErrorMessage(eventMsg));
+          delete fieldErrors.eventSlug;
+          delete fieldErrors.event;
+        } else if (fields._general) {
+          setBannerError(fields._general);
+          delete fieldErrors._general;
+        } else if (fields.formType) {
+          setBannerError(fields.formType);
+          delete fieldErrors.formType;
+        }
+
+        const renderedKeys = new Set([
+          'name',
+          'fullName',
+          'email',
+          'phone',
+          'country',
+          'service',
+          'branch',
+          'consent',
+        ]);
+        const unhandled = [];
+        for (const [k, v] of Object.entries(fieldErrors)) {
+          if (!renderedKeys.has(k) && typeof v === 'string') {
+            unhandled.push(v);
+          }
+        }
+        if (!eventMsg && !fields._general && unhandled.length > 0) {
+          setBannerError(unhandled.join(' '));
+        } else if (!eventMsg && !fields._general && Object.keys(fieldErrors).length === 0) {
+          setBannerError(data.message || 'Please check your information and try again.');
+        }
+
+        setErrors(fieldErrors);
+        setSubmitError(null);
+      } else if (res.status === 429) {
+        setErrors({});
+        setBannerError(`Too many requests. Please wait a few minutes before trying again, or call us on ${contact.phoneDisplay}.`);
+        setSubmitError(null);
       } else {
+        // 5xx or unhandled status: show generic error
+        setErrors({});
+        setBannerError(null);
         setSubmitError(
           `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
         );
       }
     } catch (err) {
+      // Network failure
+      setErrors({});
+      setBannerError(null);
       setSubmitError(
         `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
       );
@@ -263,20 +344,43 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
           <>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-[#C9A84C]/15 flex items-center justify-center text-[#0B1F3A]">
-                <GraduationCap className="w-5 h-5 text-[#C9A84C]" />
+                {isEventMode ? (
+                  <Calendar className="w-5 h-5 text-[#C9A84C]" />
+                ) : (
+                  <GraduationCap className="w-5 h-5 text-[#C9A84C]" />
+                )}
               </div>
               <h2 id="modalTitle" className="text-xl sm:text-2xl font-bold text-[#0B1F3A]">
-                Book Free Consultation
+                {isEventMode ? 'Register Interest' : 'Book Free Consultation'}
               </h2>
             </div>
             
             {/* Modal Subtitle */}
             <p className="text-sm text-gray-600 mb-5 leading-relaxed">
-              Leave your details and an advisor will call you back, usually within one working day.
+              {isEventMode
+                ? 'Register your interest and our team will get in touch with event details.'
+                : 'Leave your details and an advisor will call you back, usually within one working day.'}
             </p>
 
+            {/* Event Pre-fill indicator if in event mode */}
+            {isEventMode && (
+              <div className="mb-5 p-3.5 bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 rounded-xl flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/20 flex items-center justify-center text-[#0B1F3A] shrink-0">
+                  <Calendar className="w-4 h-4 text-[#C9A84C]" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Event Registration
+                  </div>
+                  <div className="text-sm font-bold text-[#0B1F3A] truncate">
+                    {targetEvent.title || targetEvent.slug}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* University Pre-fill indicator if passed */}
-            {formData.university && (
+            {!isEventMode && formData.university && (
               <div className="mb-5 p-3.5 bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 rounded-xl flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/20 flex items-center justify-center text-[#0B1F3A] shrink-0">
                   <Building2 className="w-4 h-4 text-[#C9A84C]" />
@@ -292,13 +396,52 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
               </div>
             )}
 
-            {submitError && (
-              <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs sm:text-sm text-red-700 leading-relaxed">
-                {submitError}
+            {isEventMode && !isEventOpen ? (
+              <div className="py-8 text-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+                  <AlertCircle className="w-7 h-7" />
+                </div>
+                <h3 className="text-xl font-bold text-[#0B1F3A]">
+                  {getClosedRegistrationLabel(targetEvent)}
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
+                  {getEventStatus(targetEvent) === 'past'
+                    ? `This event has ended. For queries regarding upcoming intakes or other events, please call us on ${contact.phoneDisplay}.`
+                    : `Registrations for this event have not opened yet. Leave your details below or call us on ${contact.phoneDisplay}.`}
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="inline-flex items-center justify-center bg-[#0B1F3A] hover:bg-[#13335F] text-white font-bold py-2.5 px-8 rounded-lg transition-colors text-sm cursor-pointer shadow-sm"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
-            )}
+            ) : (
+              <>
+                {submitError && (
+                  <div
+                    role="alert"
+                    className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs sm:text-sm text-red-700 leading-relaxed flex items-center gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                    <span>{submitError}</span>
+                  </div>
+                )}
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                {bannerError && (
+                  <div
+                    role="alert"
+                    className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs sm:text-sm text-red-700 leading-relaxed font-semibold flex items-center gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                    <span>{bannerError}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {/* Honeypot field (hidden from view and assistive tech) */}
               <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
                 <label htmlFor="company_website">Company Website</label>
@@ -389,9 +532,11 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
                   name="country"
                   label="Country you're interested in"
                   value={formData.country}
-                  onChange={(e) =>
-                    setFormData({ ...formData, country: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, country: e.target.value });
+                    if (errors.country) setErrors((prev) => ({ ...prev, country: null }));
+                  }}
+                  error={errors.country}
                   searchable={true}
                   groups={[
                     {
@@ -418,9 +563,11 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
                   name="service"
                   label="Service you're interested in"
                   value={formData.service}
-                  onChange={(e) =>
-                    setFormData({ ...formData, service: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, service: e.target.value });
+                    if (errors.service) setErrors((prev) => ({ ...prev, service: null }));
+                  }}
+                  error={errors.service}
                   options={[
                     { value: 'Not sure yet', label: 'Not sure yet' },
                     ...services.map((s) => ({ value: s.title, label: s.title })),
@@ -436,9 +583,11 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
                   name="branch"
                   label="Nearest branch"
                   value={formData.branch}
-                  onChange={(e) =>
-                    setFormData({ ...formData, branch: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, branch: e.target.value });
+                    if (errors.branch) setErrors((prev) => ({ ...prev, branch: null }));
+                  }}
+                  error={errors.branch}
                   options={[
                     { value: 'Not sure yet', label: 'Not sure yet' },
                     ...branches.map((b) => {
@@ -486,10 +635,12 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
                 disabled={isSubmitting}
                 className="w-full bg-[#0B1F3A] hover:bg-[#13335F] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-all shadow-md text-sm mt-3 cursor-pointer"
               >
-                {isSubmitting ? 'Sending…' : 'Request a Callback'}
+                {isSubmitting ? 'Sending…' : isEventMode ? 'Register Interest' : 'Request a Callback'}
               </button>
             </form>
           </>
+        )}
+      </>
         ) : (
           <div className="py-8 text-center space-y-4">
             <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">

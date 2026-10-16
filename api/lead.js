@@ -6,6 +6,7 @@ import {
   sanitizeUniversity,
 } from './_lib/allowed.js';
 import { validateLeadPayload, FORM_TYPES } from '../src/data/formFields.js';
+import { getEventStatus, isRegistrationOpen } from '../src/lib/events.js';
 
 function ensureResHelpers(res) {
   if (!res.status) {
@@ -33,17 +34,22 @@ export default async function handler(req, res) {
   }
 
   // Parse body safely
-  let data = req.body;
-  if (typeof data === 'string') {
-    try {
-      data = JSON.parse(data);
-    } catch {
-      return res.status(400).json({
-        ok: false,
-        error: 'validation',
-        fields: { _general: 'Invalid JSON request body' },
-      });
+  let data = {};
+  if (typeof req.body === 'string') {
+    const trimmed = req.body.trim();
+    if (trimmed) {
+      try {
+        data = JSON.parse(trimmed);
+      } catch {
+        return res.status(400).json({
+          ok: false,
+          error: 'validation',
+          fields: { _general: 'Invalid JSON request body' },
+        });
+      }
     }
+  } else if (req.body && typeof req.body === 'object') {
+    data = req.body;
   }
   if (!data || typeof data !== 'object') {
     data = {};
@@ -135,6 +141,42 @@ export default async function handler(req, res) {
     }
 
     const { formType, cleanDetails, cleanMessage } = payloadValidation;
+
+    // 3.5 Event registration validation: check events table
+    if (formType === 'event') {
+      const eventSlug = cleanDetails?.eventSlug;
+      if (!eventSlug) {
+        return res.status(400).json({
+          ok: false,
+          error: 'validation',
+          fields: { eventSlug: 'Please select an event.' },
+        });
+      }
+
+      const eventRows = await sql`
+        SELECT slug, type, status, registration_open, date, month, year
+        FROM events
+        WHERE slug = ${eventSlug}
+        LIMIT 1
+      `;
+
+      if (!eventRows || eventRows.length === 0) {
+        return res.status(400).json({
+          ok: false,
+          error: 'validation',
+          fields: { eventSlug: 'Unknown event selected.' },
+        });
+      }
+
+      const eventRow = eventRows[0];
+      if (!isRegistrationOpen(eventRow)) {
+        return res.status(400).json({
+          ok: false,
+          error: 'validation',
+          fields: { eventSlug: 'Registrations are not open for this event.' },
+        });
+      }
+    }
 
     // Duplicate guard: same phone + form_type submitted within last 10 minutes
     const [recentLead] = await sql`

@@ -422,21 +422,30 @@ export default function SelectField({
       };
     }, [groups, options]);
 
+  // Safely extract string value even if value passed is an event or object
+  const resolvedValue = useMemo(() => {
+    if (value === undefined || value === null || value === '') return '';
+    if (typeof value === 'object' && value !== null) {
+      return String(value.value ?? value.target?.value ?? '');
+    }
+    return String(value);
+  }, [value]);
+
   // Find currently selected option label
   const selectedOption = useMemo(() => {
-    if (value === undefined || value === null || value === '') return null;
-    const strVal = String(value);
+    if (!resolvedValue) return null;
     return (
       allFlatOptions.find(
-        (o) => o.value === strVal || o.label === strVal
+        (o) => o.value === resolvedValue || o.label === resolvedValue
       ) || null
     );
-  }, [allFlatOptions, value]);
+  }, [allFlatOptions, resolvedValue]);
 
   // Propagate change event matching native event structure
   const handleValueChange = (newVal) => {
     if (onChange) {
-      onChange({ target: { name, value: newVal } });
+      const syntheticEvent = { target: { name, value: newVal } };
+      onChange(syntheticEvent, newVal);
     }
   };
 
@@ -466,7 +475,7 @@ export default function SelectField({
           <select
             id={elementId}
             name={name}
-            value={value || ''}
+            value={resolvedValue}
             onChange={(e) => handleValueChange(e.target.value)}
             disabled={disabled}
             required={required}
@@ -522,10 +531,10 @@ export default function SelectField({
     <div className={`w-full ${containerClassName}`}>
       {labelElement}
       {/* Hidden input to guarantee form submission / payload compatibility */}
-      <input type="hidden" name={name} value={value || ''} />
+      <input type="hidden" name={name} value={resolvedValue} />
 
       <Listbox
-        value={value || ''}
+        value={resolvedValue}
         onChange={handleValueChange}
         disabled={disabled}
       >

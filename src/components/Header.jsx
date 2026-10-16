@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -22,7 +22,7 @@ import { services } from '../data/services';
 import { successStories } from '../data/successStories';
 import { galleryItems } from '../data/gallery';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
-import { hasVisibleBlogPosts } from '../lib/blog';
+import { usePosts } from '../hooks/useContent';
 import { contact, whatsappLink } from '../data/contact';
 import { useAppointment } from '../context/AppointmentContext';
 import WhatsAppIcon from './shared/WhatsAppIcon';
@@ -46,8 +46,6 @@ const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlacehol
 const hasGallery = SHOW_PLACEHOLDERS
   ? Array.isArray(galleryItems) && galleryItems.length > 0
   : galleryItems.some((i) => !i.isPlaceholder);
-const hasBlog = hasVisibleBlogPosts();
-
 const baseNavLinks = [
   { name: 'Home', href: '/' },
   { name: 'About Us', href: '/about' },
@@ -64,20 +62,29 @@ const baseNavLinks = [
   { name: 'Contact Us', href: '/contact' },
 ];
 
-const navLinks = baseNavLinks.filter((link) => {
-  if ((link.href === '/success-stories' || link.name === 'Success Stories') && !hasStories) {
-    return false;
-  }
-  if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
-    return false;
-  }
-  if ((link.href === '/blog' || link.name === 'Blog') && !hasBlog) {
-    return false;
-  }
-  return true;
-});
-
 export default function Header({ onBookAppointment }) {
+  const { data: postsData, loading: postsLoading } = usePosts();
+  const visiblePosts = useMemo(() => {
+    if (!postsData) return [];
+    return SHOW_PLACEHOLDERS ? postsData : postsData.filter((p) => !p.isPlaceholder);
+  }, [postsData]);
+  const hasBlog = !postsLoading && visiblePosts.length > 0;
+
+  const navLinks = useMemo(() => {
+    return baseNavLinks.filter((link) => {
+      if ((link.href === '/success-stories' || link.name === 'Success Stories') && !hasStories) {
+        return false;
+      }
+      if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
+        return false;
+      }
+      if ((link.href === '/blog' || link.name === 'Blog') && !hasBlog) {
+        return false;
+      }
+      return true;
+    });
+  }, [hasBlog]);
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
@@ -204,11 +211,13 @@ export default function Header({ onBookAppointment }) {
         onUpdate: (self) => {
           const scrolled = self.scroll() > 10;
           setIsScrolled(scrolled);
-          gsap.to(headerRef.current, {
-            boxShadow: scrolled ? '0 4px 20px rgba(11, 31, 58, 0.08)' : '0 0px 0px rgba(0,0,0,0)',
-            duration: 0.3,
-            ease: 'power2.out',
-          });
+          if (headerRef.current) {
+            gsap.to(headerRef.current, {
+              boxShadow: scrolled ? '0 4px 20px rgba(11, 31, 58, 0.08)' : '0 0px 0px rgba(0,0,0,0)',
+              duration: 0.3,
+              ease: 'power2.out',
+            });
+          }
         },
       });
     }, headerRef);

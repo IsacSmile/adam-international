@@ -67,4 +67,71 @@ alter table leads add constraint leads_form_type_chk
   check (form_type in ('appointment','eligibility','admission','visa','training','contact','event'));
 create index if not exists leads_form_type_idx on leads (form_type);
 
+-- Events & Blog Content Tables
+create table if not exists events (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and char_length(slug) <= 120),
+  type text not null check (type in ('spot-admission','award')),
+  status text not null default 'draft' check (status in ('draft','published')),
+  title text not null check (char_length(title) between 3 and 160),
+  tagline text,
+  country text,                 -- countries.js slug
+  date date,
+  month text check (month is null or month ~ '^\d{4}-\d{2}$'),
+  year text check (year is null or year ~ '^\d{4}$'),
+  location text,
+  organised_by text,
+  highlight text,
+  condition_note text,
+  summary text not null check (char_length(summary) <= 300),
+  body text not null default '',          -- paragraphs separated by a blank line; **bold** allowed
+  closing_line text,
+  closing_italic boolean not null default false,
+  facts jsonb not null default '[]'::jsonb,   -- [{label, value}]
+  image text,                   -- banner background (falls back to the country image)
+  poster text,
+  poster_width int,
+  poster_height int,
+  photo text,
+  awarding_body text,
+  registration_open boolean not null default false,
+  published_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  updated_by text
+);
+create index if not exists events_status_idx on events (status);
+
+create table if not exists blog_posts (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and char_length(slug) <= 120),
+  status text not null default 'draft' check (status in ('draft','published')),
+  title text not null check (char_length(title) between 3 and 160),
+  category text not null,       -- blogCategories.js slug
+  summary text not null check (char_length(summary) <= 220),
+  body_md text not null default '',
+  image text,
+  image_alt text,
+  author text not null default 'Adam International Team',
+  featured boolean not null default false,
+  is_sample boolean not null default false,
+  publish_date date,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  updated_by text
+);
+create index if not exists blog_posts_status_idx on blog_posts (status, publish_date desc);
+
+drop trigger if exists events_updated_at on events;
+create trigger events_updated_at before update on events
+  for each row execute function set_updated_at();
+
+drop trigger if exists blog_posts_updated_at on blog_posts;
+create trigger blog_posts_updated_at before update on blog_posts
+  for each row execute function set_updated_at();
+
+-- Thumbnail columns
+alter table events add column if not exists poster_thumb text;
+alter table events add column if not exists image_thumb text;
+alter table blog_posts add column if not exists image_thumb text;
 

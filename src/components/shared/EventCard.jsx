@@ -1,14 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Award, ArrowRight, ExternalLink } from 'lucide-react';
-import { getEventDateLabel, getEventStatus } from '../../lib/events';
+import { getEventDateLabel, getEventStatus, isRegistrationOpen } from '../../lib/events';
 import { countries } from '../../data/countries';
+import { useAppointment } from '../../context/AppointmentContext';
 
 export default function EventCard({ event }) {
+  const appointmentCtx = useAppointment();
+  const openAppointment = appointmentCtx?.openAppointment;
+
   if (!event) return null;
 
   const status = getEventStatus(event);
   const isUpcoming = status === 'upcoming';
+  const isPast = status === 'past';
   const isAward = event.type === 'award';
   const countryObj = event.country
     ? countries.find((c) => c.slug.toLowerCase() === event.country.toLowerCase())
@@ -22,7 +27,7 @@ export default function EventCard({ event }) {
         {/* Poster Image Container (poster aspect ratio, object-contain, light navy/neutral background) */}
         <div className="relative aspect-[1024/765] w-full overflow-hidden bg-[#0B1F3A]/5 border-b border-slate-100 flex items-center justify-center">
           <img
-            src={event.poster || event.photo || event.image}
+            src={event.posterThumb || event.poster || event.imageThumb || event.photo || event.image}
             alt={`${event.title} poster`}
             width={event.posterWidth || 1024}
             height={event.posterHeight || 765}
@@ -116,7 +121,7 @@ export default function EventCard({ event }) {
       {/* Action Buttons footer */}
       <div className="p-5 sm:p-6 pt-0 mt-auto border-t border-slate-100/80">
         <div className="pt-4 flex flex-wrap items-center gap-2.5">
-          {isUpcoming && !isAward ? (
+          {isRegistrationOpen(event) ? (
             <>
               <Link
                 to={`/events/${event.slug}`}
@@ -132,6 +137,40 @@ export default function EventCard({ event }) {
                 <span>Register Interest</span>
               </Link>
             </>
+          ) : isUpcoming && !isAward ? (
+            <div className="w-full space-y-2">
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => openAppointment?.({ country: event.country })}
+                  className="text-[11px] font-semibold text-slate-600 hover:text-[#0B1F3A] underline underline-offset-2 transition-colors cursor-pointer"
+                >
+                  Registration not open yet — talk to an advisor
+                </button>
+              </div>
+              <Link
+                to={`/events/${event.slug}`}
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-[#0B1F3A] text-xs sm:text-sm font-semibold text-[#0B1F3A] hover:bg-slate-50 transition-all text-center"
+              >
+                <span>View Details</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#C9A84C]" />
+              </Link>
+            </div>
+          ) : isPast && !isAward ? (
+            <div className="w-full space-y-2">
+              <div className="text-center">
+                <span className="text-[11px] font-semibold text-slate-500">
+                  Registration closed
+                </span>
+              </div>
+              <Link
+                to={`/events/${event.slug}`}
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-[#0B1F3A] text-xs sm:text-sm font-semibold text-[#0B1F3A] hover:bg-slate-50 transition-all text-center"
+              >
+                <span>View Details</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#C9A84C]" />
+              </Link>
+            </div>
           ) : (
             <Link
               to={`/events/${event.slug}`}

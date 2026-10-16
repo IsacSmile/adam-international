@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { gsap } from 'gsap';
@@ -6,8 +6,10 @@ import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import PageHero from '../components/shared/PageHero';
 import BlogCard from '../components/blog/BlogCard';
 import { blogCategories } from '../data/blogCategories';
-import { getAllPosts, formatBlogDate } from '../lib/blog';
+import { formatBlogDate } from '../lib/blog';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
+import { usePosts, ContentError, BlogCardSkeleton } from '../hooks/useContent';
 
 export default function BlogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,6 +18,8 @@ export default function BlogPage() {
   const pageRef = useRef(null);
 
   const categoryParam = searchParams.get('category') || 'all';
+
+  const { data: postsData, loading, error, refresh } = usePosts();
 
   // GSAP context cleanup
   useEffect(() => {
@@ -28,95 +32,115 @@ export default function BlogPage() {
     setLimit(9);
   }, [categoryParam]);
 
-  const allVisiblePosts = getAllPosts();
+  const allVisiblePosts = useMemo(() => {
+    if (!postsData) return [];
+    if (SHOW_PLACEHOLDERS) {
+      return postsData;
+    }
+    return postsData.filter((p) => !p.isPlaceholder);
+  }, [postsData]);
 
   // Find category chips with at least one visible post
-  const availableCategories = blogCategories.filter((cat) =>
-    allVisiblePosts.some(
-      (p) =>
-        p.categorySlug === cat.slug ||
-        p.category?.toLowerCase() === cat.name.toLowerCase()
-    )
-  );
+  const availableCategories = useMemo(() => {
+    return blogCategories.filter((cat) =>
+      allVisiblePosts.some(
+        (p) =>
+          p.categorySlug === cat.slug ||
+          p.category?.toLowerCase() === cat.name.toLowerCase()
+      )
+    );
+  }, [allVisiblePosts]);
 
   // Filter posts based on categoryParam
   const isAllCategory = !categoryParam || categoryParam === 'all';
   const selectedCatObj = blogCategories.find((c) => c.slug === categoryParam);
 
-  const filteredPosts = isAllCategory
-    ? allVisiblePosts
-    : allVisiblePosts.filter(
-        (p) =>
-          p.categorySlug === categoryParam ||
-          (selectedCatObj &&
-            p.category?.toLowerCase() === selectedCatObj.name.toLowerCase())
-      );
+  const filteredPosts = useMemo(() => {
+    if (isAllCategory) return allVisiblePosts;
+    return allVisiblePosts.filter(
+      (p) =>
+        p.categorySlug === categoryParam ||
+        (selectedCatObj &&
+          p.category?.toLowerCase() === selectedCatObj.name.toLowerCase())
+    );
+  }, [isAllCategory, allVisiblePosts, categoryParam, selectedCatObj]);
 
   // Featured post shows ONLY when category is 'All' and a post with featured: true exists
-  const featuredPost = isAllCategory
-    ? filteredPosts.find((p) => p.featured)
-    : null;
+  const featuredPost = useMemo(() => {
+    return isAllCategory ? filteredPosts.find((p) => p.featured) : null;
+  }, [isAllCategory, filteredPosts]);
 
   // Exclude featured post from the grid when displayed above
-  const gridPosts = featuredPost
-    ? filteredPosts.filter((p) => p.slug !== featuredPost.slug)
-    : filteredPosts;
+  const gridPosts = useMemo(() => {
+    return featuredPost
+      ? filteredPosts.filter((p) => p.slug !== featuredPost.slug)
+      : filteredPosts;
+  }, [featuredPost, filteredPosts]);
 
   const handleSelectCategory = (slug) => {
-    if (!slug || slug === 'all') {
-      searchParams.delete('category');
-      setSearchParams(searchParams, { replace: true });
+    if (slug === 'all') {
+      setSearchParams({});
     } else {
-      setSearchParams({ category: slug }, { replace: true });
+      setSearchParams({ category: slug });
     }
   };
 
   return (
-    <div ref={pageRef} className="bg-white min-h-screen">
+    <div ref={pageRef} className="bg-[#FAF7F2] min-h-screen">
       <Helmet>
-        <title>Study Abroad Insights & Updates | Adam International</title>
+        <title>Blog | Study in Europe Insights & Guides</title>
         <meta
           name="description"
-          content="Study abroad updates, European university opportunities, visa guidance and student success stories from Adam International."
+          content="Explore expert articles, country comparisons, student visa guidance, and university updates from Adam International."
         />
       </Helmet>
 
-      {/* 4.1 Hero */}
+      {/* 4.1 Hero Banner */}
       <PageHero
-        breadcrumbItems={[{ label: 'Home', href: '/' }, { label: 'Blog' }]}
-        title="Study Abroad Insights & Updates"
-        subtitle="Explore European education, visa guidance and student resources."
+        breadcrumbItems={[
+          { label: 'Home', href: '/' },
+          { label: 'Blog', active: true },
+        ]}
+        title="European Education Insights & Guides"
+        subtitle="Practical guidance, visa updates, university admissions, and student life in Europe."
       />
 
-      {/* 4.2 Intro */}
-      <section className="pt-12 sm:pt-16 pb-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[720px] mx-auto text-center">
-          <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
-            Explore the latest study abroad updates, European university opportunities, visa guidance and student success stories from Adam International.
-          </p>
-        </div>
-      </section>
-
-      {/* Main Content Area */}
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20">
-        {allVisiblePosts.length === 0 ? (
-          /* Empty state when no visible posts exist (e.g. SHOW_PLACEHOLDERS is false) */
-          <div className="my-12 bg-[#F8FAFC] rounded-3xl border border-slate-200 p-8 sm:p-14 text-center max-w-xl mx-auto shadow-xs">
-            <div className="w-14 h-14 rounded-2xl bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 text-[#0B1F3A] flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="w-7 h-7 text-[#C9A84C]" />
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        {error ? (
+          <ContentError onRetry={refresh} />
+        ) : loading ? (
+          <div className="space-y-10">
+            <div className="py-6 border-b border-slate-200/80 mb-8 sm:mb-10">
+              <div className="flex items-center gap-2 animate-pulse">
+                <div className="h-9 bg-slate-200 rounded-xl w-16" />
+                <div className="h-9 bg-slate-100 rounded-xl w-28" />
+                <div className="h-9 bg-slate-100 rounded-xl w-32" />
+              </div>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] mb-2">
-              Articles are coming soon.
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              <BlogCardSkeleton />
+              <BlogCardSkeleton />
+              <BlogCardSkeleton />
+            </div>
+          </div>
+        ) : allVisiblePosts.length === 0 ? (
+          /* 4.2 Empty State (no posts at all) */
+          <div className="my-12 sm:my-16 bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-14 text-center max-w-xl mx-auto shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 text-[#C9A84C] flex items-center justify-center mx-auto mb-5 shadow-xs">
+              <BookOpen className="w-8 h-8" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A] mb-2.5">
+              Articles and Guides Coming Soon
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 mb-6 font-normal">
-              We are preparing helpful guides and university insights. Check back soon or speak with an advisor.
+            <p className="text-sm text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+              We are preparing comprehensive guides on European admissions, visas, and university programmes.
             </p>
             <button
               type="button"
               onClick={openAppointment}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0B1F3A] hover:bg-[#13335F] text-white font-bold text-sm transition-colors shadow-md"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0B1F3A] hover:bg-[#132A4A] text-sm font-semibold text-[#C9A84C] transition-all shadow-md hover:shadow-lg cursor-pointer"
             >
-              <span>Book a Free Consultation</span>
+              <span>Speak to an Advisor</span>
               <ArrowRight className="w-4 h-4 text-[#C9A84C]" />
             </button>
           </div>

@@ -47,3 +47,8 @@ export function useAppointment() {
   }
   return context;
 }
+
+export function useOptionalAppointment() {
+  return useContext(AppointmentContext);
+}
+

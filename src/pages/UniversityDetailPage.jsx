@@ -22,6 +22,38 @@ export default function UniversityDetailPage() {
 
   const university = getVisibleUniversityBySlug(slug);
 
+  // Matching visa approvals and success stories
+  const matchingApprovals = useMemo(() => {
+    if (!university) return [];
+    const list = SHOW_PLACEHOLDERS
+      ? visaApprovals
+      : visaApprovals.filter((v) => !v.isPlaceholder);
+    return list.filter((v) => v.universitySlug === university.slug);
+  }, [university?.slug]);
+
+  const matchingStories = useMemo(() => {
+    if (!university) return [];
+    const list = SHOW_PLACEHOLDERS
+      ? successStories
+      : successStories.filter((s) => !s.isPlaceholder);
+    return list.filter((s) => s.universitySlug === university.slug);
+  }, [university?.slug]);
+
+  // Level filter state for programs table
+  const [selectedLevel, setSelectedLevel] = useState('All');
+
+  const availableLevels = useMemo(() => {
+    if (!university?.programs || university.programs.length === 0) return [];
+    const levels = Array.from(new Set(university.programs.map((p) => p.level).filter(Boolean)));
+    return ['All', ...levels];
+  }, [university?.programs]);
+
+  const filteredPrograms = useMemo(() => {
+    if (!university?.programs) return [];
+    if (selectedLevel === 'All') return university.programs;
+    return university.programs.filter((p) => p.level === selectedLevel);
+  }, [university?.programs, selectedLevel]);
+
   // If university slug is not found, render NotFoundPage
   if (!university) {
     return <NotFoundPage />;
@@ -30,21 +62,6 @@ export default function UniversityDetailPage() {
   const countryObj = countries.find((c) => c.slug === university.country);
   const countryName = countryObj ? countryObj.name : university.country;
   const countryFlag = countryObj ? countryObj.flag : '🌍';
-
-  // Matching visa approvals and success stories
-  const matchingApprovals = useMemo(() => {
-    const list = SHOW_PLACEHOLDERS
-      ? visaApprovals
-      : visaApprovals.filter((v) => !v.isPlaceholder);
-    return list.filter((v) => v.universitySlug === university.slug);
-  }, [university.slug]);
-
-  const matchingStories = useMemo(() => {
-    const list = SHOW_PLACEHOLDERS
-      ? successStories
-      : successStories.filter((s) => !s.isPlaceholder);
-    return list.filter((s) => s.universitySlug === university.slug);
-  }, [university.slug]);
 
   const hasStudentsHelped = matchingApprovals.length > 0 || matchingStories.length > 0;
 
@@ -56,21 +73,6 @@ export default function UniversityDetailPage() {
     university.tuition?.amount ||
     university.scholarships
   );
-
-  // Level filter state for programs table
-  const [selectedLevel, setSelectedLevel] = useState('All');
-
-  const availableLevels = useMemo(() => {
-    if (!university.programs || university.programs.length === 0) return [];
-    const levels = Array.from(new Set(university.programs.map((p) => p.level).filter(Boolean)));
-    return ['All', ...levels];
-  }, [university.programs]);
-
-  const filteredPrograms = useMemo(() => {
-    if (!university.programs) return [];
-    if (selectedLevel === 'All') return university.programs;
-    return university.programs.filter((p) => p.level === selectedLevel);
-  }, [university.programs, selectedLevel]);
 
   return (
     <>

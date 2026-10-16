@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { gsap } from 'gsap';
@@ -14,16 +14,19 @@ import WhatsAppIcon from '../components/shared/WhatsAppIcon';
 import Breadcrumb from '../components/shared/Breadcrumb';
 import BlogCard from '../components/blog/BlogCard';
 import NotFoundPage from './NotFoundPage';
-import { getPostBySlug, getAllPosts, formatBlogDate } from '../lib/blog';
+import { formatBlogDate } from '../lib/blog';
+import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { whatsappLink } from '../data/contact';
 import { useAppointment } from '../context/AppointmentContext';
+import { usePost, usePosts, DraftPreviewBanner, ContentError } from '../hooks/useContent';
 
 export default function BlogPostPage() {
   const { slug } = useParams();
   const { openAppointment } = useAppointment();
   const pageRef = useRef(null);
 
-  const post = getPostBySlug(slug);
+  const { data: post, loading, error, notFound, isDraft, refresh } = usePost(slug);
+  const { data: allPostsData } = usePosts();
 
   // GSAP context cleanup
   useEffect(() => {
@@ -31,14 +34,82 @@ export default function BlogPostPage() {
     return () => ctx.revert();
   }, [slug]);
 
-  // If unknown slug or placeholder filtered out, render 404
-  if (!post) {
+  const allPosts = useMemo(() => {
+    if (!allPostsData) return [];
+    if (SHOW_PLACEHOLDERS) {
+      return allPostsData;
+    }
+    return allPostsData.filter((p) => !p.isPlaceholder);
+  }, [allPostsData]);
+
+  const relatedPosts = useMemo(() => {
+    if (!post) return [];
+    const otherPosts = allPosts.filter((p) => p.slug !== post.slug);
+    const sameCategoryPosts = otherPosts.filter(
+      (p) =>
+        p.categorySlug === post.categorySlug ||
+        p.category?.toLowerCase() === post.category?.toLowerCase()
+    );
+
+    let related = [...sameCategoryPosts];
+    if (related.length < 3) {
+      for (const p of otherPosts) {
+        if (!related.some((r) => r.slug === p.slug)) {
+          related.push(p);
+          if (related.length === 3) break;
+        }
+      }
+    }
+    return related.slice(0, 3);
+  }, [post, allPosts]);
+
+  if (loading) {
+    return (
+      <div className="bg-white min-h-screen">
+        <div className="bg-[#0B1F3A] py-8 px-4 sm:px-6 lg:px-8 animate-pulse">
+          <div className="max-w-[820px] mx-auto h-4 bg-white/20 rounded w-1/3" />
+        </div>
+        <div className="max-w-[820px] mx-auto pt-10 pb-16 px-4 animate-pulse space-y-6">
+          <div className="h-4 bg-slate-200 rounded w-1/4" />
+          <div className="h-10 bg-slate-200 rounded w-4/5" />
+          <div className="w-full aspect-video bg-slate-100 rounded-2xl" />
+          <div className="space-y-3 pt-6">
+            <div className="h-4 bg-slate-100 rounded" />
+            <div className="h-4 bg-slate-100 rounded w-5/6" />
+            <div className="h-4 bg-slate-100 rounded w-4/6" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If unknown slug or filtered placeholder without preview
+  if (notFound || (!post && !error)) {
     return <NotFoundPage />;
   }
 
-  const formattedDate = formatBlogDate(post.date);
+  if (error) {
+    return (
+      <div className="bg-white min-h-screen py-20 px-4">
+        <ContentError onRetry={refresh} />
+      </div>
+    );
+  }
+
+  if (!SHOW_PLACEHOLDERS && post.isPlaceholder && !isDraft) {
+    return <NotFoundPage />;
+  }
+
+  const formattedDate = formatBlogDate(post.date || post.publishDate);
   const formattedUpdated = post.updated ? formatBlogDate(post.updated) : null;
-  const showUpdated = formattedUpdated && post.updated !== post.date;
+  const isEditedByAdmin = Boolean(post.updatedBy || post.updated_by);
+  const publishDateStr = post.publishDate || post.date;
+  const isUpdatedLater = Boolean(
+    post.updated &&
+    publishDateStr &&
+    post.updated > publishDateStr
+  );
+  const showUpdated = Boolean(formattedUpdated && isEditedByAdmin && isUpdatedLater);
 
   // Breadcrumb items: Home / Blog / {category}
   const breadcrumbItems = [
@@ -50,34 +121,14 @@ export default function BlogPostPage() {
     },
   ];
 
-  // Related articles: up to 3 from same category, filled with newest
-  const allPosts = getAllPosts();
-  const otherPosts = allPosts.filter((p) => p.slug !== post.slug);
-  const sameCategoryPosts = otherPosts.filter(
-    (p) =>
-      p.categorySlug === post.categorySlug ||
-      p.category?.toLowerCase() === post.category?.toLowerCase()
-  );
-
-  let related = [...sameCategoryPosts];
-  if (related.length < 3) {
-    for (const p of otherPosts) {
-      if (!related.some((r) => r.slug === p.slug)) {
-        related.push(p);
-        if (related.length === 3) break;
-      }
-    }
-  }
-  const relatedPosts = related.slice(0, 3);
-
   // Schema.org Article JSON-LD
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
     description: post.summary,
-    datePublished: post.date,
-    dateModified: post.updated || post.date,
+    datePublished: post.date || post.publishDate,
+    dateModified: post.updated || post.date || post.publishDate,
     author: {
       '@type': 'Organization',
       name: post.author || 'Adam International Team',
@@ -86,7 +137,8 @@ export default function BlogPostPage() {
   };
 
   return (
-    <div ref={pageRef} className="bg-white min-h-screen">
+    <div ref={pageRef} className={`bg-white min-h-screen ${isDraft ? 'pt-8' : ''}`}>
+      {isDraft && <DraftPreviewBanner />}
       <Helmet>
         <title>{`${post.title} | Adam International`}</title>
         <meta name="description" content={post.summary} />
@@ -96,7 +148,7 @@ export default function BlogPostPage() {
         <meta property="og:description" content={post.summary} />
         {post.image && <meta property="og:image" content={post.image} />}
         <meta property="og:type" content="article" />
-
+        {isDraft && <meta name="robots" content="noindex, nofollow" />}
 
         {/* Article JSON-LD */}
         <script type="application/ld+json">
@@ -118,19 +170,31 @@ export default function BlogPostPage() {
             {post.category && (
               <Link
                 to={post.categorySlug ? `/blog?category=${post.categorySlug}` : '/blog'}
-                className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#0B1F3A] text-white hover:bg-[#13335F] transition-colors"
+                className="px-3 py-1 rounded-full text-xs font-bold bg-[#0B1F3A]/5 hover:bg-[#0B1F3A]/10 text-[#0B1F3A] transition-colors"
               >
                 {post.category}
               </Link>
             )}
+
+            {/* Read-only SAMPLE badge */}
+            {post.isPlaceholder && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-500/10 text-amber-700 border border-amber-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                SAMPLE ARTICLE
+              </span>
+            )}
           </div>
 
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0B1F3A] tracking-tight leading-[1.2]">
+          <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-[#0B1F3A] leading-tight tracking-tight">
             {post.title}
           </h1>
 
-          {/* Meta line */}
-          <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs sm:text-sm text-slate-500 font-medium pt-1 pb-2 border-b border-slate-200">
+          <p className="text-base sm:text-xl text-slate-600 font-normal leading-relaxed">
+            {post.summary}
+          </p>
+
+          {/* Meta bar: Date, Reading time, Author, Updated */}
+          <div className="flex items-center gap-4 text-xs sm:text-sm text-slate-500 pt-2 border-t border-slate-100 flex-wrap">
             {formattedDate && (
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-[#C9A84C]" />
@@ -229,41 +293,27 @@ export default function BlogPostPage() {
                 <span className="text-xs font-bold uppercase tracking-wider text-[#C9A84C] block mb-1">
                   Keep Reading
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A] tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1F3A]">
                   Related Articles
                 </h2>
               </div>
 
-              {/* 6. Link: Back to all articles */}
               <Link
                 to="/blog"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors group"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to all articles</span>
+                <span>View all articles</span>
+                <ArrowRight className="w-4 h-4 text-[#C9A84C] group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {relatedPosts.map((relatedPost) => (
-                <BlogCard key={relatedPost.slug} post={relatedPost} />
+              {relatedPosts.map((rPost) => (
+                <BlogCard key={rPost.slug} post={rPost} />
               ))}
             </div>
           </div>
         </section>
-      )}
-
-      {/* Fallback Back to all articles link when related section is empty */}
-      {relatedPosts.length === 0 && (
-        <div className="max-w-[820px] mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to all articles</span>
-          </Link>
-        </div>
       )}
 
       {/* Scoped CSS for blog typography */}

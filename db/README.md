@@ -38,3 +38,14 @@ Follow these manual steps to initialize your database and configure credentials:
    npx vercel dev
    ```
    Do not test serverless functions with `npm run dev`, because `/api` routes run under Vercel Serverless Functions and not plain Vite.
+
+---
+
+## Content management (events & blog)
+
+- **Creating the Blob store:** Vercel → project → **Storage** → **Create** → **Blob** → connect it to this project (Production, Preview and Development). This adds `BLOB_READ_WRITE_TOKEN` automatically.
+- **Local development:** copy `BLOB_READ_WRITE_TOKEN` into `.env.local` and run `npx vercel dev`.
+- **Seeding:** `npm run db:seed-content`, once.
+- **Delay:** changes appear on the public site within about a minute, because of the 60-second cache.
+- **Free limits:** the Hobby plan includes 1 GB of Blob storage. Images are resized to 1600px before upload to stay well within it.
+

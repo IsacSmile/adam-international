@@ -13,14 +13,13 @@ import { services } from '../data/services';
 import { successStories } from '../data/successStories';
 import { galleryItems } from '../data/gallery';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
-import { hasVisibleBlogPosts } from '../lib/blog';
+import { usePosts } from '../hooks/useContent';
 import { contact } from '../data/contact';
 
 const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlaceholder);
 const hasGallery = SHOW_PLACEHOLDERS
   ? Array.isArray(galleryItems) && galleryItems.length > 0
   : galleryItems.some((i) => !i.isPlaceholder);
-const hasBlog = hasVisibleBlogPosts();
 
 const baseQuickLinks = [
   { name: 'About Us', href: '/about' },
@@ -34,20 +33,29 @@ const baseQuickLinks = [
   { name: 'Contact Us', href: '/contact' },
 ];
 
-const quickLinks = baseQuickLinks.filter((link) => {
-  if ((link.href === '/success-stories' || link.name === 'Success Stories') && !hasStories) {
-    return false;
-  }
-  if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
-    return false;
-  }
-  if ((link.href === '/blog' || link.name === 'Blog') && !hasBlog) {
-    return false;
-  }
-  return true;
-});
-
 export default function Footer({ onOpenModal }) {
+  const { data: postsData, loading: postsLoading } = usePosts();
+  const visiblePosts = React.useMemo(() => {
+    if (!postsData) return [];
+    return SHOW_PLACEHOLDERS ? postsData : postsData.filter((p) => !p.isPlaceholder);
+  }, [postsData]);
+  const hasBlog = !postsLoading && visiblePosts.length > 0;
+
+  const quickLinks = React.useMemo(() => {
+    return baseQuickLinks.filter((link) => {
+      if ((link.href === '/success-stories' || link.name === 'Success Stories') && !hasStories) {
+        return false;
+      }
+      if ((link.href === '/gallery' || link.name === 'Gallery') && !hasGallery) {
+        return false;
+      }
+      if ((link.href === '/blog' || link.name === 'Blog') && !hasBlog) {
+        return false;
+      }
+      return true;
+    });
+  }, [hasBlog]);
+
   return (
     <footer className="bg-[#0B1F3A] text-white pt-16 pb-8 px-5 lg:px-8 border-t border-white/10 relative overflow-hidden">
       {/* Container */}

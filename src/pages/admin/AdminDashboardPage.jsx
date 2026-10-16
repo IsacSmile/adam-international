@@ -23,12 +23,12 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import WhatsAppIcon from '../../components/shared/WhatsAppIcon';
+import AdminHeader from '../../components/admin/AdminHeader';
 
 import { countries } from '../../data/countries';
 import { services } from '../../data/services';
 import { branches } from '../../data/branches';
 import { FORM_TYPE_LABELS, FIELD_LABELS } from '../../data/formFields';
-import { events } from '../../data/events';
 
 const europeCountries = countries.filter((c) => c.region === 'Europe');
 const otherCountries = countries.filter((c) => c.region !== 'Europe');
@@ -451,39 +451,7 @@ export default function AdminDashboardPage({ admin }) {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {/* =========================================================================
-          TOP BAR
-      ========================================================================= */}
-      <header className="sticky top-0 z-30 bg-[#0B1F3A] text-white h-16 border-b border-white/10 px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/20 border border-[#C9A84C]/40 flex items-center justify-center text-[#DFBE7A] font-bold">
-            A
-          </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span>Leads</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#DFBE7A] bg-[#C9A84C]/15 px-2 py-0.5 rounded-full border border-[#C9A84C]/30 hidden sm:inline-block">
-              Portal
-            </span>
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-xs text-slate-300">
-            <User className="w-3.5 h-3.5 text-[#C9A84C]" />
-            <span className="font-medium truncate max-w-[220px]">{adminEmail || 'admin@adaminternational.in'}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer"
-            title="Sign out"
-          >
-            <LogOut className="w-3.5 h-3.5 text-[#C9A84C]" />
-            <span>Sign out</span>
-          </button>
-        </div>
-      </header>
+      <AdminHeader adminEmail={adminEmail} onSignOut={handleSignOut} />
 
       {/* =========================================================================
           MAIN CONTAINER
@@ -1217,7 +1185,7 @@ export default function AdminDashboardPage({ admin }) {
                           <span className="text-slate-500 font-medium">{FIELD_LABELS[k] || k}:</span>
                           <span className="font-semibold text-slate-800 sm:text-right">
                             {k === 'eventSlug'
-                              ? (events.find((e) => e.slug === v)?.title || String(v))
+                              ? (selectedLead.eventTitle || selectedLead.event_title || selectedLead.details?.eventTitle || (v ? `${v} (deleted)` : ''))
                               : k === 'preferredDate' && typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
                               ? (() => {
                                   const [y, m, d] = v.split('-').map(Number);

@@ -23,13 +23,15 @@ import { getVisibleUniversities } from '../lib/universities';
 import { successStories } from '../data/successStories';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
-import { getUpcomingEvents, getEventDateLabel } from '../lib/events';
+import { getUpcomingEvents, getEventDateLabel, isRegistrationOpen } from '../lib/events';
+import { useEvents } from '../hooks/useContent';
 
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
 
 export default function CountryDetailPage() {
   const { slug } = useParams();
   const { openAppointment } = useAppointment();
+  const { data: eventsList } = useEvents();
 
   const country = countries.find((c) => c.slug === slug);
 
@@ -42,7 +44,7 @@ export default function CountryDetailPage() {
   const countryUniversities = getVisibleUniversities().filter((u) => u.country === country.slug);
 
   // Check for upcoming spot admission event for this country
-  const upcomingEvent = getUpcomingEvents().find((e) => e.country === country.slug);
+  const upcomingEvent = getUpcomingEvents(eventsList).find((e) => e.country === country.slug);
 
   // Filter stories for this country (slug or name matching)
   const availableStories = SHOW_PLACEHOLDERS
@@ -227,13 +229,24 @@ export default function CountryDetailPage() {
               )}
             </div>
 
-            <Link
-              to={`/events/${upcomingEvent.slug}`}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors whitespace-nowrap self-start sm:self-auto group"
-            >
-              <span>View Details & Register</span>
-              <ArrowRight className="w-4 h-4 text-[#C9A84C] group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+              {!isRegistrationOpen(upcomingEvent) && (
+                <button
+                  type="button"
+                  onClick={() => openAppointment({ country: country.name })}
+                  className="text-xs font-semibold text-slate-600 hover:text-[#0B1F3A] underline underline-offset-2 transition-colors cursor-pointer"
+                >
+                  Registration not open yet — talk to an advisor
+                </button>
+              )}
+              <Link
+                to={`/events/${upcomingEvent.slug}`}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors whitespace-nowrap group"
+              >
+                <span>{isRegistrationOpen(upcomingEvent) ? 'View Details & Register' : 'View Details'}</span>
+                <ArrowRight className="w-4 h-4 text-[#C9A84C] group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
           </div>
         </aside>
       )}

@@ -18,7 +18,7 @@ export default function BlogCard({ post }) {
         <div className="relative w-full aspect-video overflow-hidden bg-slate-100 shrink-0">
           {post.image ? (
             <img
-              src={post.image}
+              src={post.imageThumb || post.image}
               alt={post.imageAlt || post.title}
               loading="lazy"
               decoding="async"
@@ -40,11 +40,15 @@ export default function BlogCard({ post }) {
                 {post.category}
               </span>
             )}
-            {formattedDate && (
-              <span className="text-slate-500 font-medium">{formattedDate}</span>
-            )}
-            {post.readingTime && (
-              <span className="text-slate-400">· {post.readingTime} min read</span>
+            {(formattedDate || post.readingTime) && (
+              <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                {formattedDate && (
+                  <span className="text-slate-500 font-medium">{formattedDate}</span>
+                )}
+                {post.readingTime && (
+                  <span className="text-slate-400">· {post.readingTime} min read</span>
+                )}
+              </div>
             )}
           </div>
 

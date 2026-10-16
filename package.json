@@ -5,16 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-sitemap.js && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "check:content": "node scripts/check-placeholders.js",
     "create-admin": "node scripts/create-admin.js",
-    "db:apply": "node --env-file=.env.local scripts/apply-schema.js"
+    "db:apply": "node --env-file=.env.local scripts/apply-schema.js",
+    "db:seed-content": "node --env-file=.env.local scripts/seed-content.js",
+    "test:content": "node --env-file=.env.local scripts/test-content.js",
+    "test:lead": "node --env-file=.env.local scripts/test-lead.js",
+    "lint": "eslint src --ext .js,.jsx",
+    "blobs:cleanup": "node --env-file=.env.local scripts/cleanup-blobs.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
     "@neondatabase/serverless": "^1.2.0",
+    "@vercel/blob": "^2.8.2",
     "bcryptjs": "^3.0.3",
+    "dompurify": "^3.4.17",
     "gsap": "^3.12.5",
     "jose": "^6.2.12",
     "lenis": "^1.3.26",
@@ -28,6 +35,8 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
     "vite": "^5.4.1"

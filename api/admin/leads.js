@@ -2,7 +2,6 @@ import { sql } from '../_lib/db.js';
 import { requireAdmin } from '../_lib/session.js';
 import { verifyOrigin } from '../_lib/origin.js';
 import { FIELD_LABELS, FORM_TYPE_LABELS, FORM_TYPES } from '../../src/data/formFields.js';
-import { events } from '../../src/data/events.js';
 
 const VALID_STATUSES = ['new', 'contacted', 'follow_up', 'converted', 'not_interested'];
 
@@ -55,9 +54,40 @@ function getISTDateString() {
 }
 
 /**
+ * Fetches title for event slugs from Neon events table.
+ */
+async function getEventTitleMap(leadsList = []) {
+  const slugs = new Set();
+  for (const l of leadsList) {
+    let details = l.details;
+    if (typeof details === 'string') {
+      try {
+        details = JSON.parse(details);
+      } catch {}
+    }
+    if (details && typeof details === 'object' && details.eventSlug) {
+      slugs.add(details.eventSlug);
+    }
+  }
+
+  if (slugs.size === 0) return {};
+
+  const slugArray = Array.from(slugs);
+  const rows = await sql`
+    SELECT slug, title FROM events WHERE slug = ANY(${slugArray})
+  `;
+
+  const map = {};
+  for (const r of rows) {
+    map[r.slug] = r.title;
+  }
+  return map;
+}
+
+/**
  * Formats details JSON into 'Label: value; Label: value' for CSV export.
  */
-function formatDetailsForCsv(details) {
+function formatDetailsForCsv(details, eventTitleMap = {}) {
   if (!details) return '';
   let obj = details;
   if (typeof obj === 'string') {
@@ -74,10 +104,7 @@ function formatDetailsForCsv(details) {
       const label = FIELD_LABELS[k] || k;
       let displayVal = v;
       if (k === 'eventSlug') {
-        const foundEvent = (events || []).find((e) => e.slug === v);
-        if (foundEvent) {
-          displayVal = foundEvent.title;
-        }
+        displayVal = eventTitleMap[v] || `${v} (deleted)`;
       }
       pairs.push(`${label}: ${displayVal}`);
     }
@@ -190,6 +217,8 @@ export default async function handler(req, res) {
           'Assigned To',
         ].join(',');
 
+        const eventTitleMap = await getEventTitleMap(leads);
+
         const csvRows = leads.map((l) =>
           [
             sanitizeCsvCell(l.id),
@@ -205,7 +234,7 @@ export default async function handler(req, res) {
             sanitizeCsvCell(l.university),
             sanitizeCsvCell(l.source_page),
             sanitizeCsvCell(l.message),
-            sanitizeCsvCell(formatDetailsForCsv(l.details)),
+            sanitizeCsvCell(formatDetailsForCsv(l.details, eventTitleMap)),
             sanitizeCsvCell(l.status),
             sanitizeCsvCell(l.notes),
             sanitizeCsvCell(l.assigned_to),
@@ -300,8 +329,31 @@ export default async function handler(req, res) {
         LIMIT ${pageSize} OFFSET ${offset}
       `;
 
+      const eventTitleMap = await getEventTitleMap(leads);
+      const augmentedLeads = leads.map((l) => {
+        let details = l.details;
+        if (typeof details === 'string') {
+          try {
+            details = JSON.parse(details);
+          } catch {}
+        }
+        if (details && typeof details === 'object' && details.eventSlug) {
+          const resolvedTitle = eventTitleMap[details.eventSlug] || `${details.eventSlug} (deleted)`;
+          return {
+            ...l,
+            eventTitle: resolvedTitle,
+            event_title: resolvedTitle,
+            details: {
+              ...details,
+              eventTitle: resolvedTitle,
+            },
+          };
+        }
+        return l;
+      });
+
       return res.status(200).json({
-        leads,
+        leads: augmentedLeads,
         total,
         page,
         pageSize,
@@ -322,15 +374,22 @@ export default async function handler(req, res) {
         return res.status(400).json({ ok: false, error: 'Missing lead ID' });
       }
 
-      let body = req.body;
-      if (typeof body === 'string') {
-        try {
-          body = JSON.parse(body);
-        } catch {
-          return res.status(400).json({ ok: false, error: 'Invalid JSON request body' });
+      let body = {};
+      if (typeof req.body === 'string') {
+        const trimmed = req.body.trim();
+        if (trimmed) {
+          try {
+            body = JSON.parse(trimmed);
+          } catch {
+            return res.status(400).json({ ok: false, error: 'Invalid JSON request body' });
+          }
         }
+      } else if (req.body && typeof req.body === 'object') {
+        body = req.body;
       }
-      body = body || {};
+      if (!body || typeof body !== 'object') {
+        body = {};
+      }
 
       const hasStatus = body.status !== undefined;
       let statusToSet = null;

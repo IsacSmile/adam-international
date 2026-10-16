@@ -1,6 +1,7 @@
 import { neonConfig } from '@neondatabase/serverless';
 import handler from '../api/lead.js';
 import { sql } from '../api/_lib/db.js';
+import { formatEventErrorMessage, isRegistrationOpen, getClosedRegistrationLabel } from '../src/lib/events.js';
 
 // Resilient retry wrapper for test runner across network latency
 const originalFetch = globalThis.fetch;
@@ -41,8 +42,17 @@ async function run() {
   const testIp = '127.0.0.99';
   console.log('--- Starting Lead API Test Suite ---');
 
-  // Ensure clean slate before running tests
-  await sql`DELETE FROM leads WHERE name LIKE 'Test Lead%'`;
+  // 1. First LIST how many existing test leads are in the DB, then delete only those
+  const existingTestLeads = await sql`
+    SELECT id, name, email, phone FROM leads
+    WHERE phone LIKE '+919895111%' OR name LIKE 'Test Lead%'
+  `;
+  console.log(`Found ${existingTestLeads.length} existing test leads in the database before starting.`);
+  if (existingTestLeads.length > 0) {
+    console.log('Cleaning up existing test leads:');
+    existingTestLeads.forEach((l) => console.log(`  - Lead ID ${l.id}: ${l.name} (${l.phone})`));
+    await sql`DELETE FROM leads WHERE phone LIKE '+919895111%' OR name LIKE 'Test Lead%'`;
+  }
   await sql`DELETE FROM lead_ip_log WHERE ip = ${testIp}`;
 
   let passed = 0;
@@ -57,6 +67,28 @@ async function run() {
       failed++;
     }
   }
+
+  const dedicatedOpenEventSlug = `test-lead-open-${Date.now()}`;
+  const dedicatedClosedEventSlug = `test-lead-closed-${Date.now()}`;
+
+  try {
+    // Insert dedicated test events inside the test run so tests do not rely on manual content
+    await sql`
+      INSERT INTO events (
+        type, status, title, slug, summary, country, date, registration_open, created_at, updated_at
+      ) VALUES (
+        'spot-admission', 'published', 'Dedicated Open Test Event', ${dedicatedOpenEventSlug},
+        'Summary for open test event', 'hungary', '2026-11-20', true, NOW(), NOW()
+      )
+    `;
+    await sql`
+      INSERT INTO events (
+        type, status, title, slug, summary, country, date, registration_open, created_at, updated_at
+      ) VALUES (
+        'spot-admission', 'published', 'Dedicated Closed Test Event', ${dedicatedClosedEventSlug},
+        'Summary for closed test event', 'germany', '2026-11-20', false, NOW(), NOW()
+      )
+    `;
 
   function getValidWorkingDayIST() {
     for (let i = 1; i <= 60; i++) {
@@ -446,14 +478,14 @@ async function run() {
       headers: { 'x-forwarded-for': testIp },
       body: {
         formType: 'event',
-        name: 'Test Lead Event Hungary',
-        email: 'event-hungary@example.com',
+        name: 'Test Lead Event Open',
+        email: 'event-open@example.com',
         phone: '+919895111030',
         consent: true,
         country: 'Hungary',
         message: 'Looking forward to the Hungary spot admission event.',
         details: {
-          eventSlug: 'hungary-spot-admission-october-2026',
+          eventSlug: dedicatedOpenEventSlug,
           qualification: "Bachelor's degree",
           country: 'Hungary',
         },
@@ -519,6 +551,213 @@ async function run() {
     resEventAward.statusCode === 400 &&
       resEventAward.body?.fields?.eventSlug === 'Registrations are not open for this event.',
     'Event registration for award slug rejected with 400 validation error'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 7j. Event Banner Message Mapping
+  // ---------------------------------------------------------------------------
+  console.log('\n7j. Test Event Banner Message Mapping & Closed Registration Labels:');
+  assert(
+    formatEventErrorMessage('Registrations are not open for this event.') ===
+      'Registration not open yet — talk to an advisor',
+    'Banner for "Registrations are not open..." maps to "Registration not open yet — talk to an advisor"'
+  );
+  assert(
+    formatEventErrorMessage('This event is not available for registration.') ===
+      'This event is no longer available.',
+    'Banner for "This event is not available..." maps to "This event is no longer available."'
+  );
+  assert(
+    formatEventErrorMessage('Unknown event selected.') === 'This event is no longer available.',
+    'Banner for "Unknown event selected." maps to "This event is no longer available."'
+  );
+  assert(
+    formatEventErrorMessage('This event has ended.') === 'Registration closed',
+    'Banner for "This event has ended." maps to "Registration closed"'
+  );
+  assert(
+    getClosedRegistrationLabel({ registration_open: false, date: '2026-12-01' }, new Date('2026-10-01')) ===
+      'Registration not open yet — talk to an advisor',
+    'getClosedRegistrationLabel returns "Registration not open yet — talk to an advisor" for upcoming closed event'
+  );
+  assert(
+    getClosedRegistrationLabel({ registration_open: false, date: '2020-01-01' }, new Date('2026-10-01')) ===
+      'Registration closed',
+    'getClosedRegistrationLabel returns "Registration closed" for ended event'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 7k. Unit Tests for isRegistrationOpen (Single Source of Truth)
+  // ---------------------------------------------------------------------------
+  console.log('\n7k. Unit Tests for isRegistrationOpen:');
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthStr = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  // 1. Open event (published, registration_open: true, upcoming date)
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: true,
+        status: 'published',
+        type: 'spot-admission',
+        date: `${currentYear + 1}-06-15`,
+      },
+      now
+    ) === true,
+    'isRegistrationOpen returns true for open published upcoming event'
+  );
+
+  // 2. Closed flag (registration_open: false)
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: false,
+        status: 'published',
+        type: 'spot-admission',
+        date: `${currentYear + 1}-06-15`,
+      },
+      now
+    ) === false,
+    'isRegistrationOpen returns false when registration_open is false'
+  );
+
+  // 3. Draft status
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: true,
+        status: 'draft',
+        type: 'spot-admission',
+        date: `${currentYear + 1}-06-15`,
+      },
+      now
+    ) === false,
+    'isRegistrationOpen returns false when status is draft'
+  );
+
+  // 4. Ended exact date
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: true,
+        status: 'published',
+        type: 'spot-admission',
+        date: '2020-01-01',
+      },
+      now
+    ) === false,
+    'isRegistrationOpen returns false for ended exact date'
+  );
+
+  // 5. Month-only current month (counts as not ended until end of month in IST)
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: true,
+        status: 'published',
+        type: 'spot-admission',
+        month: currentMonthStr,
+      },
+      now
+    ) === true,
+    'isRegistrationOpen returns true for month-only current month'
+  );
+
+  // 6. Month-only past month
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: true,
+        status: 'published',
+        type: 'spot-admission',
+        month: '2020-01',
+      },
+      now
+    ) === false,
+    'isRegistrationOpen returns false for month-only past month'
+  );
+
+  // 7. Year-only current/future year vs past year
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: true,
+        status: 'published',
+        type: 'spot-admission',
+        year: String(currentYear + 1),
+      },
+      now
+    ) === true,
+    'isRegistrationOpen returns true for future year-only event'
+  );
+  assert(
+    isRegistrationOpen(
+      {
+        registration_open: true,
+        status: 'published',
+        type: 'spot-admission',
+        year: '2020',
+      },
+      now
+    ) === false,
+    'isRegistrationOpen returns false for past year-only event'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 7l. API Tests for Closed Event Rejection & Open Event Acceptance
+  // ---------------------------------------------------------------------------
+  console.log('\n7l. API Tests: Closed Event Rejection vs Open Event Acceptance:');
+
+  // Closed Event Rejection (using dedicated test event with registration_open = false)
+  const resClosedEvent = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'event',
+        name: 'Test Lead Closed Event',
+        email: 'closed-event@example.com',
+        phone: '+919895111050',
+        consent: true,
+        details: {
+          eventSlug: dedicatedClosedEventSlug,
+          qualification: "Bachelor's degree",
+        },
+      },
+    },
+    resClosedEvent
+  );
+  assert(
+    resClosedEvent.statusCode === 400 &&
+      resClosedEvent.body?.fields?.eventSlug === 'Registrations are not open for this event.',
+    'API POST /api/lead rejects closed event with 400 validation error'
+  );
+
+  // Open Event Acceptance (using dedicated test event with registration_open = true)
+  const resOpenEvent = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'event',
+        name: 'Test Lead Open Event Dedicated',
+        email: 'open-dedicated-event@example.com',
+        phone: '+919895111051',
+        consent: true,
+        details: {
+          eventSlug: dedicatedOpenEventSlug,
+          qualification: "Bachelor's degree",
+        },
+      },
+    },
+    resOpenEvent
+  );
+  assert(
+    resOpenEvent.statusCode === 200 && resOpenEvent.body?.ok === true,
+    'API POST /api/lead accepts open event with 200 OK'
   );
 
   // Clear IP log
@@ -842,11 +1081,11 @@ async function run() {
     'DB Row: contact with date/time saved properly'
   );
 
-  const eventRow = testRows.find((r) => r.name === 'Test Lead Event Hungary');
+  const eventRow = testRows.find((r) => r.name === 'Test Lead Event Open');
   assert(
     eventRow &&
     eventRow.form_type === 'event' &&
-    eventRow.details?.eventSlug === 'hungary-spot-admission-october-2026' &&
+    eventRow.details?.eventSlug === dedicatedOpenEventSlug &&
     eventRow.details?.qualification === "Bachelor's degree",
     'DB Row: event has form_type="event" with matching eventSlug and qualification'
   );
@@ -857,17 +1096,32 @@ async function run() {
       console.log(`   - [${r.form_type}] ${r.name}: details = ${JSON.stringify(r.details || {})}`);
     }
   });
+  } finally {
+    // -------------------------------------------------------------------------
+    // 13. Guaranteed Cleanup in finally block
+    // -------------------------------------------------------------------------
+    console.log('\n--- Cleanup in finally block ---');
+    try {
+      if (dedicatedClosedEventSlug) {
+        await sql`DELETE FROM events WHERE slug = ${dedicatedClosedEventSlug}`;
+      }
+      if (dedicatedOpenEventSlug) {
+        await sql`DELETE FROM events WHERE slug = ${dedicatedOpenEventSlug}`;
+      }
+      await sql`DELETE FROM leads WHERE phone LIKE '+919895111%' OR name LIKE 'Test Lead%'`;
+      await sql`DELETE FROM lead_ip_log WHERE ip = ${testIp}`;
 
-  // Delete all test rows
-  await sql`DELETE FROM leads WHERE name LIKE 'Test Lead%'`;
-  await sql`DELETE FROM lead_ip_log WHERE ip = ${testIp}`;
-
-  const [afterCleanup] = await sql`
-    SELECT count(*)::int AS count
-    FROM leads
-    WHERE name LIKE 'Test Lead%'
-  `;
-  assert(afterCleanup.count === 0, 'All test leads successfully deleted from database');
+      const [afterCleanup] = await sql`
+        SELECT count(*)::int AS count
+        FROM leads
+        WHERE phone LIKE '+919895111%' OR name LIKE 'Test Lead%'
+      `;
+      assert(afterCleanup.count === 0, 'All test leads successfully deleted from database in finally');
+      console.log(`✓ Cleanup completed. Remaining test leads: ${afterCleanup.count}`);
+    } catch (cleanupErr) {
+      console.error('Error during cleanup:', cleanupErr);
+    }
+  }
 
   console.log('\n=======================================');
   console.log(`RESULTS: ${passed} passed, ${failed} failed`);

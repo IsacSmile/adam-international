@@ -1,16 +1,22 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight } from 'lucide-react';
-import { getUpcomingEvents, getEventDateLabel } from '../../lib/events';
+import { getUpcomingEvents, getEventDateLabel, isRegistrationOpen } from '../../lib/events';
 import { countries } from '../../data/countries';
+import { useEvents } from '../../hooks/useContent';
+import { useAppointment } from '../../context/AppointmentContext';
 
 export default function HomeUpcomingEventsStrip() {
-  const upcomingEvents = useMemo(() => {
-    return getUpcomingEvents().slice(0, 3);
-  }, []);
+  const { data: eventsList, loading } = useEvents();
+  const appointmentCtx = useAppointment();
+  const openAppointment = appointmentCtx?.openAppointment;
 
-  // Hide the strip if there are no upcoming events
-  if (!upcomingEvents || upcomingEvents.length === 0) {
+  const upcomingEvents = useMemo(() => {
+    return getUpcomingEvents(eventsList).slice(0, 3);
+  }, [eventsList]);
+
+  // Hide the strip while loading or if there are no upcoming events
+  if (loading || !upcomingEvents || upcomingEvents.length === 0) {
     return null;
   }
 
@@ -60,10 +66,10 @@ export default function HomeUpcomingEventsStrip() {
               >
                 <div>
                   {/* Poster Image Container */}
-                  {event.poster && (
+                  {(event.posterThumb || event.poster) && (
                     <div className="relative aspect-[1024/765] w-full overflow-hidden bg-[#0B1F3A]/5 border-b border-slate-100 flex items-center justify-center">
                       <img
-                        src={event.poster}
+                        src={event.posterThumb || event.poster}
                         alt={`${event.title} poster`}
                         width={event.posterWidth || 1024}
                         height={event.posterHeight || 765}
@@ -130,12 +136,22 @@ export default function HomeUpcomingEventsStrip() {
                       <ArrowRight className="w-3.5 h-3.5 text-[#C9A84C] group-hover:translate-x-1 transition-transform" />
                     </Link>
 
-                    <Link
-                      to={`/events/${event.slug}#register`}
-                      className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[#0B1F3A] hover:bg-[#132A4A] text-[#C9A84C] transition-colors"
-                    >
-                      Register
-                    </Link>
+                    {isRegistrationOpen(event) ? (
+                      <Link
+                        to={`/events/${event.slug}#register`}
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[#0B1F3A] hover:bg-[#132A4A] text-[#C9A84C] transition-colors"
+                      >
+                        Register
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => openAppointment?.({ country: event.country })}
+                        className="text-[11px] font-semibold text-slate-600 hover:text-[#0B1F3A] underline underline-offset-2 transition-colors cursor-pointer text-right max-w-[180px] sm:max-w-none truncate"
+                      >
+                        Registration not open yet — talk to an advisor
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

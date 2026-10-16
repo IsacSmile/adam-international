@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import ErrorBoundary from '../ErrorBoundary';
 
 export default function AdminRoute({ children }) {
   const [status, setStatus] = useState('loading'); // 'loading' | 'authenticated' | 'unauthenticated'
   const [admin, setAdmin] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     let isMounted = true;
@@ -68,11 +70,13 @@ export default function AdminRoute({ children }) {
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-      {children
-        ? React.isValidElement(children)
-          ? React.cloneElement(children, { admin })
-          : children
-        : <Outlet context={{ admin }} />}
+      <ErrorBoundary key={location.pathname}>
+        {children
+          ? React.isValidElement(children)
+            ? React.cloneElement(children, { admin })
+            : children
+          : <Outlet context={{ admin }} />}
+      </ErrorBoundary>
     </>
   );
 }

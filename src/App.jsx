@@ -3,8 +3,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import SmoothScroll from './components/SmoothScroll';
 import { AppointmentProvider } from './context/AppointmentContext';
+import { ContentProvider } from './hooks/useContent';
 import MainLayout from './layouts/MainLayout';
 import SectionSkeleton from './components/SectionSkeleton';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const CountriesPage = lazy(() => import('./pages/CountriesPage'));
@@ -31,6 +33,10 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminRoute = lazy(() => import('./components/admin/AdminRoute'));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
+const AdminEventsListPage = lazy(() => import('./pages/admin/AdminEventsListPage'));
+const AdminEventEditorPage = lazy(() => import('./pages/admin/AdminEventEditorPage'));
+const AdminBlogListPage = lazy(() => import('./pages/admin/AdminBlogListPage'));
+const AdminBlogEditorPage = lazy(() => import('./pages/admin/AdminBlogEditorPage'));
 
 export default function App() {
   useEffect(() => {
@@ -50,18 +56,74 @@ export default function App() {
 
   return (
     <HelmetProvider>
-      <BrowserRouter>
-        <SmoothScroll>
-          <AppointmentProvider>
-            <Suspense fallback={<SectionSkeleton type="cards" />}>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <ContentProvider>
+          <SmoothScroll>
+            <AppointmentProvider>
+              <Suspense fallback={<SectionSkeleton type="cards" />}>
               <Routes>
                 {/* Admin routes (outside MainLayout - no public header or footer) */}
-                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route
+                  path="/admin/login"
+                  element={
+                    <ErrorBoundary>
+                      <AdminLoginPage />
+                    </ErrorBoundary>
+                  }
+                />
                 <Route
                   path="/admin"
                   element={
                     <AdminRoute>
                       <AdminDashboardPage />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/events"
+                  element={
+                    <AdminRoute>
+                      <AdminEventsListPage />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/events/new"
+                  element={
+                    <AdminRoute>
+                      <AdminEventEditorPage />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/events/:id"
+                  element={
+                    <AdminRoute>
+                      <AdminEventEditorPage />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/blog"
+                  element={
+                    <AdminRoute>
+                      <AdminBlogListPage />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/blog/new"
+                  element={
+                    <AdminRoute>
+                      <AdminBlogEditorPage />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/blog/:id"
+                  element={
+                    <AdminRoute>
+                      <AdminBlogEditorPage />
                     </AdminRoute>
                   }
                 />
@@ -93,7 +155,8 @@ export default function App() {
             </Suspense>
           </AppointmentProvider>
         </SmoothScroll>
-      </BrowserRouter>
-    </HelmetProvider>
-  );
+      </ContentProvider>
+    </BrowserRouter>
+  </HelmetProvider>
+);
 }

@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Check, Calendar, AlertCircle } from 'lucide-react';
 import { getFormFieldDefinitions, PREFERRED_TIME_OPTIONS } from '../../data/formFields';
 import { contact, whatsappLink } from '../../data/contact';
 import { countries } from '../../data/countries';
+import { formatEventErrorMessage } from '../../lib/events';
 import SelectField from './SelectField';
 import WhatsAppIcon from './WhatsAppIcon';
 
@@ -64,9 +65,11 @@ export default function InlineEnquiryForm({
 
   const [bookConsultation, setBookConsultation] = useState(false);
   const [submittedConsultation, setSubmittedConsultation] = useState(null);
+  const formRef = useRef(null);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [bannerError, setBannerError] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const istLimits = useMemo(() => {
@@ -159,6 +162,7 @@ export default function InlineEnquiryForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError(null);
+    setBannerError(null);
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -229,13 +233,72 @@ export default function InlineEnquiryForm({
         }
         setIsSuccess(true);
         setErrors({});
+        setBannerError(null);
+        setSubmitError(null);
         if (onSuccess) onSuccess(true);
+      } else if (res.status === 400 && data?.error === 'validation') {
+        const fields = data.fields || {};
+        const fieldErrors = { ...fields };
+
+        if (fieldErrors.fullName && !fieldErrors.name) {
+          fieldErrors.name = fieldErrors.fullName;
+        }
+
+        const eventMsg = fields.eventSlug || fields.event;
+        if (eventMsg) {
+          setBannerError(formatEventErrorMessage(eventMsg));
+          delete fieldErrors.eventSlug;
+          delete fieldErrors.event;
+        } else if (fields._general) {
+          setBannerError(fields._general);
+          delete fieldErrors._general;
+        } else if (fields.formType) {
+          setBannerError(fields.formType);
+          delete fieldErrors.formType;
+        }
+
+        const renderedKeys = new Set([
+          'name',
+          'fullName',
+          'email',
+          'phone',
+          'consent',
+          'preferredDate',
+          'preferredTime',
+          ...effectiveFields,
+        ]);
+        const unhandled = [];
+        for (const [k, v] of Object.entries(fieldErrors)) {
+          if (!renderedKeys.has(k) && typeof v === 'string') {
+            unhandled.push(v);
+          }
+        }
+        if (!eventMsg && !fields._general && unhandled.length > 0) {
+          setBannerError(unhandled.join(' '));
+        } else if (!eventMsg && !fields._general && Object.keys(fieldErrors).length === 0) {
+          setBannerError(data.message || 'Please check your information and try again.');
+        }
+
+        setErrors(fieldErrors);
+        setSubmitError(null);
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else if (res.status === 429) {
+        setErrors({});
+        setBannerError(`Too many requests. Please wait a few minutes before trying again, or call us on ${contact.phoneDisplay}.`);
+        setSubmitError(null);
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } else {
+        // 5xx or unhandled status: show generic error
+        setErrors({});
+        setBannerError(null);
         setSubmitError(
           `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
         );
       }
     } catch (err) {
+      // Network failure
+      setErrors({});
+      setBannerError(null);
       setSubmitError(
         `Sorry, something went wrong and your request wasn't sent. Please try again, or call us on ${contact.phoneDisplay}.`
       );
@@ -309,6 +372,9 @@ export default function InlineEnquiryForm({
             onClick={() => {
               setIsSuccess(false);
               setSubmittedConsultation(null);
+              setSubmitError(null);
+              setBannerError(null);
+              setErrors({});
               if (onSuccess) onSuccess(false);
             }}
             className="text-xs font-semibold text-slate-400 hover:text-[#0B1F3A] transition-colors cursor-pointer"
@@ -321,7 +387,7 @@ export default function InlineEnquiryForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-5">
       {/* Honeypot */}
       <input
         type="text"
@@ -333,6 +399,17 @@ export default function InlineEnquiryForm({
         className="hidden"
         aria-hidden="true"
       />
+
+      {/* Event-level or general validation banner */}
+      {bannerError && (
+        <div
+          role="alert"
+          className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs sm:text-sm text-rose-800 font-semibold shadow-xs"
+        >
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600 mt-0.5" />
+          <span className="leading-relaxed">{bannerError}</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Full Name */}

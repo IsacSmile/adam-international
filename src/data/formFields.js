@@ -1,8 +1,7 @@
 import { countries } from './countries.js';
 import { trainingProgrammes } from './trainingProgrammes.js';
 import { contact } from './contact.js';
-import { events } from './events.js';
-import { getActiveRegistrationEvents, isEventPast } from '../lib/events.js';
+import { getActiveRegistrationEvents } from '../lib/events.js';
 
 export const FORM_TYPES = [
   'appointment',
@@ -154,12 +153,12 @@ export const FIELD_LABELS = {
   eventSlug: 'Event',
 };
 
-export function getEventSlugOptions(now = new Date()) {
-  return getActiveRegistrationEvents(now).map((e) => e.slug);
+export function getEventSlugOptions(eventsList = [], now = new Date()) {
+  return getActiveRegistrationEvents(eventsList, now).map((e) => e.slug);
 }
 
-export function getEventOptions(now = new Date()) {
-  return getActiveRegistrationEvents(now).map((e) => ({
+export function getEventOptions(eventsList = [], now = new Date()) {
+  return getActiveRegistrationEvents(eventsList, now).map((e) => ({
     value: e.slug,
     label: e.title,
   }));
@@ -347,7 +346,7 @@ export function validateLeadPayload(rawFormType, rawDetails, rawMessage) {
       if (!def) continue;
 
       if (key === 'eventSlug') {
-        if (typeof val !== 'string') {
+        if (typeof val !== 'string' || !val.trim()) {
           return {
             ok: false,
             error: 'validation',
@@ -355,26 +354,11 @@ export function validateLeadPayload(rawFormType, rawDetails, rawMessage) {
           };
         }
         const trimmed = val.trim();
-        const foundEvent = (events || []).find((e) => e.slug === trimmed);
-        if (!foundEvent) {
+        if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(trimmed) || trimmed.length > 120) {
           return {
             ok: false,
             error: 'validation',
-            fields: { eventSlug: 'Unknown event selected.' },
-          };
-        }
-        if (foundEvent.registrationOpen !== true) {
-          return {
-            ok: false,
-            error: 'validation',
-            fields: { eventSlug: 'Registrations are not open for this event.' },
-          };
-        }
-        if (isEventPast(foundEvent)) {
-          return {
-            ok: false,
-            error: 'validation',
-            fields: { eventSlug: 'This event has ended.' },
+            fields: { eventSlug: 'Invalid event selected.' },
           };
         }
         cleanDetails.eventSlug = trimmed;

@@ -42,15 +42,22 @@ export default async function handler(req, res) {
         return;
       }
 
-      let body = req.body;
-      if (typeof body === 'string') {
-        try {
-          body = JSON.parse(body);
-        } catch {
-          return res.status(400).json({ ok: false, error: 'Invalid request body' });
+      let body = {};
+      if (typeof req.body === 'string') {
+        const trimmed = req.body.trim();
+        if (trimmed) {
+          try {
+            body = JSON.parse(trimmed);
+          } catch {
+            return res.status(400).json({ ok: false, error: 'Invalid request body' });
+          }
         }
+      } else if (req.body && typeof req.body === 'object') {
+        body = req.body;
       }
-      body = body || {};
+      if (!body || typeof body !== 'object') {
+        body = {};
+      }
 
       const { email, password } = body;
       if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {

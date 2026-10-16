@@ -72,17 +72,12 @@ export async function createSession(res, admin) {
 }
 
 /**
- * Verifies the ai_admin cookie and confirms the admin exists in the database.
- * If either fails, sends 401 and returns null.
- * Otherwise returns the admin record.
+ * Verifies the ai_admin cookie and returns the admin record if valid, or null otherwise.
+ * Does not send a response.
  */
-export async function requireAdmin(req, res) {
-  ensureResHelpers(res);
+export async function getAdminSession(req) {
   const token = parseCookie(req, 'ai_admin');
-  if (!token) {
-    res.status(401).json({ ok: false, error: 'unauthorized' });
-    return null;
-  }
+  if (!token) return null;
 
   try {
     const secretKey = getSecretKey();
@@ -90,10 +85,7 @@ export async function requireAdmin(req, res) {
       algorithms: ['HS256'],
     });
 
-    if (!payload?.sub) {
-      res.status(401).json({ ok: false, error: 'unauthorized' });
-      return null;
-    }
+    if (!payload?.sub) return null;
 
     const rows = await sql`
       SELECT id, email, created_at
@@ -102,16 +94,26 @@ export async function requireAdmin(req, res) {
       LIMIT 1
     `;
 
-    if (!rows || rows.length === 0) {
-      res.status(401).json({ ok: false, error: 'unauthorized' });
-      return null;
-    }
-
+    if (!rows || rows.length === 0) return null;
     return rows[0];
-  } catch (err) {
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Verifies the ai_admin cookie and confirms the admin exists in the database.
+ * If either fails, sends 401 and returns null.
+ * Otherwise returns the admin record.
+ */
+export async function requireAdmin(req, res) {
+  ensureResHelpers(res);
+  const admin = await getAdminSession(req);
+  if (!admin) {
     res.status(401).json({ ok: false, error: 'unauthorized' });
     return null;
   }
+  return admin;
 }
 
 /**
