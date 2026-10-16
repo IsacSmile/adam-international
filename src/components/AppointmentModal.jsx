@@ -6,6 +6,7 @@ import { services } from '../data/services';
 import { branches } from '../data/branches';
 import { universities } from '../data/universities';
 import { contact } from '../data/contact';
+import SelectField from './shared/SelectField';
 
 const europeCountries = countries.filter((c) => c.region === 'Europe');
 const otherCountries = countries.filter((c) => c.region !== 'Europe');
@@ -383,79 +384,70 @@ export default function AppointmentModal({ isOpen: propIsOpen, onClose: propOnCl
 
               {/* Country & Service Dropdowns */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                    Country you're interested in
-                  </label>
-                  <select
-                    value={formData.country}
-                    onChange={(e) =>
-                      setFormData({ ...formData, country: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent bg-white text-slate-800"
-                  >
-                    <optgroup label="Europe">
-                      {europeCountries.map((c) => (
-                        <option key={c.slug} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Other destinations">
-                      {otherCountries.map((c) => (
-                        <option key={c.slug} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <option value="Not sure yet">Not sure yet</option>
-                  </select>
-                </div>
+                <SelectField
+                  id="modal-country"
+                  name="country"
+                  label="Country you're interested in"
+                  value={formData.country}
+                  onChange={(e) =>
+                    setFormData({ ...formData, country: e.target.value })
+                  }
+                  searchable={true}
+                  groups={[
+                    {
+                      label: 'Europe',
+                      options: europeCountries.map((c) => ({
+                        value: c.name,
+                        label: c.name,
+                      })),
+                    },
+                    {
+                      label: 'Other destinations',
+                      options: otherCountries.map((c) => ({
+                        value: c.name,
+                        label: c.name,
+                      })),
+                    },
+                  ]}
+                  options={[{ value: 'Not sure yet', label: 'Not sure yet' }]}
+                  placeholder="Select country…"
+                />
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                    Service you're interested in
-                  </label>
-                  <select
-                    value={formData.service}
-                    onChange={(e) =>
-                      setFormData({ ...formData, service: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent bg-white text-slate-800"
-                  >
-                    <option value="Not sure yet">Not sure yet</option>
-                    {services.map((s) => (
-                      <option key={s.slug} value={s.title}>
-                        {s.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <SelectField
+                  id="modal-service"
+                  name="service"
+                  label="Service you're interested in"
+                  value={formData.service}
+                  onChange={(e) =>
+                    setFormData({ ...formData, service: e.target.value })
+                  }
+                  options={[
+                    { value: 'Not sure yet', label: 'Not sure yet' },
+                    ...services.map((s) => ({ value: s.title, label: s.title })),
+                  ]}
+                  placeholder="Select service…"
+                />
               </div>
 
               {/* Nearest branch (Optional) */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                  Nearest branch
-                </label>
-                <select
+                <SelectField
+                  id="modal-branch"
+                  name="branch"
+                  label="Nearest branch"
                   value={formData.branch}
                   onChange={(e) =>
                     setFormData({ ...formData, branch: e.target.value })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent bg-white text-slate-800"
-                >
-                  <option value="Not sure yet">Not sure yet</option>
-                  {branches.map((b) => {
-                    const name = typeof b === 'object' ? b.name : b;
-                    return (
-                      <option key={name} value={name}>
-                        {name}
-                      </option>
-                    );
-                  })}
-                </select>
-
+                  options={[
+                    { value: 'Not sure yet', label: 'Not sure yet' },
+                    ...branches.map((b) => {
+                      const name = typeof b === 'object' ? b.name : b;
+                      return { value: name, label: name };
+                    }),
+                  ]}
+                  placeholder="Select branch…"
+                />
               </div>
 
               {/* Required Consent Checkbox */}

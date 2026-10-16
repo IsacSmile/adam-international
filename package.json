@@ -12,6 +12,7 @@
     "db:apply": "node --env-file=.env.local scripts/apply-schema.js"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.10",
     "@neondatabase/serverless": "^1.2.0",
     "bcryptjs": "^3.0.3",
     "gsap": "^3.12.5",

@@ -4,6 +4,7 @@ import { Phone, MessageCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getFormFieldDefinitions, PREFERRED_TIME_OPTIONS } from '../../data/formFields';
 import { contact, whatsappLink } from '../../data/contact';
 import { countries } from '../../data/countries';
+import SelectField from './SelectField';
 
 export default function InlineEnquiryForm({
   formType = 'appointment',
@@ -375,76 +376,64 @@ export default function InlineEnquiryForm({
 
           return (
             <div key={fKey} className={isFullWidth ? 'md:col-span-2' : ''}>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                {label} {isRequired && <span className="text-rose-500">*</span>}
-              </label>
-
               {def.type === 'select' ? (
-                <select
+                <SelectField
+                  id={`ief-${fKey}`}
+                  name={fKey}
+                  label={label}
+                  required={isRequired}
                   value={formData[fKey] || ''}
                   onChange={(e) => handleChange(fKey, e.target.value)}
-                  className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 ${
-                    errors[fKey]
-                      ? 'border-rose-400 focus:ring-rose-200'
-                      : 'border-slate-200 focus:ring-[#C9A84C]'
-                  }`}
-                >
-                  <option value="">Select option…</option>
-                  {def.optgroups ? (
-                    <>
-                      {def.optgroups.map((group) => (
-                        <optgroup key={group.label} label={group.label}>
-                          {group.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                      {def.trailingOption && (
-                        <option value={def.trailingOption}>
-                          {def.trailingOption}
-                        </option>
-                      )}
-                    </>
-                  ) : (
-                    def.options.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))
-                  )}
-                </select>
-              ) : def.type === 'textarea' ? (
-                <textarea
-                  rows={4}
-                  maxLength={def.maxLength || 2000}
-                  placeholder={def.placeholder || ''}
-                  value={formData[fKey] || ''}
-                  onChange={(e) => handleChange(fKey, e.target.value)}
-                  className={`w-full min-h-[100px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
-                    errors[fKey]
-                      ? 'border-rose-400 focus:ring-rose-200'
-                      : 'border-slate-200 focus:ring-[#C9A84C]'
-                  }`}
+                  groups={def.optgroups}
+                  options={
+                    def.optgroups
+                      ? def.trailingOption
+                        ? [{ value: def.trailingOption, label: def.trailingOption }]
+                        : undefined
+                      : def.options
+                  }
+                  placeholder={def.placeholder || 'Select option…'}
+                  searchable={fKey === 'country'}
+                  error={errors[fKey]}
                 />
               ) : (
-                <input
-                  type="text"
-                  maxLength={def.maxLength || 100}
-                  placeholder={def.placeholder || ''}
-                  value={formData[fKey] || ''}
-                  onChange={(e) => handleChange(fKey, e.target.value)}
-                  className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
-                    errors[fKey]
-                      ? 'border-rose-400 focus:ring-rose-200'
-                      : 'border-slate-200 focus:ring-[#C9A84C]'
-                  }`}
-                />
-              )}
+                <>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    {label} {isRequired && <span className="text-rose-500">*</span>}
+                  </label>
 
-              {errors[fKey] && (
-                <p className="text-xs text-rose-500 font-medium mt-1">{errors[fKey]}</p>
+                  {def.type === 'textarea' ? (
+                    <textarea
+                      rows={4}
+                      maxLength={def.maxLength || 2000}
+                      placeholder={def.placeholder || ''}
+                      value={formData[fKey] || ''}
+                      onChange={(e) => handleChange(fKey, e.target.value)}
+                      className={`w-full min-h-[100px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+                        errors[fKey]
+                          ? 'border-rose-400 focus:ring-rose-200'
+                          : 'border-slate-200 focus:ring-[#C9A84C]'
+                      }`}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      maxLength={def.maxLength || 100}
+                      placeholder={def.placeholder || ''}
+                      value={formData[fKey] || ''}
+                      onChange={(e) => handleChange(fKey, e.target.value)}
+                      className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+                        errors[fKey]
+                          ? 'border-rose-400 focus:ring-rose-200'
+                          : 'border-slate-200 focus:ring-[#C9A84C]'
+                      }`}
+                    />
+                  )}
+
+                  {errors[fKey] && (
+                    <p className="text-xs text-rose-500 font-medium mt-1">{errors[fKey]}</p>
+                  )}
+                </>
               )}
             </div>
           );
@@ -502,28 +491,17 @@ export default function InlineEnquiryForm({
 
                 {/* Preferred Time */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Preferred time <span className="text-rose-500">*</span>
-                  </label>
-                  <select
+                  <SelectField
+                    id="ief-preferredTime"
+                    name="preferredTime"
+                    label="Preferred time"
+                    required={true}
                     value={formData.preferredTime || ''}
                     onChange={(e) => handleChange('preferredTime', e.target.value)}
-                    className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 ${
-                      errors.preferredTime
-                        ? 'border-rose-400 focus:ring-rose-200'
-                        : 'border-slate-200 focus:ring-[#C9A84C]'
-                    }`}
-                  >
-                    <option value="">Select time…</option>
-                    {PREFERRED_TIME_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.preferredTime && (
-                    <p className="text-xs text-rose-500 font-medium mt-1">{errors.preferredTime}</p>
-                  )}
+                    options={PREFERRED_TIME_OPTIONS}
+                    placeholder="Select time…"
+                    error={errors.preferredTime}
+                  />
                 </div>
               </div>
             )}

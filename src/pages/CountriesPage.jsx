@@ -12,6 +12,7 @@ import { getVisibleUniversities } from '../lib/universities';
 import { budgetBands, courseCategories, studyLevels } from '../data/countryFilters';
 import { useAppointment } from '../context/AppointmentContext';
 import { useLenis } from '../components/SmoothScroll';
+import SelectField from '../components/shared/SelectField';
 
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
 
@@ -620,15 +621,18 @@ export default function CountriesPage() {
                   <span className="text-xs font-semibold text-slate-500 whitespace-nowrap hidden sm:inline">
                     Sort:
                   </span>
-                  <select
+                  <SelectField
+                    id="countries-sort"
+                    name="sort"
                     value={sort}
                     onChange={(e) => updateParam('sort', e.target.value)}
-                    aria-label="Sort destinations"
-                    className="w-full md:w-auto py-2.5 px-3.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/50 focus:border-[#C9A84C] cursor-pointer"
-                  >
-                    <option value="featured">Featured</option>
-                    <option value="az">A–Z</option>
-                  </select>
+                    options={[
+                      { value: 'featured', label: 'Featured' },
+                      { value: 'az', label: 'A–Z' },
+                    ]}
+                    placeholder="Featured"
+                    className="w-full md:w-36"
+                  />
                 </div>
 
                 {/* Mobile Filters Toggle Button (rendered only if data-driven filters exist) */}
@@ -654,18 +658,18 @@ export default function CountriesPage() {
                 <div className="hidden md:flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100">
                   {hasBudgetData && (
                     <div className="space-y-1">
-                      <select
+                      <SelectField
+                        id="countries-filter-budget"
+                        name="budget"
                         value={budget}
                         onChange={(e) => updateParam('budget', e.target.value)}
-                        className="py-1.5 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-[#C9A84C] cursor-pointer"
-                      >
-                        <option value="">All Budgets</option>
-                        {budgetBands.map((b) => (
-                          <option key={b.key} value={b.key}>
-                            {b.label}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: '', label: 'All Budgets' },
+                          ...budgetBands.map((b) => ({ value: b.key, label: b.label })),
+                        ]}
+                        placeholder="All Budgets"
+                        className="py-1.5 px-3 min-h-[36px] h-[36px] rounded-lg text-xs"
+                      />
                       <span className="text-[10px] text-slate-400 block">
                         approx. total cost/yr (tuition + living)
                       </span>
@@ -673,45 +677,49 @@ export default function CountriesPage() {
                   )}
 
                   {hasCourseData && (
-                    <select
+                    <SelectField
+                      id="countries-filter-course"
+                      name="course"
                       value={course}
                       onChange={(e) => updateParam('course', e.target.value)}
-                      className="py-1.5 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-[#C9A84C] cursor-pointer"
-                    >
-                      <option value="">All Courses</option>
-                      {courseCategories.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
+                      options={[
+                        { value: '', label: 'All Courses' },
+                        ...courseCategories.map((c) => ({ value: c, label: c })),
+                      ]}
+                      placeholder="All Courses"
+                      className="py-1.5 px-3 min-h-[36px] h-[36px] rounded-lg text-xs"
+                    />
                   )}
 
                   {hasLangData && (
-                    <select
+                    <SelectField
+                      id="countries-filter-lang"
+                      name="lang"
                       value={lang}
                       onChange={(e) => updateParam('lang', e.target.value)}
-                      className="py-1.5 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-[#C9A84C] cursor-pointer"
-                    >
-                      <option value="">All Languages</option>
-                      <option value="english">English-taught programmes</option>
-                      <option value="other">Other languages</option>
-                    </select>
+                      options={[
+                        { value: '', label: 'All Languages' },
+                        { value: 'english', label: 'English-taught programmes' },
+                        { value: 'other', label: 'Other languages' },
+                      ]}
+                      placeholder="All Languages"
+                      className="py-1.5 px-3 min-h-[36px] h-[36px] rounded-lg text-xs"
+                    />
                   )}
 
                   {hasLevelData && (
-                    <select
+                    <SelectField
+                      id="countries-filter-level"
+                      name="level"
                       value={level}
                       onChange={(e) => updateParam('level', e.target.value)}
-                      className="py-1.5 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:border-[#C9A84C] cursor-pointer"
-                    >
-                      <option value="">All Study Levels</option>
-                      {studyLevels.map((lvl) => (
-                        <option key={lvl} value={lvl}>
-                          {lvl}
-                        </option>
-                      ))}
-                    </select>
+                      options={[
+                        { value: '', label: 'All Study Levels' },
+                        ...studyLevels.map((lvl) => ({ value: lvl, label: lvl })),
+                      ]}
+                      placeholder="All Study Levels"
+                      className="py-1.5 px-3 min-h-[36px] h-[36px] rounded-lg text-xs"
+                    />
                   )}
                 </div>
               )}
@@ -852,81 +860,73 @@ export default function CountriesPage() {
             <div className="space-y-4">
               {hasBudgetData && (
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Study budget (approx. per year)
-                  </label>
-                  <span className="text-[11px] text-slate-500 block mb-2">
-                    approximate total cost per year (tuition + living)
-                  </span>
-                  <select
+                  <SelectField
+                    id="m-countries-filter-budget"
+                    name="budget"
+                    label="Study budget (approx. per year)"
                     value={budget}
                     onChange={(e) => updateParam('budget', e.target.value)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-800"
-                  >
-                    <option value="">All Budgets</option>
-                    {budgetBands.map((b) => (
-                      <option key={b.key} value={b.key}>
-                        {b.label}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'All Budgets' },
+                      ...budgetBands.map((b) => ({ value: b.key, label: b.label })),
+                    ]}
+                    placeholder="All Budgets"
+                  />
+                  <span className="text-[11px] text-slate-500 block mt-1">
+                    approximate total cost per year (tuition + living)
+                  </span>
                 </div>
               )}
 
               {hasCourseData && (
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Course category
-                  </label>
-                  <select
+                  <SelectField
+                    id="m-countries-filter-course"
+                    name="course"
+                    label="Course category"
                     value={course}
                     onChange={(e) => updateParam('course', e.target.value)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-800"
-                  >
-                    <option value="">All Courses</option>
-                    {courseCategories.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'All Courses' },
+                      ...courseCategories.map((c) => ({ value: c, label: c })),
+                    ]}
+                    placeholder="All Courses"
+                  />
                 </div>
               )}
 
               {hasLangData && (
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Language
-                  </label>
-                  <select
+                  <SelectField
+                    id="m-countries-filter-lang"
+                    name="lang"
+                    label="Language"
                     value={lang}
                     onChange={(e) => updateParam('lang', e.target.value)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-800"
-                  >
-                    <option value="">All Languages</option>
-                    <option value="english">English-taught programmes</option>
-                    <option value="other">Other languages</option>
-                  </select>
+                    options={[
+                      { value: '', label: 'All Languages' },
+                      { value: 'english', label: 'English-taught programmes' },
+                      { value: 'other', label: 'Other languages' },
+                    ]}
+                    placeholder="All Languages"
+                  />
                 </div>
               )}
 
               {hasLevelData && (
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Study level
-                  </label>
-                  <select
+                  <SelectField
+                    id="m-countries-filter-level"
+                    name="level"
+                    label="Study level"
                     value={level}
                     onChange={(e) => updateParam('level', e.target.value)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-800"
-                  >
-                    <option value="">All Study Levels</option>
-                    {studyLevels.map((lvl) => (
-                      <option key={lvl} value={lvl}>
-                        {lvl}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'All Study Levels' },
+                      ...studyLevels.map((lvl) => ({ value: lvl, label: lvl })),
+                    ]}
+                    placeholder="All Study Levels"
+                  />
                 </div>
               )}
             </div>

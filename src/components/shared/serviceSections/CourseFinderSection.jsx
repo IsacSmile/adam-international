@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight, Info } from 'lucide-react';
 import { getVisibleUniversities } from '../../../lib/universities';
 import { countries } from '../../../data/countries';
+import SelectField from '../SelectField';
 
 export default function CourseFinderSection({
   id = 'course-finder',
@@ -103,85 +104,69 @@ export default function CourseFinderSection({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             {/* 1. Country: Always shown */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Country
-              </label>
-              <select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
-              >
-                <option value="">All Destinations</option>
-                {availableCountries.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.flag} {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SelectField
+              id="cf-country"
+              name="country"
+              label="Country"
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              options={[
+                { value: '', label: 'All Destinations' },
+                ...availableCountries.map((c) => ({
+                  value: c.slug,
+                  label: `${c.flag} ${c.name}`,
+                })),
+              ]}
+              placeholder="All Destinations"
+              searchable={true}
+            />
 
             {/* 2. Study Level: Only shown if options exist */}
             {availableLevels.length > 0 && (
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Study Level
-                </label>
-                <select
-                  value={selectedLevel}
-                  onChange={(e) => setSelectedLevel(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
-                >
-                  <option value="">All Levels</option>
-                  {availableLevels.map((lvl) => (
-                    <option key={lvl} value={lvl}>
-                      {lvl}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <SelectField
+                id="cf-level"
+                name="level"
+                label="Study Level"
+                value={selectedLevel}
+                onChange={(e) => setSelectedLevel(e.target.value)}
+                options={[
+                  { value: '', label: 'All Levels' },
+                  ...availableLevels.map((lvl) => ({ value: lvl, label: lvl })),
+                ]}
+                placeholder="All Levels"
+              />
             )}
 
             {/* 3. Subject Area: Only shown if options exist, or free-text search */}
-            {availableSubjects.length > 0 ? (
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Subject Area
-                </label>
-                <select
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
-                >
-                  <option value="">All Subjects</option>
-                  {availableSubjects.map((subj) => (
-                    <option key={subj} value={subj}>
-                      {subj}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
+            {availableSubjects.length > 0 && (
+              <SelectField
+                id="cf-subject"
+                name="subject"
+                label="Subject Area"
+                value={selectedSubject}
+                onChange={(e) => setSelectedSubject(e.target.value)}
+                options={[
+                  { value: '', label: 'All Subjects' },
+                  ...availableSubjects.map((subj) => ({ value: subj, label: subj })),
+                ]}
+                placeholder="All Subjects"
+              />
+            )}
 
             {/* 4. Preferred Intake: Only shown if options exist */}
             {availableIntakes.length > 0 && (
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Preferred Intake
-                </label>
-                <select
-                  value={selectedIntake}
-                  onChange={(e) => setSelectedIntake(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
-                >
-                  <option value="">All Intakes</option>
-                  {availableIntakes.map((intk) => (
-                    <option key={intk} value={intk}>
-                      {intk}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <SelectField
+                id="cf-intake"
+                name="intake"
+                label="Preferred Intake"
+                value={selectedIntake}
+                onChange={(e) => setSelectedIntake(e.target.value)}
+                options={[
+                  { value: '', label: 'All Intakes' },
+                  ...availableIntakes.map((intk) => ({ value: intk, label: intk })),
+                ]}
+                placeholder="All Intakes"
+              />
             )}
 
           </div>
