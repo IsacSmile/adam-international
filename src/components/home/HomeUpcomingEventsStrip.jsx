@@ -51,13 +51,22 @@ export default function HomeUpcomingEventsStrip() {
         </div>
 
         {/* Up to 3 event cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {upcomingEvents.map((event) => {
             const countryObj = event.country
               ? countries.find((c) => c.slug.toLowerCase() === event.country.toLowerCase())
               : null;
             const flag = countryObj?.flag || '';
             const dateLabel = getEventDateLabel(event);
+
+            const posterSrc =
+              event.posterThumb ||
+              event.poster_thumb ||
+              event.imageThumb ||
+              event.image_thumb ||
+              event.poster ||
+              event.image ||
+              event.photo;
 
             return (
               <div
@@ -66,39 +75,37 @@ export default function HomeUpcomingEventsStrip() {
               >
                 <div>
                   {/* Poster Image Container */}
-                  {(event.posterThumb || event.poster) && (
-                    <div className="relative aspect-[1024/765] w-full overflow-hidden bg-[#0B1F3A]/5 border-b border-slate-100 flex items-center justify-center">
+                  {posterSrc && (
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0B1F3A] border-b border-slate-100 flex items-center justify-center">
                       <img
-                        src={event.posterThumb || event.poster}
+                        src={posterSrc}
                         alt={`${event.title} poster`}
-                        width={event.posterWidth || 1024}
-                        height={event.posterHeight || 765}
                         loading="lazy"
                         className="w-full h-full object-contain"
                       />
                     </div>
                   )}
 
-                  <div className="p-5 sm:p-6 pb-2">
+                  <div className="p-5 pb-2">
                     {/* Top line: Flag & Date label */}
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-1.5">
-                        {flag && <span className="text-xl leading-none">{flag}</span>}
+                        {flag && <span className="text-xl leading-none shrink-0">{flag}</span>}
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                           {countryObj?.name || 'Spot Admission'}
                         </span>
                       </div>
 
                     {dateLabel && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/80">
-                        <Calendar className="w-3 h-3 text-[#C9A84C]" />
-                        <span>{dateLabel}</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/80 truncate">
+                        <Calendar className="w-3 h-3 text-[#C9A84C] shrink-0" />
+                        <span className="truncate">{dateLabel}</span>
                       </span>
                     )}
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-bold text-base sm:text-lg text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors mb-2 line-clamp-2">
+                  <h3 className="font-bold text-lg text-[#0B1F3A] group-hover:text-[#C9A84C] transition-colors mb-2 line-clamp-2">
                     {event.title}
                   </h3>
 
@@ -109,11 +116,11 @@ export default function HomeUpcomingEventsStrip() {
                         <div className="flex items-start gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#C9A84C] mt-1 shrink-0" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-[#0B1F3A] leading-snug">
+                            <p className="text-sm font-bold text-[#0B1F3A] leading-snug">
                               {event.highlight}
                             </p>
                             {event.conditionNote && (
-                              <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-snug">
+                              <p className="text-xs text-slate-500 mt-0.5 leading-snug">
                                 *{event.conditionNote}
                               </p>
                             )}
@@ -126,7 +133,7 @@ export default function HomeUpcomingEventsStrip() {
                 </div>
 
                 {/* Footer Link */}
-                <div className="p-5 sm:p-6 pt-0 mt-auto">
+                <div className="p-5 pt-0 mt-auto">
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                     <Link
                       to={`/events/${event.slug}`}

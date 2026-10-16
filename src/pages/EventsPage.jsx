@@ -58,12 +58,13 @@ export default function EventsPage() {
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <EventCardSkeleton />
                   <EventCardSkeleton />
                   <EventCardSkeleton />
                 </div>
               ) : upcomingEvents.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {upcomingEvents.map((event) => (
                     <EventCard key={event.slug} event={event} />
                   ))}
@@ -109,7 +110,7 @@ export default function EventsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {pastEvents.map((event) => (
                     <EventCard key={event.slug} event={event} />
                   ))}
