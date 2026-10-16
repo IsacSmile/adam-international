@@ -36,6 +36,14 @@ function getTodayIST() {
   }).format(new Date());
 }
 
+let blobDeleteFn = del;
+export function __setBlobDeleteFn(fn) {
+  blobDeleteFn = fn;
+}
+export function __resetBlobDeleteFn() {
+  blobDeleteFn = del;
+}
+
 export function isBlobUrl(url) {
   if (!url || typeof url !== 'string') return false;
   try {
@@ -54,7 +62,7 @@ export async function safeDeleteBlobs(urls) {
   const blobUrls = (Array.isArray(urls) ? urls : [urls]).filter(isBlobUrl);
   if (blobUrls.length === 0) return;
   try {
-    await del(blobUrls);
+    await blobDeleteFn(blobUrls, { token: process.env.BLOB_READ_WRITE_TOKEN });
   } catch (err) {
     console.error('Failed to delete blob(s):', err.message);
   }
@@ -458,28 +466,6 @@ export default async function handler(req, res) {
           publishedAt = new Date();
         }
 
-        // Clean up replaced / removed Blob images ONLY if image fields were explicitly provided in request body
-        const imageKeys = ['image', 'image_thumb', 'imageThumb', 'poster', 'poster_thumb', 'posterThumb', 'photo'];
-        const imageProvided = imageKeys.some((k) => body[k] !== undefined);
-        if (imageProvided) {
-          const oldImages = [
-            existing.image,
-            existing.image_thumb,
-            existing.poster,
-            existing.poster_thumb,
-            existing.photo,
-          ];
-          const newImages = new Set([
-            data.image,
-            data.image_thumb,
-            data.poster,
-            data.poster_thumb,
-            data.photo,
-          ]);
-          const blobsToDelete = oldImages.filter((u) => isBlobUrl(u) && !newImages.has(u));
-          await safeDeleteBlobs(blobsToDelete);
-        }
-
         const rows = await sql`
           UPDATE events SET
             slug = ${data.slug},
@@ -514,6 +500,28 @@ export default async function handler(req, res) {
           WHERE id = ${targetId}
           RETURNING *
         `;
+
+        // Clean up replaced / removed Blob images AFTER the DB update succeeds
+        const imageKeys = ['image', 'image_thumb', 'imageThumb', 'poster', 'poster_thumb', 'posterThumb', 'photo'];
+        const imageProvided = imageKeys.some((k) => body[k] !== undefined);
+        if (imageProvided) {
+          const oldImages = [
+            existing.image,
+            existing.image_thumb,
+            existing.poster,
+            existing.poster_thumb,
+            existing.photo,
+          ];
+          const newImages = new Set([
+            data.image,
+            data.image_thumb,
+            data.poster,
+            data.poster_thumb,
+            data.photo,
+          ]);
+          const blobsToDelete = oldImages.filter((u) => isBlobUrl(u) && !newImages.has(u));
+          await safeDeleteBlobs(blobsToDelete);
+        }
 
         return res.status(200).json(formatEvent(rows[0]));
       }
@@ -573,16 +581,6 @@ export default async function handler(req, res) {
           publishDate = data.publish_date;
         }
 
-        // Clean up replaced / removed Blob images ONLY if image fields were explicitly provided in request body
-        const postImageKeys = ['image', 'image_thumb', 'imageThumb'];
-        const postImageProvided = postImageKeys.some((k) => body[k] !== undefined);
-        if (postImageProvided) {
-          const oldImages = [existing.image, existing.image_thumb];
-          const newImages = new Set([data.image, data.image_thumb]);
-          const blobsToDelete = oldImages.filter((u) => isBlobUrl(u) && !newImages.has(u));
-          await safeDeleteBlobs(blobsToDelete);
-        }
-
         const rows = await sql`
           UPDATE blog_posts SET
             slug = ${data.slug},
@@ -603,6 +601,16 @@ export default async function handler(req, res) {
           WHERE id = ${targetId}
           RETURNING *
         `;
+
+        // Clean up replaced / removed Blob images AFTER the DB update succeeds
+        const postImageKeys = ['image', 'image_thumb', 'imageThumb'];
+        const postImageProvided = postImageKeys.some((k) => body[k] !== undefined);
+        if (postImageProvided) {
+          const oldImages = [existing.image, existing.image_thumb];
+          const newImages = new Set([data.image, data.image_thumb]);
+          const blobsToDelete = oldImages.filter((u) => isBlobUrl(u) && !newImages.has(u));
+          await safeDeleteBlobs(blobsToDelete);
+        }
 
         return res.status(200).json(formatPost(rows[0]));
       }
@@ -631,7 +639,7 @@ export default async function handler(req, res) {
         `;
         const registrationCount = countRows[0]?.count || 0;
 
-        // Clean up all Blob images
+        // Collect all Blob images referenced by the row
         const blobsToDelete = [
           existing.image,
           existing.image_thumb,
@@ -639,9 +647,12 @@ export default async function handler(req, res) {
           existing.poster_thumb,
           existing.photo,
         ].filter(isBlobUrl);
-        await safeDeleteBlobs(blobsToDelete);
 
+        // Delete from database first
         await sql`DELETE FROM events WHERE id = ${targetId}`;
+
+        // Clean up all Blob images after DB delete succeeds (failure must not block DB delete)
+        await safeDeleteBlobs(blobsToDelete);
 
         return res.status(200).json({ ok: true, count: registrationCount });
       }
@@ -653,11 +664,14 @@ export default async function handler(req, res) {
         }
         const existing = existingRows[0];
 
-        // Clean up all Blob images
+        // Collect all Blob images referenced by the row
         const blobsToDelete = [existing.image, existing.image_thumb].filter(isBlobUrl);
-        await safeDeleteBlobs(blobsToDelete);
 
+        // Delete from database first
         await sql`DELETE FROM blog_posts WHERE id = ${targetId}`;
+
+        // Clean up all Blob images after DB delete succeeds (failure must not block DB delete)
+        await safeDeleteBlobs(blobsToDelete);
 
         return res.status(200).json({ ok: true });
       }

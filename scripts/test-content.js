@@ -1,7 +1,7 @@
 import { SignJWT } from 'jose';
 import { neonConfig } from '@neondatabase/serverless';
 import { sql } from '../api/_lib/db.js';
-import adminContentHandler from '../api/admin/content.js';
+import adminContentHandler, { __setBlobDeleteFn, __resetBlobDeleteFn } from '../api/admin/content.js';
 import adminUploadHandler from '../api/admin/upload.js';
 import publicContentHandler from '../api/content.js';
 import leadHandler from '../api/lead.js';
@@ -1175,6 +1175,205 @@ async function run() {
       resMalformedPost.statusCode === 400 && resMalformedPost.body?.error === 'invalid_json',
       'POST with malformed JSON string returns 400 invalid_json'
     );
+
+    // -------------------------------------------------------------------------
+    // 8c. Vercel Blob Image Deletion & Replacement Tests (DELETE & PATCH)
+    // -------------------------------------------------------------------------
+    console.log('\n8c. Blob Cleanup: Deletion & Replacement on DELETE and PATCH');
+
+    const deletedBlobCalls = [];
+    __setBlobDeleteFn(async (urls, options) => {
+      deletedBlobCalls.push({ urls, options });
+    });
+
+    try {
+      // 1. Post delete removes both blobs (image + image_thumb)
+      const postBlobSlug = `${testPostPrefix}-blob-del`;
+      const blobImg1 = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/blog/test-del-1.jpg';
+      const blobThumb1 = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/blog/test-del-1-thumb.jpg';
+
+      const resCreateBlobPost = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'POST',
+          query: { type: 'post' },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+          body: {
+            title: 'Post With Blobs',
+            slug: postBlobSlug,
+            category: 'study-in-europe',
+            summary: 'Summary test',
+            body_md: '## Test',
+            status: 'draft',
+            image: blobImg1,
+            image_thumb: blobThumb1,
+            image_alt: 'Test Alt',
+          },
+        },
+        resCreateBlobPost
+      );
+      assert(resCreateBlobPost.statusCode === 201, 'Created test post with 2 Vercel Blob URLs');
+      const blobPostId = resCreateBlobPost.body?.id;
+
+      deletedBlobCalls.length = 0;
+      const resDelBlobPost = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'DELETE',
+          query: { type: 'post', id: blobPostId },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+        },
+        resDelBlobPost
+      );
+      assert(resDelBlobPost.statusCode === 200, 'DELETE post returns 200');
+      const allPostDeletedUrls = deletedBlobCalls.flatMap((c) => c.urls);
+      assert(
+        allPostDeletedUrls.includes(blobImg1) && allPostDeletedUrls.includes(blobThumb1),
+        'Post delete removes both blobs (image and image_thumb)'
+      );
+
+      // 2. Event delete removes both blobs (poster + poster_thumb)
+      const eventBlobSlug = `${testEventPrefix}-blob-del`;
+      const blobPoster = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/events/test-event-poster.jpg';
+      const blobPosterThumb = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/events/test-event-poster-thumb.jpg';
+
+      const resCreateBlobEvent = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'POST',
+          query: { type: 'event' },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+          body: {
+            title: 'Event With Blobs',
+            slug: eventBlobSlug,
+            type: 'spot-admission',
+            summary: 'Summary test',
+            country: 'germany',
+            status: 'draft',
+            poster: blobPoster,
+            poster_thumb: blobPosterThumb,
+          },
+        },
+        resCreateBlobEvent
+      );
+      assert(resCreateBlobEvent.statusCode === 201, 'Created test event with 2 Vercel Blob URLs');
+      const blobEventId = resCreateBlobEvent.body?.id;
+
+      deletedBlobCalls.length = 0;
+      const resDelBlobEvent = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'DELETE',
+          query: { type: 'event', id: blobEventId },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+        },
+        resDelBlobEvent
+      );
+      assert(resDelBlobEvent.statusCode === 200, 'DELETE event returns 200');
+      const allEventDeletedUrls = deletedBlobCalls.flatMap((c) => c.urls);
+      assert(
+        allEventDeletedUrls.includes(blobPoster) && allEventDeletedUrls.includes(blobPosterThumb),
+        'Event delete removes both blobs (poster and poster_thumb)'
+      );
+
+      // 3. Image replace on PATCH removes the old pair
+      const replacePostSlug = `${testPostPrefix}-replace-test`;
+      const oldImg = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/blog/old-img.jpg';
+      const oldThumb = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/blog/old-thumb.jpg';
+      const newImg = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/blog/new-img.jpg';
+      const newThumb = 'https://wabhc2jil2jvjjsl.public.blob.vercel-storage.com/blog/new-thumb.jpg';
+
+      const resCreateReplacePost = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'POST',
+          query: { type: 'post' },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+          body: {
+            title: 'Post Before Image Replace',
+            slug: replacePostSlug,
+            category: 'study-in-europe',
+            summary: 'Summary test',
+            body_md: '## Test',
+            status: 'draft',
+            image: oldImg,
+            image_thumb: oldThumb,
+            image_alt: 'Test Alt',
+          },
+        },
+        resCreateReplacePost
+      );
+      assert(resCreateReplacePost.statusCode === 201, 'Created post before replace test');
+      const replacePostId = resCreateReplacePost.body?.id;
+
+      deletedBlobCalls.length = 0;
+      const resPatchReplace = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'PATCH',
+          query: { type: 'post', id: replacePostId },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+          body: {
+            image: newImg,
+            image_thumb: newThumb,
+          },
+        },
+        resPatchReplace
+      );
+      assert(resPatchReplace.statusCode === 200, 'PATCH post with replaced images returns 200');
+      const allReplacedDeletedUrls = deletedBlobCalls.flatMap((c) => c.urls);
+      assert(
+        allReplacedDeletedUrls.includes(oldImg) && allReplacedDeletedUrls.includes(oldThumb),
+        'Image replace removes the old pair'
+      );
+      assert(
+        !allReplacedDeletedUrls.includes(newImg) && !allReplacedDeletedUrls.includes(newThumb),
+        'Image replace preserves the new pair'
+      );
+
+      // 4. Local /images paths never passed to del()
+      const localPostSlug = `${testPostPrefix}-local-images`;
+      const resCreateLocalPost = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'POST',
+          query: { type: 'post' },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+          body: {
+            title: 'Post With Local Images',
+            slug: localPostSlug,
+            category: 'study-in-europe',
+            summary: 'Summary test',
+            body_md: '## Test',
+            status: 'draft',
+            image: '/images/blog/_placeholder/study-in-germany.jpg',
+            image_thumb: '/images/blog/_placeholder/study-in-germany-thumb.jpg',
+            image_alt: 'Test Alt',
+          },
+        },
+        resCreateLocalPost
+      );
+      assert(resCreateLocalPost.statusCode === 201, 'Created post with local /images paths');
+      const localPostId = resCreateLocalPost.body?.id;
+
+      deletedBlobCalls.length = 0;
+      const resDelLocalPost = createMockRes();
+      await adminContentHandler(
+        {
+          method: 'DELETE',
+          query: { type: 'post', id: localPostId },
+          headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+        },
+        resDelLocalPost
+      );
+      assert(resDelLocalPost.statusCode === 200, 'DELETE post with local images returns 200');
+      assert(
+        deletedBlobCalls.length === 0,
+        'Local /images paths never passed to del()'
+      );
+    } finally {
+      __resetBlobDeleteFn();
+    }
   } finally {
     // -------------------------------------------------------------------------
     // 9. Clean up all test data

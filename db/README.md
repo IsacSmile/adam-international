@@ -49,3 +49,10 @@ Follow these manual steps to initialize your database and configure credentials:
 - **Delay:** changes appear on the public site within about a minute, because of the 60-second cache.
 - **Free limits:** the Hobby plan includes 1 GB of Blob storage. Images are resized to 1600px before upload to stay well within it.
 
+---
+
+## Vercel Blob
+
+Do NOT revoke BLOB_READ_WRITE_TOKEN in Vercel. Uploads, deletes and the cleanup script depend on it.
+
+

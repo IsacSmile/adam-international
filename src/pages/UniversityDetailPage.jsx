@@ -30,7 +30,7 @@ export default function UniversityDetailPage() {
       ? visaApprovals
       : visaApprovals.filter((v) => !v.isPlaceholder);
     return list.filter((v) => v.universitySlug === university.slug);
-  }, [university?.slug]);
+  }, [university]);
 
   const matchingStories = useMemo(() => {
     if (!university) return [];
@@ -38,7 +38,7 @@ export default function UniversityDetailPage() {
       ? successStories
       : successStories.filter((s) => !s.isPlaceholder);
     return list.filter((s) => s.universitySlug === university.slug);
-  }, [university?.slug]);
+  }, [university]);
 
   // Level filter state for programs table
   const [selectedLevel, setSelectedLevel] = useState('All');

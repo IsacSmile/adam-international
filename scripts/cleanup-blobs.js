@@ -1,6 +1,12 @@
 import { list, del } from '@vercel/blob';
 import { sql } from '../api/_lib/db.js';
 
+if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  try {
+    process.loadEnvFile?.('.env.local');
+  } catch {}
+}
+
 async function main() {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (!token) {
@@ -61,7 +67,7 @@ async function main() {
   let hasMore = true;
 
   while (hasMore) {
-    const res = await list({ cursor, token });
+    const res = await list({ cursor, token: process.env.BLOB_READ_WRITE_TOKEN });
     if (res.blobs && Array.isArray(res.blobs)) {
       allBlobs.push(...res.blobs);
     }
@@ -135,7 +141,7 @@ async function main() {
   } else {
     console.log('\nDeleting unreferenced blobs older than 24h...');
     const urlsToDelete = eligibleBlobs.map((b) => b.url);
-    await del(urlsToDelete, { token });
+    await del(urlsToDelete, { token: process.env.BLOB_READ_WRITE_TOKEN });
     console.log(`✓ Successfully deleted ${urlsToDelete.length} unreferenced blob(s).`);
   }
 }
