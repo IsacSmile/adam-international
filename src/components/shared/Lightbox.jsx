@@ -65,6 +65,18 @@ export default function Lightbox({
         )
       : null;
 
+  const hasDetails =
+    isObject &&
+    Boolean(
+      currentItem.type ||
+      currentItem.studentName ||
+      currentItem.caption ||
+      currentItem.message ||
+      currentItem.university ||
+      currentItem.location ||
+      currentItem.date
+    );
+
   const handlePrev = (e) => {
     e.stopPropagation();
     onIndexChange?.((currentIndex - 1 + images.length) % images.length);
@@ -89,7 +101,7 @@ export default function Lightbox({
       <button
         type="button"
         onClick={onClose}
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer z-20"
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer z-30"
         aria-label="Close lightbox"
       >
         <X className="w-6 h-6" />
@@ -100,7 +112,7 @@ export default function Lightbox({
         <button
           type="button"
           onClick={handlePrev}
-          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer z-20"
+          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer z-30"
           aria-label="Previous item"
         >
           <ChevronLeft className="w-6 h-6" />
@@ -112,7 +124,7 @@ export default function Lightbox({
         <button
           type="button"
           onClick={handleNext}
-          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer z-20"
+          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer z-30"
           aria-label="Next item"
         >
           <ChevronRight className="w-6 h-6" />
@@ -122,23 +134,27 @@ export default function Lightbox({
       {/* Content Container */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center overflow-y-auto"
+        className="relative max-w-4xl w-full max-h-[92vh] flex flex-col items-center my-auto overflow-y-auto px-2 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent"
       >
         {isVideo ? (
-          <div className="w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-white/15">
+          <div className="w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-white/15 shrink-0">
             <YouTubeFacade videoId={currentItem.video.id} title={altText} />
           </div>
         ) : (
-          <img
-            src={imageSrc}
-            alt={altText}
-            className="max-h-[72vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/15"
-          />
+          <div className="flex items-center justify-center min-h-0 shrink">
+            <img
+              src={imageSrc}
+              alt={altText}
+              className={`${
+                hasDetails ? 'max-h-[48vh] sm:max-h-[54vh]' : 'max-h-[78vh] sm:max-h-[82vh]'
+              } max-w-full object-contain rounded-2xl shadow-2xl border border-white/15`}
+            />
+          </div>
         )}
 
         {/* Details & Caption for rich items */}
-        {isObject && (
-          <div className="mt-3.5 w-full max-w-2xl bg-[#0B1F3A]/90 border border-white/10 rounded-2xl p-4 text-white text-center sm:text-left space-y-2">
+        {hasDetails && (
+          <div className="shrink-0 mt-3 w-full max-w-2xl bg-[#0B1F3A]/95 border border-white/10 rounded-2xl p-3.5 sm:p-4 text-white text-center sm:text-left space-y-2 shadow-2xl mb-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2 flex-wrap">
                 {currentItem.type && (
@@ -179,22 +195,22 @@ export default function Lightbox({
             )}
 
             {(currentItem.university || currentItem.location || currentItem.date) && (
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 pt-1 border-t border-white/5">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 pt-1.5 border-t border-white/10">
                 {currentItem.university && (
-                  <span className="inline-flex items-center gap-1">
-                    <Building2 className="w-3.5 h-3.5 text-[#C9A84C]" />
+                  <span className="inline-flex items-center gap-1 font-medium">
+                    <Building2 className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
                     <span>{currentItem.university}</span>
                   </span>
                 )}
                 {currentItem.location && (
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#C9A84C]" />
+                  <span className="inline-flex items-center gap-1 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
                     <span>{currentItem.location}</span>
                   </span>
                 )}
                 {currentItem.date && (
-                  <span className="inline-flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-[#C9A84C]" />
+                  <span className="inline-flex items-center gap-1 font-medium text-slate-300">
+                    <Calendar className="w-3.5 h-3.5 text-[#C9A84C] shrink-0" />
                     <span>{currentItem.date}</span>
                   </span>
                 )}
