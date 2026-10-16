@@ -26,6 +26,7 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import ImageUploader from '../../components/admin/ImageUploader';
 import SelectField from '../../components/shared/SelectField';
 import { blogCategories } from '../../data/blogCategories';
+import { countries } from '../../data/countries';
 import { renderMarkdown, formatBlogDate } from '../../lib/blog';
 
 function slugify(text) {
@@ -83,6 +84,7 @@ export default function AdminBlogEditorPage({ admin }) {
   const [slug, setSlug] = useState('');
   const [hasManualSlug, setHasManualSlug] = useState(false);
   const [category, setCategory] = useState('');
+  const [selectedCountries, setSelectedCountries] = useState([]);
   const [summary, setSummary] = useState('');
   const [author, setAuthor] = useState('Adam International Team');
   const [publishDate, setPublishDate] = useState('');
@@ -150,6 +152,20 @@ export default function AdminBlogEditorPage({ admin }) {
     markDirty();
   };
 
+  const handleCountryToggle = (countrySlug) => {
+    setSelectedCountries((prev) => {
+      if (prev.includes(countrySlug)) {
+        markDirty();
+        return prev.filter((s) => s !== countrySlug);
+      }
+      if (prev.length >= 5) {
+        return prev;
+      }
+      markDirty();
+      return [...prev, countrySlug];
+    });
+  };
+
   // Load existing post if editing
   useEffect(() => {
     if (!isEditing) return;
@@ -176,6 +192,7 @@ export default function AdminBlogEditorPage({ admin }) {
         setSlug(data.slug || '');
         setHasManualSlug(true);
         setCategory(data.categorySlug || data.category || '');
+        setSelectedCountries(Array.isArray(data.countries) ? data.countries : []);
         setSummary(data.summary || '');
         setAuthor(data.author || 'Adam International Team');
         setPublishDate(data.publishDate || data.date || '');
@@ -293,6 +310,7 @@ export default function AdminBlogEditorPage({ admin }) {
       title: title.trim(),
       slug: slug.trim(),
       category: category.trim(),
+      countries: selectedCountries,
       summary: summary.trim(),
       body_md: bodyMd,
       image: image || null,
@@ -712,6 +730,55 @@ export default function AdminBlogEditorPage({ admin }) {
               <p className="text-[11px] text-slate-400 mt-1">
                 Shown as 2 lines on blog cards.
               </p>
+            )}
+          </div>
+
+          {/* Related Countries (Multi-select chips, max 5) */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Related countries
+              </label>
+              <span
+                className={`text-[11px] font-mono font-bold ${
+                  selectedCountries.length >= 5 ? 'text-[#C9A84C]' : 'text-slate-400'
+                }`}
+              >
+                {selectedCountries.length} / 5 selected
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 mb-3">
+              Used to suggest this post on university and country pages.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {countries.map((c) => {
+                const isSelected = selectedCountries.includes(c.slug);
+                const isLimitReached = !isSelected && selectedCountries.length >= 5;
+                return (
+                  <button
+                    key={c.slug}
+                    type="button"
+                    onClick={() => handleCountryToggle(c.slug)}
+                    disabled={isLimitReached}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#0B1F3A] text-white shadow-xs border border-[#0B1F3A]'
+                        : isLimitReached
+                        ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <span role="img" aria-label={c.name} className="text-sm leading-none">
+                      {c.flag}
+                    </span>
+                    <span>{c.name}</span>
+                    {isSelected && <Check className="w-3 h-3 text-[#C9A84C]" />}
+                  </button>
+                );
+              })}
+            </div>
+            {fieldErrors.countries && (
+              <p className="text-xs text-rose-600 font-medium mt-2">{fieldErrors.countries}</p>
             )}
           </div>
         </div>

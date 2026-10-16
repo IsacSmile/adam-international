@@ -148,6 +148,7 @@ function formatPost(row) {
     title: row.title,
     category: categoryName,
     categorySlug: categorySlug,
+    countries: Array.isArray(row.countries) ? row.countries : [],
     summary: row.summary,
     body_md: row.body_md,
     bodyMd: row.body_md,
@@ -364,11 +365,11 @@ export default async function handler(req, res) {
 
         const rows = await sql`
           INSERT INTO blog_posts (
-            slug, status, title, category, summary, body_md,
+            slug, status, title, category, countries, summary, body_md,
             image, image_thumb, image_alt, author,
             featured, is_sample, publish_date, updated_by
           ) VALUES (
-            ${data.slug}, ${data.status}, ${data.title}, ${data.category}, ${data.summary}, ${data.body_md},
+            ${data.slug}, ${data.status}, ${data.title}, ${data.category}, ${data.countries}::text[], ${data.summary}, ${data.body_md},
             ${data.image}, ${data.image_thumb}, ${data.image_alt}, ${data.author},
             ${data.featured}, ${data.is_sample}, ${data.publish_date}, ${admin.email}
           )
@@ -532,6 +533,7 @@ export default async function handler(req, res) {
           title: body.title !== undefined ? body.title : existing.title,
           slug: body.slug !== undefined ? body.slug : existing.slug,
           category: body.category !== undefined ? body.category : existing.category,
+          countries: body.countries !== undefined ? body.countries : existing.countries,
           summary: body.summary !== undefined ? body.summary : existing.summary,
           body_md: body.body_md !== undefined ? body.body_md : (body.bodyMd !== undefined ? body.bodyMd : existing.body_md),
           image: body.image !== undefined ? body.image : existing.image,
@@ -587,6 +589,7 @@ export default async function handler(req, res) {
             status = ${data.status},
             title = ${data.title},
             category = ${data.category},
+            countries = ${data.countries}::text[],
             summary = ${data.summary},
             body_md = ${data.body_md},
             image = ${data.image},

@@ -784,6 +784,130 @@ async function run() {
     assert(sanitizedHtml.includes('rel="noopener noreferrer"'), 'Markdown renderer added rel="noopener noreferrer" to external link');
 
     // -------------------------------------------------------------------------
+    // 7b. Blog: Country Tags Validation, Deduplication & Partial PATCH
+    // -------------------------------------------------------------------------
+    console.log('\n7b. Blog: Country Tags Validation, Deduplication & Partial PATCH');
+
+    // 1. Unknown slug rejected (400 validation error)
+    const postInvalidCountrySlug = `${testPostPrefix}-inv-country`;
+    const resInvCountry = createMockRes();
+    await adminContentHandler(
+      {
+        method: 'POST',
+        query: { type: 'post' },
+        headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+        body: {
+          title: 'Post Invalid Country',
+          slug: postInvalidCountrySlug,
+          category: 'study-in-europe',
+          summary: 'Summary test',
+          body_md: '## Test',
+          status: 'draft',
+          countries: ['germany', 'atlantis-invalid'],
+        },
+      },
+      resInvCountry
+    );
+    assert(
+      resInvCountry.statusCode === 400 && resInvCountry.body?.fields?.countries,
+      'Post with unknown country slug rejected with 400 validation error'
+    );
+
+    // 2. More than 5 countries rejected (400 validation error)
+    const postExcessCountrySlug = `${testPostPrefix}-excess-country`;
+    const resExcessCountry = createMockRes();
+    await adminContentHandler(
+      {
+        method: 'POST',
+        query: { type: 'post' },
+        headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+        body: {
+          title: 'Post Excess Countries',
+          slug: postExcessCountrySlug,
+          category: 'study-in-europe',
+          summary: 'Summary test',
+          body_md: '## Test',
+          status: 'draft',
+          countries: ['germany', 'france', 'spain', 'italy', 'austria', 'malta'],
+        },
+      },
+      resExcessCountry
+    );
+    assert(
+      resExcessCountry.statusCode === 400 && resExcessCountry.body?.fields?.countries,
+      'Post with >5 countries rejected with 400 validation error'
+    );
+
+    // 3. Valid tags saved and deduplicated
+    const postCountrySlug = `${testPostPrefix}-valid-country`;
+    const resValidCountry = createMockRes();
+    await adminContentHandler(
+      {
+        method: 'POST',
+        query: { type: 'post' },
+        headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+        body: {
+          title: 'Post Valid Countries',
+          slug: postCountrySlug,
+          category: 'study-in-europe',
+          summary: 'Summary test',
+          body_md: '## Test',
+          status: 'draft',
+          countries: ['germany', 'spain', 'germany'],
+        },
+      },
+      resValidCountry
+    );
+    assert(
+      resValidCountry.statusCode === 201 &&
+        Array.isArray(resValidCountry.body?.countries) &&
+        resValidCountry.body.countries.length === 2 &&
+        resValidCountry.body.countries[0] === 'germany' &&
+        resValidCountry.body.countries[1] === 'spain',
+      'Valid country tags saved and deduplicated'
+    );
+    const countryPostId = resValidCountry.body?.id;
+
+    // 4. PATCH without countries leaves them unchanged
+    const resPatchNoCountries = createMockRes();
+    await adminContentHandler(
+      {
+        method: 'PATCH',
+        query: { type: 'post', id: countryPostId },
+        headers: { cookie: adminCookie, host: defaultHost, origin: defaultOrigin },
+        body: {
+          title: 'Post Valid Countries Updated Title',
+        },
+      },
+      resPatchNoCountries
+    );
+    assert(
+      resPatchNoCountries.statusCode === 200 &&
+        Array.isArray(resPatchNoCountries.body?.countries) &&
+        resPatchNoCountries.body.countries.length === 2 &&
+        resPatchNoCountries.body.countries.includes('germany') &&
+        resPatchNoCountries.body.countries.includes('spain'),
+      'PATCH without countries leaves them unchanged'
+    );
+
+    // Verify GET returns countries
+    const resGetCountryPost = createMockRes();
+    await adminContentHandler(
+      {
+        method: 'GET',
+        query: { type: 'post', id: countryPostId },
+        headers: { cookie: adminCookie },
+      },
+      resGetCountryPost
+    );
+    assert(
+      resGetCountryPost.statusCode === 200 &&
+        Array.isArray(resGetCountryPost.body?.countries) &&
+        resGetCountryPost.body.countries.length === 2,
+      'GET /api/admin/content?type=post returns countries'
+    );
+
+    // -------------------------------------------------------------------------
     // 8. Event Deletion, Registration Count & Leads Resolution
     // -------------------------------------------------------------------------
     console.log('\n8. Event Deletion & Lead Reference Resolution');

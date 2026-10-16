@@ -6,6 +6,7 @@ import PageHero from '../components/shared/PageHero';
 import VisaApprovalCard from '../components/shared/VisaApprovalCard';
 import StoryCard from '../components/shared/StoryCard';
 import SectionSkeleton from '../components/SectionSkeleton';
+import RelatedPosts from '../components/blog/RelatedPosts';
 import NotFoundPage from './NotFoundPage';
 import { getVisibleUniversityBySlug } from '../lib/universities';
 import { countries } from '../data/countries';
@@ -430,6 +431,15 @@ export default function UniversityDetailPage() {
 
         </div>
       </div>
+
+      {/* Related Reading */}
+      {university && (
+        <RelatedPosts
+          countrySlug={university.country}
+          title="Related reading"
+          className="bg-white border-t border-slate-200/80"
+        />
+      )}
 
       {/* Final Conversion CTA Banner */}
       <Suspense fallback={<SectionSkeleton type="cards" />}>

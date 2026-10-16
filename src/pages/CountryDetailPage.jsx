@@ -17,6 +17,7 @@ import Breadcrumb from '../components/shared/Breadcrumb';
 import UniversityCard from '../components/shared/UniversityCard';
 import StoryStripSection from '../components/shared/serviceSections/StoryStripSection';
 import LinkCardsSection from '../components/shared/serviceSections/LinkCardsSection';
+import RelatedPosts from '../components/blog/RelatedPosts';
 import NotFoundPage from './NotFoundPage';
 import { countries } from '../data/countries';
 import { getVisibleUniversities } from '../lib/universities';
@@ -503,6 +504,15 @@ export default function CountryDetailPage() {
           stories={countryStories}
           heading="Student Stories"
           button={{ label: 'View all stories →', to: `/success-stories?country=${country.slug}` }}
+        />
+      )}
+
+      {/* 6.5. Related blog posts: Read before you apply */}
+      {country && (
+        <RelatedPosts
+          countrySlug={country.slug}
+          title="Read before you apply"
+          className="bg-[#F8FAFC] border-t border-slate-200/80"
         />
       )}
 

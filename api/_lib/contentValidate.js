@@ -361,8 +361,47 @@ export function validatePost(input = {}) {
   // featured
   data.featured = Boolean(input.featured);
 
+  // countries: optional; array of known country slugs from countries.js only; max 5; dedupe
+  if (input.countries !== undefined) {
+    if (input.countries === null) {
+      data.countries = [];
+    } else if (!Array.isArray(input.countries)) {
+      fields.countries = 'Countries must be an array of country slugs.';
+    } else {
+      const deduped = [];
+      const seen = new Set();
+      const invalidSlugs = [];
+
+      for (const item of input.countries) {
+        if (typeof item !== 'string') {
+          invalidSlugs.push(String(item));
+          continue;
+        }
+        const s = item.trim().toLowerCase();
+        if (!s) continue;
+        if (!countrySlugs.has(s)) {
+          invalidSlugs.push(item);
+        } else if (!seen.has(s)) {
+          seen.add(s);
+          deduped.push(s);
+        }
+      }
+
+      if (invalidSlugs.length > 0) {
+        fields.countries = `Invalid country slug(s): ${invalidSlugs.join(', ')}. Must be known country slugs.`;
+      } else if (deduped.length > 5) {
+        fields.countries = 'At most 5 countries can be selected.';
+      } else {
+        data.countries = deduped;
+      }
+    }
+  } else {
+    data.countries = [];
+  }
+
   // is_sample
   data.is_sample = Boolean(input.is_sample ?? input.isPlaceholder);
+
 
   // publish_date: defaults to today (IST) when first published
   let cleanPublishDate = null;

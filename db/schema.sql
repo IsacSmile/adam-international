@@ -116,6 +116,7 @@ create table if not exists blog_posts (
   featured boolean not null default false,
   is_sample boolean not null default false,
   publish_date date,
+  countries text[] not null default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   updated_by text
@@ -134,4 +135,6 @@ create trigger blog_posts_updated_at before update on blog_posts
 alter table events add column if not exists poster_thumb text;
 alter table events add column if not exists image_thumb text;
 alter table blog_posts add column if not exists image_thumb text;
+alter table blog_posts add column if not exists countries text[] not null default '{}';
+
 

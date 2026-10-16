@@ -103,6 +103,7 @@ function formatPost(row) {
     title: row.title,
     category: categoryName,
     categorySlug: categorySlug,
+    countries: Array.isArray(row.countries) ? row.countries : [],
     summary: row.summary,
     body_md: row.body_md,
     bodyMd: row.body_md,
