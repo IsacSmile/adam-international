@@ -435,6 +435,92 @@ async function run() {
     'Contact enquiry with date > 60 days ahead rejected with 400 validation error'
   );
 
+  // ---------------------------------------------------------------------------
+  // 7g. Form Type: Event Registration (Valid)
+  // ---------------------------------------------------------------------------
+  console.log('\n7g. Test Form Type: Event Registration:');
+  const resEvent = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'event',
+        name: 'Test Lead Event Hungary',
+        email: 'event-hungary@example.com',
+        phone: '+919895111030',
+        consent: true,
+        country: 'Hungary',
+        message: 'Looking forward to the Hungary spot admission event.',
+        details: {
+          eventSlug: 'hungary-spot-admission-october-2026',
+          qualification: "Bachelor's degree",
+          country: 'Hungary',
+        },
+      },
+    },
+    resEvent
+  );
+  assert(resEvent.statusCode === 200 && resEvent.body?.ok === true, 'Valid event registration accepted with 200');
+
+  // ---------------------------------------------------------------------------
+  // 7h. Form Type: Event Registration (Unknown eventSlug Rejected)
+  // ---------------------------------------------------------------------------
+  console.log('\n7h. Test Event Registration Unknown eventSlug Rejected:');
+  const resEventUnknown = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'event',
+        name: 'Test Lead Event Unknown',
+        email: 'event-unknown@example.com',
+        phone: '+919895111031',
+        consent: true,
+        details: {
+          eventSlug: 'non-existent-event-slug',
+          qualification: "Bachelor's degree",
+        },
+      },
+    },
+    resEventUnknown
+  );
+  assert(
+    resEventUnknown.statusCode === 400 &&
+      resEventUnknown.body?.fields?.eventSlug === 'Unknown event selected.',
+    'Event registration with unknown eventSlug rejected with 400 validation error'
+  );
+
+  // ---------------------------------------------------------------------------
+  // 7i. Form Type: Event Registration (Award Slug Rejected)
+  // ---------------------------------------------------------------------------
+  console.log('\n7i. Test Event Registration Award Slug Rejected:');
+  const resEventAward = createMockRes();
+  await handler(
+    {
+      method: 'POST',
+      headers: { 'x-forwarded-for': testIp },
+      body: {
+        formType: 'event',
+        name: 'Test Lead Event Award',
+        email: 'event-award@example.com',
+        phone: '+919895111032',
+        consent: true,
+        details: {
+          eventSlug: 'consumer-protection-award-2026',
+          qualification: "Bachelor's degree",
+        },
+      },
+    },
+    resEventAward
+  );
+  assert(
+    resEventAward.statusCode === 400 &&
+      resEventAward.body?.fields?.eventSlug === 'Registrations are not open for this event.',
+    'Event registration for award slug rejected with 400 validation error'
+  );
+
   // Clear IP log
   await sql`DELETE FROM lead_ip_log WHERE ip = ${testIp}`;
 
@@ -756,8 +842,17 @@ async function run() {
     'DB Row: contact with date/time saved properly'
   );
 
-  console.log('  Confirmed DB rows for all 6 form types:');
-  [apptRow, eligRow, admRow, visaRow, trainRow, contactRow, contactDtRow].forEach((r) => {
+  const eventRow = testRows.find((r) => r.name === 'Test Lead Event Hungary');
+  assert(
+    eventRow &&
+    eventRow.form_type === 'event' &&
+    eventRow.details?.eventSlug === 'hungary-spot-admission-october-2026' &&
+    eventRow.details?.qualification === "Bachelor's degree",
+    'DB Row: event has form_type="event" with matching eventSlug and qualification'
+  );
+
+  console.log('  Confirmed DB rows for all 7 form types:');
+  [apptRow, eligRow, admRow, visaRow, trainRow, contactRow, contactDtRow, eventRow].forEach((r) => {
     if (r) {
       console.log(`   - [${r.form_type}] ${r.name}: details = ${JSON.stringify(r.details || {})}`);
     }

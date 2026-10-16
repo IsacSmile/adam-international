@@ -59,6 +59,7 @@ const baseNavLinks = [
   { name: 'Countries', href: '/countries' },
   { name: 'Success Stories', href: '/success-stories' },
   { name: 'Gallery', href: '/gallery' },
+  { name: 'Events', href: '/events' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact Us', href: '/contact' },
 ];
@@ -152,6 +153,9 @@ export default function Header({ onBookAppointment }) {
     if (link.href.startsWith('/#')) {
       const targetHash = link.href.slice(1);
       return location.pathname === '/' && location.hash === targetHash;
+    }
+    if (link.href === '/events') {
+      return location.pathname === '/events' || location.pathname.startsWith('/events/');
     }
     if (link.href === '/blog') {
       return location.pathname === '/blog' || location.pathname.startsWith('/blog/');
@@ -332,7 +336,7 @@ export default function Header({ onBookAppointment }) {
               2. DESKTOP NAVIGATION
              ========================================================================== */}
           <nav className="hidden lg:flex items-center h-full" aria-label="Desktop Navigation">
-            <ul className="flex items-center gap-4 lg:gap-5 xl:gap-8 h-full">
+            <ul className="flex items-center gap-2 lg:gap-2.5 xl:gap-6 h-full">
               {navLinks.map((link) => {
                 const isDropdown = !!link.isDropdown;
                 const active = isLinkActive(link);
@@ -351,7 +355,7 @@ export default function Header({ onBookAppointment }) {
                         onClick={() => setActiveDropdown(!activeDropdown)}
                         onMouseEnter={handleMouseEnterUnderline}
                         onMouseLeave={(e) => handleMouseLeaveUnderline(e, active)}
-                        className={`relative flex items-center gap-1.5 h-full text-[15px] font-medium transition-colors duration-200 outline-none cursor-pointer bg-transparent border-none ${
+                        className={`relative flex items-center gap-1 h-full text-[13px] xl:text-[14.5px] font-medium transition-colors duration-200 outline-none cursor-pointer bg-transparent border-none ${
                           active ? 'text-[#0B1F3A] font-semibold' : 'text-[#1A1A2E] hover:text-[#0B1F3A]'
                         }`}
                         aria-haspopup="true"
@@ -377,7 +381,7 @@ export default function Header({ onBookAppointment }) {
                         to={link.href}
                         onMouseEnter={handleMouseEnterUnderline}
                         onMouseLeave={(e) => handleMouseLeaveUnderline(e, active)}
-                        className={`relative flex items-center gap-1.5 h-full text-[15px] font-medium transition-colors duration-200 outline-none ${
+                        className={`relative flex items-center gap-1 h-full text-[13px] xl:text-[14.5px] font-medium transition-colors duration-200 outline-none ${
                           active ? 'text-[#0B1F3A] font-semibold' : 'text-[#1A1A2E] hover:text-[#0B1F3A]'
                         }`}
                       >
@@ -451,7 +455,7 @@ export default function Header({ onBookAppointment }) {
               onClick={handleBookAppointment}
               onMouseEnter={handleCtaMouseEnter}
               onMouseLeave={handleCtaMouseLeave}
-              className="hidden lg:inline-flex items-center justify-center bg-[#0B1F3A] text-white font-medium text-[15px] px-[22px] py-[10px] rounded-lg border border-transparent cursor-pointer whitespace-nowrap shadow-sm leading-none transition-all duration-200"
+              className="hidden lg:inline-flex items-center justify-center bg-[#0B1F3A] text-white font-medium text-[13.5px] xl:text-[15px] px-3.5 xl:px-[22px] py-[9px] xl:py-[10px] rounded-lg border border-transparent cursor-pointer whitespace-nowrap shadow-sm leading-none transition-all duration-200"
             >
               <span>Book Appointment</span>
             </button>

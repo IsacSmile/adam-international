@@ -2,6 +2,7 @@ import { sql } from '../_lib/db.js';
 import { requireAdmin } from '../_lib/session.js';
 import { verifyOrigin } from '../_lib/origin.js';
 import { FIELD_LABELS, FORM_TYPE_LABELS, FORM_TYPES } from '../../src/data/formFields.js';
+import { events } from '../../src/data/events.js';
 
 const VALID_STATUSES = ['new', 'contacted', 'follow_up', 'converted', 'not_interested'];
 
@@ -71,7 +72,14 @@ function formatDetailsForCsv(details) {
   for (const [k, v] of Object.entries(obj)) {
     if (v !== null && v !== undefined && String(v).trim() !== '') {
       const label = FIELD_LABELS[k] || k;
-      pairs.push(`${label}: ${v}`);
+      let displayVal = v;
+      if (k === 'eventSlug') {
+        const foundEvent = (events || []).find((e) => e.slug === v);
+        if (foundEvent) {
+          displayVal = foundEvent.title;
+        }
+      }
+      pairs.push(`${label}: ${displayVal}`);
     }
   }
   return pairs.join('; ');

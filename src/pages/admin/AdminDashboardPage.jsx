@@ -28,6 +28,7 @@ import { countries } from '../../data/countries';
 import { services } from '../../data/services';
 import { branches } from '../../data/branches';
 import { FORM_TYPE_LABELS, FIELD_LABELS } from '../../data/formFields';
+import { events } from '../../data/events';
 
 const europeCountries = countries.filter((c) => c.region === 'Europe');
 const otherCountries = countries.filter((c) => c.region !== 'Europe');
@@ -580,6 +581,7 @@ export default function AdminDashboardPage({ admin }) {
                 <option value="visa">Visa enquiry</option>
                 <option value="training">Training enquiry</option>
                 <option value="contact">Contact enquiry</option>
+                <option value="event">Event registration</option>
               </select>
             </div>
 
@@ -1214,7 +1216,9 @@ export default function AdminDashboardPage({ admin }) {
                         <div key={k} className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 py-1.5 first:pt-0 last:pb-0 text-xs">
                           <span className="text-slate-500 font-medium">{FIELD_LABELS[k] || k}:</span>
                           <span className="font-semibold text-slate-800 sm:text-right">
-                            {k === 'preferredDate' && typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
+                            {k === 'eventSlug'
+                              ? (events.find((e) => e.slug === v)?.title || String(v))
+                              : k === 'preferredDate' && typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
                               ? (() => {
                                   const [y, m, d] = v.split('-').map(Number);
                                   const dt = new Date(Date.UTC(y, m - 1, d));

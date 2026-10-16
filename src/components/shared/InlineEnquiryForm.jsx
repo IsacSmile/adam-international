@@ -170,6 +170,13 @@ export default function InlineEnquiryForm({
 
     try {
       const details = {};
+      if (initialValues && typeof initialValues === 'object') {
+        Object.entries(initialValues).forEach(([k, v]) => {
+          if (k !== 'message' && v !== undefined && v !== null && v !== '') {
+            details[k] = v;
+          }
+        });
+      }
       effectiveFields.forEach((key) => {
         if (key !== 'message' && formData[key] !== undefined && formData[key] !== '') {
           details[key] = formData[key];

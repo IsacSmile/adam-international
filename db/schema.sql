@@ -64,7 +64,7 @@ alter table leads add column if not exists message text;
 alter table leads add column if not exists whatsapp boolean;
 alter table leads drop constraint if exists leads_form_type_chk;
 alter table leads add constraint leads_form_type_chk
-  check (form_type in ('appointment','eligibility','admission','visa','training','contact'));
+  check (form_type in ('appointment','eligibility','admission','visa','training','contact','event'));
 create index if not exists leads_form_type_idx on leads (form_type);
 
 

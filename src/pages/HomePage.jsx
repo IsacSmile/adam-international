@@ -9,6 +9,7 @@ const ServicesSection = lazy(() => import('../components/ServicesSection'));
 const UniversityPartnersSection = lazy(() => import('../components/UniversityPartnersSection'));
 const VisaSuccessSection = lazy(() => import('../components/VisaSuccessSection'));
 const TestimonialsSection = lazy(() => import('../components/TestimonialsSection'));
+const HomeUpcomingEventsStrip = lazy(() => import('../components/home/HomeUpcomingEventsStrip'));
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
 
 export default function HomePage() {
@@ -52,6 +53,11 @@ export default function HomePage() {
       {/* Testimonials Section */}
       <Suspense fallback={<SectionSkeleton type="cards" />}>
         <TestimonialsSection />
+      </Suspense>
+
+      {/* Upcoming Events Strip */}
+      <Suspense fallback={null}>
+        <HomeUpcomingEventsStrip />
       </Suspense>
 
       {/* Conversion-Focused Final CTA Banner */}

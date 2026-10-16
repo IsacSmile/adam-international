@@ -29,6 +29,7 @@ const baseQuickLinks = [
   { name: 'Universities', href: '/universities' },
   { name: 'Success Stories', href: '/success-stories' },
   { name: 'Gallery', href: '/gallery' },
+  { name: 'Events', href: '/events' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact Us', href: '/contact' },
 ];

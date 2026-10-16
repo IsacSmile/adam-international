@@ -631,6 +631,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://adam-international-beryl.vercel.app/events/consumer-protection-award-2026</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://adam-international-beryl.vercel.app/events/hungary-spot-admission-october-2026</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://adam-international-beryl.vercel.app/events/slovenia-spot-admission-october-2026</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://adam-international-beryl.vercel.app/events/spain-spot-admission-2026</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://adam-international-beryl.vercel.app/blog/sample-post-1</loc>
     <lastmod>2026-10-14</lastmod>
     <changefreq>weekly</changefreq>

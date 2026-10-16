@@ -23,6 +23,7 @@ import { getVisibleUniversities } from '../lib/universities';
 import { successStories } from '../data/successStories';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { useAppointment } from '../context/AppointmentContext';
+import { getUpcomingEvents, getEventDateLabel } from '../lib/events';
 
 const FinalCtaBanner = lazy(() => import('../components/FinalCtaBanner'));
 
@@ -39,6 +40,9 @@ export default function CountryDetailPage() {
 
   // Filter visible universities for this country (no limit)
   const countryUniversities = getVisibleUniversities().filter((u) => u.country === country.slug);
+
+  // Check for upcoming spot admission event for this country
+  const upcomingEvent = getUpcomingEvents().find((e) => e.country === country.slug);
 
   // Filter stories for this country (slug or name matching)
   const availableStories = SHOW_PLACEHOLDERS
@@ -190,6 +194,49 @@ export default function CountryDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 1.25 UPCOMING EVENT BANNER (only while event is upcoming) */}
+      {upcomingEvent && (
+        <aside
+          aria-label="Upcoming Spot Admission Event"
+          className="bg-amber-50/70 border-b border-[#C9A84C]/30 py-3.5 px-4 sm:px-6 lg:px-8"
+        >
+          <div className="max-w-[1240px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-[#0B1F3A]">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#0B1F3A] text-[#DFBE7A]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#DFBE7A]" />
+                Upcoming Event
+              </span>
+              <span className="font-bold text-[#0B1F3A]">{upcomingEvent.title}</span>
+              {getEventDateLabel(upcomingEvent) && (
+                <span className="inline-flex items-center gap-1 text-slate-600 font-medium">
+                  <Calendar className="w-3.5 h-3.5 text-[#C9A84C]" />
+                  {getEventDateLabel(upcomingEvent)}
+                </span>
+              )}
+              {upcomingEvent.highlight && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-white border border-slate-200/90 text-[#0B1F3A]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C9A84C]" />
+                  <span>{upcomingEvent.highlight}</span>
+                  {upcomingEvent.conditionNote && (
+                    <span className="font-normal text-slate-500 ml-0.5">
+                      (*{upcomingEvent.conditionNote})
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+
+            <Link
+              to={`/events/${upcomingEvent.slug}`}
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0B1F3A] hover:text-[#C9A84C] transition-colors whitespace-nowrap self-start sm:self-auto group"
+            >
+              <span>View Details & Register</span>
+              <ArrowRight className="w-4 h-4 text-[#C9A84C] group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
+        </aside>
+      )}
 
       {/* 1.5 AT A GLANCE (Only if comparison data exists) */}
       {(() => {

@@ -1,6 +1,8 @@
 import { countries } from './countries.js';
 import { trainingProgrammes } from './trainingProgrammes.js';
 import { contact } from './contact.js';
+import { events } from './events.js';
+import { getActiveRegistrationEvents, isEventPast } from '../lib/events.js';
 
 export const FORM_TYPES = [
   'appointment',
@@ -9,6 +11,7 @@ export const FORM_TYPES = [
   'visa',
   'training',
   'contact',
+  'event',
 ];
 
 export const FORM_TYPE_LABELS = {
@@ -18,6 +21,7 @@ export const FORM_TYPE_LABELS = {
   visa: 'Visa enquiry',
   training: 'Training enquiry',
   contact: 'Contact enquiry',
+  event: 'Event registration',
 };
 
 export const FORM_TYPE_ALLOWLIST = {
@@ -35,6 +39,7 @@ export const FORM_TYPE_ALLOWLIST = {
   training: ['programme', 'message'],
   contact: ['country', 'preferredDate', 'preferredTime', 'message'],
   appointment: [],
+  event: ['eventSlug', 'qualification', 'country', 'message'],
 };
 
 export const QUALIFICATION_OPTIONS = [
@@ -146,7 +151,19 @@ export const FIELD_LABELS = {
   message: 'Message or question',
   preferredDate: 'Preferred date',
   preferredTime: 'Preferred time',
+  eventSlug: 'Event',
 };
+
+export function getEventSlugOptions(now = new Date()) {
+  return getActiveRegistrationEvents(now).map((e) => e.slug);
+}
+
+export function getEventOptions(now = new Date()) {
+  return getActiveRegistrationEvents(now).map((e) => ({
+    value: e.slug,
+    label: e.title,
+  }));
+}
 
 /**
  * Returns complete field definitions including dynamically resolved option lists.
@@ -229,6 +246,13 @@ export function getFormFieldDefinitions(now = new Date()) {
       label: FIELD_LABELS.programme,
       type: 'select',
       options: getProgrammeOptions(),
+    },
+    eventSlug: {
+      key: 'eventSlug',
+      label: FIELD_LABELS.eventSlug,
+      type: 'select',
+      options: getEventSlugOptions(now),
+      selectOptions: getEventOptions(now),
     },
     message: {
       key: 'message',
@@ -322,7 +346,39 @@ export function validateLeadPayload(rawFormType, rawDetails, rawMessage) {
       const def = fieldDefs[key];
       if (!def) continue;
 
-      if (key === 'preferredDate') {
+      if (key === 'eventSlug') {
+        if (typeof val !== 'string') {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { eventSlug: 'Please select an event.' },
+          };
+        }
+        const trimmed = val.trim();
+        const foundEvent = (events || []).find((e) => e.slug === trimmed);
+        if (!foundEvent) {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { eventSlug: 'Unknown event selected.' },
+          };
+        }
+        if (foundEvent.registrationOpen !== true) {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { eventSlug: 'Registrations are not open for this event.' },
+          };
+        }
+        if (isEventPast(foundEvent)) {
+          return {
+            ok: false,
+            error: 'validation',
+            fields: { eventSlug: 'This event has ended.' },
+          };
+        }
+        cleanDetails.eventSlug = trimmed;
+      } else if (key === 'preferredDate') {
         if (typeof val !== 'string') {
           return {
             ok: false,
@@ -430,6 +486,15 @@ export function validateLeadPayload(rawFormType, rawDetails, rawMessage) {
         }
       }
     }
+  }
+
+  // event form type requires eventSlug
+  if (formType === 'event' && !cleanDetails.eventSlug) {
+    return {
+      ok: false,
+      error: 'validation',
+      fields: { eventSlug: 'Please select an event.' },
+    };
   }
 
   return {
