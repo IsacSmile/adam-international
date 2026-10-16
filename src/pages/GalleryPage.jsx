@@ -8,7 +8,6 @@ import {
   Calendar,
   MapPin,
   Building2,
-  Sparkles,
   Images,
 } from 'lucide-react';
 import WhatsAppIcon from '../components/shared/WhatsAppIcon';
@@ -761,19 +760,13 @@ export default function GalleryPage() {
       {/* =========================================================================
           3.7 SECTION: CTA (Replaces FinalCtaBanner on this page)
       ========================================================================= */}
-      <section className="w-full bg-[#0B1F3A] py-16 sm:py-20 lg:py-24 px-5 sm:px-6 lg:px-8 relative overflow-hidden text-center text-white">
-        {/* Background Subtle Ambient Glow */}
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#C9A84C]/15 rounded-full blur-3xl pointer-events-none" />
+      <section className="w-full bg-[#0B1F3A] py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden text-center text-white border-t border-white/10">
+        {/* Subtle Ambient Radial Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,168,76,0.08)_0,transparent_70%)] pointer-events-none" />
 
-        <div className="max-w-3xl mx-auto relative z-10 space-y-6">
-          {/* Gold Accent Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C9A84C]/20 border border-[#C9A84C]/40 text-[#DFBE7A] text-[11px] sm:text-xs font-extrabold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-[#C9A84C]" />
-            <span>START YOUR STUDY-ABROAD JOURNEY TODAY</span>
-          </div>
-
+        <div className="max-w-2xl mx-auto relative z-10 space-y-6 sm:space-y-8">
           {/* Heading */}
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.18]">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
             Your Journey Could Be Next
           </h2>
 
@@ -782,29 +775,24 @@ export default function GalleryPage() {
             Are you planning to study in Europe? Let Adam International help you explore suitable destinations, courses and universities and understand the student visa application process.
           </p>
 
-          {/* Tagline */}
-          <p className="text-base sm:text-lg font-bold text-[#C9A84C] tracking-wide">
-            Start Your Study-Abroad Journey Today.
-          </p>
-
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-1 w-full max-w-md sm:max-w-none mx-auto">
             <button
               type="button"
               onClick={() => openAppointment()}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-[#C9A84C] hover:bg-white text-[#0B1F3A] font-extrabold text-base transition-all duration-300 shadow-xl cursor-pointer active:scale-95 border border-[#C9A84C]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded-xl bg-[#C9A84C] hover:bg-[#DFBE7A] text-[#0B1F3A] font-bold text-sm sm:text-base transition-all duration-200 shadow-md cursor-pointer active:scale-98 group"
             >
               <span>Book a Free Consultation</span>
-              <ArrowRight className="w-5 h-5 text-[#0B1F3A]" />
+              <ArrowRight className="w-4 h-4 text-[#0B1F3A] group-hover:translate-x-1 transition-transform" />
             </button>
 
             <a
               href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500 border border-emerald-500/40 text-emerald-400 hover:text-white font-extrabold text-base transition-all duration-300 shadow-md active:scale-95 backdrop-blur-md"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 hover:text-emerald-200 font-semibold text-sm sm:text-base transition-all duration-200 cursor-pointer active:scale-98"
             >
-              <WhatsAppIcon className="w-5 h-5" />
+              <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
               <span>WhatsApp Us</span>
             </a>
           </div>
