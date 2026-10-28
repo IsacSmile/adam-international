@@ -524,11 +524,16 @@ export default function CountriesPage() {
   return (
     <>
       <Helmet>
-        <title>Study Destinations in Europe | Adam International</title>
+        <title>Study Destinations in Europe &amp; Abroad | Adam International</title>
         <meta
           name="description"
-          content="Explore European study destinations, compare countries and find universities that match your goals, budget and course."
+          content="Explore top European study destinations including Germany, UK, France, Ireland, Latvia, Malta and more. Compare universities, fees, and intakes with Adam International."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/countries" />
+        <meta property="og:title" content="Study Abroad Destinations in Europe | Adam International" />
+        <meta property="og:description" content="Explore top European study destinations, compare universities, tuition fees, and admission criteria with Adam International Kochi." />
+        <meta property="og:url" content="https://www.adaminternational.in/countries" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* 2.1 Hero */}

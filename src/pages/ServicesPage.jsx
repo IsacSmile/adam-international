@@ -16,14 +16,22 @@ export default function ServicesPage() {
   return (
     <>
       <Helmet>
-        <title>{`${seo?.title || 'Our Services'} | Adam International`}</title>
+        <title>{`${seo?.title || 'Overseas Education Services'} | Adam International`}</title>
         <meta
           name="description"
           content={
             seo?.description ||
-            'Study abroad support from Adam International: career counselling, admission, financial and visa guidance, travel and pre-departure support.'
+            'Comprehensive study abroad services by Adam International: course & university selection, admission processing, student visa guidance, scholarships, and pre-departure briefings.'
           }
         />
+        <link rel="canonical" href="https://www.adaminternational.in/services" />
+        <meta property="og:title" content="Overseas Education & Student Visa Services | Adam International" />
+        <meta
+          property="og:description"
+          content="Comprehensive study abroad support: career counselling, admission processing, student visa assistance, and pre-departure support in Kochi, Kerala."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/services" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* Hero Section */}

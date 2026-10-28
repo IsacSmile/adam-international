@@ -7,11 +7,12 @@ export default function TermsPage() {
   return (
     <>
       <Helmet>
-        <title>Terms & Conditions | Adam International</title>
+        <title>Terms &amp; Conditions | Adam International</title>
         <meta
           name="description"
-          content="Terms and Conditions for Adam International Study Abroad Consultancy."
+          content="Terms and Conditions for Adam International Study Abroad Consultancy in Kochi, Kerala."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/terms" />
       </Helmet>
 
       <PageHero

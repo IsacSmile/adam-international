@@ -78,11 +78,17 @@ export default function UniversityDetailPage() {
   return (
     <>
       <Helmet>
-        <title>{`${university.name} | Adam International`}</title>
+        <title>{`${university.name} | Study Abroad | Adam International`}</title>
         <meta
           name="description"
-          content={`Study at ${university.name} in ${university.city ? `${university.city}, ` : ''}${countryName}. Courses, admission requirements, fees, and student guidance.`}
+          content={`Study at ${university.name} in ${university.city ? `${university.city}, ` : ''}${countryName}. Courses, admission requirements, fees, and student guidance from Adam International.`}
         />
+        <link rel="canonical" href={`https://www.adaminternational.in/universities/${university.slug || slug}`} />
+        <meta property="og:title" content={`${university.name} | Adam International`} />
+        <meta property="og:description" content={`Study at ${university.name} in ${countryName}. Admissions and visa support with Adam International Kochi.`} />
+        <meta property="og:url" content={`https://www.adaminternational.in/universities/${university.slug || slug}`} />
+        <meta property="og:type" content="website" />
+        {university.coverImage && <meta property="og:image" content={university.coverImage} />}
       </Helmet>
 
       {/* 1. HERO SECTION */}

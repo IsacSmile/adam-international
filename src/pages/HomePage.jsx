@@ -18,11 +18,24 @@ export default function HomePage() {
   return (
     <>
       <Helmet>
-        <title>Overseas Education Consultancy in Kochi, Kerala | Adam International</title>
+        <title>Adam International | Overseas Education &amp; Study Abroad Consultants Kochi, Kerala</title>
         <meta
           name="description"
-          content="Adam International is an overseas education consultancy based in Kochi, Kerala helping students with university admissions, student visas, scholarships, and career counselling."
+          content="Adam International is an overseas education consultancy in Kochi, Kerala helping students with European university admissions, student visas, scholarships, and career counselling since 2008."
         />
+        <meta
+          name="keywords"
+          content="Adam International, adma internation, adam international kochi, study abroad consultants kochi, overseas education consultancy kerala, study in europe kochi, european university admissions, student visa consultants"
+        />
+        <link rel="canonical" href="https://www.adaminternational.in/" />
+        <meta property="og:title" content="Adam International | Premier Study Abroad Consultants Kochi" />
+        <meta
+          property="og:description"
+          content="Helping students achieve their global academic dreams across European and global universities since 2008. Kochi, Kerala."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.adaminternational.in/logo234.webp" />
       </Helmet>
 
       {/* Hero Showcase Content with Parallax Glow */}

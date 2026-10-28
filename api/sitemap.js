@@ -28,7 +28,7 @@ export default async function handler(req, res) {
   }
 
   const BASE_URL = (
-    process.env.SITE_URL || 'https://adam-international-beryl.vercel.app'
+    process.env.SITE_URL || 'https://www.adaminternational.in'
   ).replace(/\/+$/, '');
 
   const today = new Date().toISOString().split('T')[0];

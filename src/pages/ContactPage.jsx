@@ -151,11 +151,19 @@ export default function ContactPage() {
     <div ref={containerRef} className="w-full pb-20 sm:pb-0 overflow-x-hidden">
       {/* Helmet SEO & Structured Data */}
       <Helmet>
-        <title>Contact Us</title>
+        <title>Contact Us | Adam International Study Abroad Kochi</title>
         <meta
           name="description"
-          content="Contact Adam International for guidance on European universities, courses, admissions and student visas. Call, WhatsApp, email or visit our Kochi office."
+          content="Contact Adam International in Kochi, Kerala for expert guidance on European universities, courses, admissions, and student visas. Call, WhatsApp, email, or visit our Edappally office."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/contact" />
+        <meta property="og:title" content="Contact Us | Adam International Study Abroad Kochi" />
+        <meta
+          property="og:description"
+          content="Get in touch with Adam International overseas education consultants in Kochi, Kerala. Call +91 98958 90500 or message on WhatsApp."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/contact" />
+        <meta property="og:type" content="website" />
         <script type="application/ld+json">
           {JSON.stringify(localBusinessSchema)}
         </script>

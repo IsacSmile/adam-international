@@ -191,11 +191,19 @@ export default function GalleryPage() {
   return (
     <div ref={pageRef} className="bg-white">
       <Helmet>
-        <title>Gallery | Adam International</title>
+        <title>Campus Life &amp; Student Visa Gallery | Adam International</title>
         <meta
           name="description"
-          content="Student visa successes, university events and pre-departure moments from Adam International."
+          content="Explore campus life photos, student visa celebrations, university seminars, and pre-departure moments from Adam International Kochi."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/gallery" />
+        <meta property="og:title" content="Photo Gallery | Adam International Study Abroad" />
+        <meta
+          property="og:description"
+          content="Student visa celebrations, university seminars, and pre-departure moments from Adam International Kochi."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/gallery" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* =========================================================================

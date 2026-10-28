@@ -32,6 +32,11 @@ export default function ServiceDetailPage() {
           name="description"
           content={pageData.seo?.description || serviceMeta.card?.description}
         />
+        <link rel="canonical" href={`https://www.adaminternational.in/services/${slug}`} />
+        <meta property="og:title" content={`${pageData.seo?.title || serviceMeta.title} | Adam International`} />
+        <meta property="og:description" content={pageData.seo?.description || serviceMeta.card?.description} />
+        <meta property="og:url" content={`https://www.adaminternational.in/services/${slug}`} />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* 1. HERO SECTION (H1, sub, up to 2 buttons, image with navy overlay, breadcrumb) */}

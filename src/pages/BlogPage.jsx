@@ -88,11 +88,19 @@ export default function BlogPage() {
   return (
     <div ref={pageRef} className="bg-[#FAF7F2] min-h-screen">
       <Helmet>
-        <title>Blog | Study in Europe Insights & Guides</title>
+        <title>Blog &amp; Study in Europe Guides | Adam International</title>
         <meta
           name="description"
-          content="Explore expert articles, country comparisons, student visa guidance, and university updates from Adam International."
+          content="Explore expert articles, European country comparisons, student visa guidance, university admission updates, and living abroad insights from Adam International."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/blog" />
+        <meta property="og:title" content="Blog &amp; Study Abroad Guides | Adam International" />
+        <meta
+          property="og:description"
+          content="Expert insights, country comparisons, university updates, and student visa tips from Adam International Kochi."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/blog" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* 4.1 Hero Banner */}

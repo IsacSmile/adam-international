@@ -10,8 +10,9 @@ export default function PrivacyPolicyPage() {
         <title>Privacy Policy | Adam International</title>
         <meta
           name="description"
-          content="Privacy Policy for Adam International Study Abroad Consultancy."
+          content="Privacy Policy for Adam International Study Abroad Consultancy in Kochi, Kerala."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/privacy-policy" />
       </Helmet>
 
       <PageHero

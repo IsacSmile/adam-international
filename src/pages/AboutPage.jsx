@@ -185,11 +185,16 @@ export default function AboutPage() {
   return (
     <div className="w-full bg-white text-[#0B1F3A] overflow-x-hidden">
       <Helmet>
-        <title>About Us | Adam International</title>
+        <title>About Us | Adam International Study Abroad Kochi</title>
         <meta
           name="description"
-          content="Adam International helps students choose the right course and university in Europe and beyond, with support from admission and visa to pre-departure."
+          content="Adam International helps students choose the right course and university in Europe and beyond, with end-to-end guidance from admissions and visas to pre-departure since 2008."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/about" />
+        <meta property="og:title" content="About Us | Adam International Study Abroad Kochi" />
+        <meta property="og:description" content="Guiding students to top European and global universities since 2008. Learn about Adam International's mission, values, and expert team." />
+        <meta property="og:url" content="https://www.adaminternational.in/about" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* =========================================================================

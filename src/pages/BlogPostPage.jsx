@@ -143,9 +143,12 @@ export default function BlogPostPage() {
         <title>{`${post.title} | Adam International`}</title>
         <meta name="description" content={post.summary} />
 
+        <link rel="canonical" href={`https://www.adaminternational.in/blog/${post.slug || slug}`} />
+
         {/* OpenGraph tags */}
         <meta property="og:title" content={`${post.title} | Adam International`} />
         <meta property="og:description" content={post.summary} />
+        <meta property="og:url" content={`https://www.adaminternational.in/blog/${post.slug || slug}`} />
         {post.image && <meta property="og:image" content={post.image} />}
         <meta property="og:type" content="article" />
         {isDraft && <meta name="robots" content="noindex, nofollow" />}

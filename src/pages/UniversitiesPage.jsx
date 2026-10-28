@@ -106,11 +106,19 @@ export default function UniversitiesPage() {
   return (
     <>
       <Helmet>
-        <title>Universities we work with | Adam International</title>
+        <title>Partner Universities &amp; Colleges | Adam International</title>
         <meta
           name="description"
-          content="Browse the universities we work with, by country. Talk to an advisor for current courses, fees and intakes."
+          content="Browse European and international universities partnering with Adam International. Check courses, admission requirements, tuition fees, and intakes."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/universities" />
+        <meta property="og:title" content="Partner Universities Abroad | Adam International" />
+        <meta
+          property="og:description"
+          content="Browse partner universities in Germany, UK, France, Ireland, Latvia, Malta, and beyond."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/universities" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* Navy Page Hero Band */}

@@ -159,11 +159,19 @@ export default function SuccessStoriesPage() {
   return (
     <>
       <Helmet>
-        <title>Student success stories | Adam International</title>
+        <title>Student Visa Success Stories &amp; Testimonials | Adam International</title>
         <meta
           name="description"
-          content="Students who studied abroad with our support, in their own words."
+          content="Read real student success stories, testimonials, and visa approvals from students guided by Adam International Kochi to top European universities."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/success-stories" />
+        <meta property="og:title" content="Student Success Stories &amp; Visa Approvals | Adam International" />
+        <meta
+          property="og:description"
+          content="Students who achieved their study abroad dream in Europe with Adam International Kochi."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/success-stories" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* Navy Page Hero Band */}

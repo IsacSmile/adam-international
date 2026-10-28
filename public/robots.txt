@@ -1,4 +1,9 @@
 User-agent: *
+Allow: /
 Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
-Sitemap: https://adam-international-beryl.vercel.app/sitemap.xml
+Sitemap: https://www.adaminternational.in/sitemap.xml
+Host: https://www.adaminternational.in
+

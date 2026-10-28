@@ -9,6 +9,7 @@ export default function NotFoundPage() {
       <Helmet>
         <title>Page Not Found | Adam International</title>
         <meta name="description" content="The page you are looking for does not exist. Explore our study abroad services or return to the homepage." />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
 
       <div className="max-w-md w-full text-center space-y-6 bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-gray-100">

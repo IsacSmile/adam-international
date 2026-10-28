@@ -18,11 +18,19 @@ export default function EventsPage() {
   return (
     <div className="w-full bg-[#FAF7F2] min-h-screen">
       <Helmet>
-        <title>Events</title>
+        <title>Spot Admission Events &amp; Seminars | Adam International</title>
         <meta
           name="description"
-          content="Spot admission events and news from Adam International."
+          content="Upcoming European university spot admission days, education fairs, webinars, and seminars organized by Adam International Kochi."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/events" />
+        <meta property="og:title" content="Spot Admission Events &amp; Education Fairs | Adam International" />
+        <meta
+          property="og:description"
+          content="Meet university delegates, get on-the-spot admission evaluations, and attend seminars by Adam International."
+        />
+        <meta property="og:url" content="https://www.adaminternational.in/events" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       {/* 4.1 Hero */}

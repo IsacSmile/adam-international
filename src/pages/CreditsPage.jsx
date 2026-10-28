@@ -13,6 +13,7 @@ export default function CreditsPage() {
           name="description"
           content="Image credits, licensing, and attribution for media used on Adam International Study Abroad Consultancy."
         />
+        <link rel="canonical" href="https://www.adaminternational.in/credits" />
       </Helmet>
 
       <PageHero

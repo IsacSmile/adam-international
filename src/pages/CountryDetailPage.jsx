@@ -81,11 +81,17 @@ export default function CountryDetailPage() {
   return (
     <>
       <Helmet>
-        <title>{`Study in ${country.name} | Adam International`}</title>
+        <title>{`Study in ${country.name} | European Universities | Adam International`}</title>
         <meta
           name="description"
-          content={country.blurb || `Study abroad in ${country.name}. Partner universities, admission criteria, student visa guidance and support.`}
+          content={country.blurb || `Study abroad in ${country.name}. Partner universities, admission criteria, student visa guidance and support with Adam International.`}
         />
+        <link rel="canonical" href={`https://www.adaminternational.in/countries/${country.slug}`} />
+        <meta property="og:title" content={`Study in ${country.name} | Adam International`} />
+        <meta property="og:description" content={country.blurb || `Study abroad in ${country.name}. Partner universities and visa support.`} />
+        <meta property="og:url" content={`https://www.adaminternational.in/countries/${country.slug}`} />
+        <meta property="og:type" content="website" />
+        {country.image && <meta property="og:image" content={country.image} />}
       </Helmet>
 
       {/* 1. HERO SECTION */}

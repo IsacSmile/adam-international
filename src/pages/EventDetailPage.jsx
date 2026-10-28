@@ -133,8 +133,13 @@ export default function EventDetailPage() {
     <div className={`w-full bg-[#FAF7F2] min-h-screen ${isDraft ? 'pt-8' : ''}`}>
       {isDraft && <DraftPreviewBanner />}
       <Helmet>
-        <title>{event.title}</title>
+        <title>{`${event.title} | Adam International`}</title>
         <meta name="description" content={event.summary} />
+        <link rel="canonical" href={`https://www.adaminternational.in/events/${event.slug || slug}`} />
+        <meta property="og:title" content={`${event.title} | Adam International`} />
+        <meta property="og:description" content={event.summary} />
+        <meta property="og:url" content={`https://www.adaminternational.in/events/${event.slug || slug}`} />
+        <meta property="og:type" content="article" />
         <meta property="og:image" content={event.poster || event.image || '/logo234.webp'} />
         {isDraft && <meta name="robots" content="noindex, nofollow" />}
         {eventJsonLd && (
