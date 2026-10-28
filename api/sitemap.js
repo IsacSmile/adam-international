@@ -18,6 +18,20 @@ function ensureResHelpers(res) {
   }
 }
 
+function formatW3CDate(val, fallback) {
+  if (!val) return fallback;
+  if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)) {
+    return val;
+  }
+  try {
+    const d = new Date(val);
+    if (!isNaN(d.getTime())) {
+      return d.toISOString().split('T')[0];
+    }
+  } catch {}
+  return fallback;
+}
+
 export default async function handler(req, res) {
   ensureResHelpers(res);
 
@@ -94,7 +108,7 @@ export default async function handler(req, res) {
       path: `/events/${e.slug}`,
       priority: '0.7',
       changefreq: 'weekly',
-      lastmod: e.updated_at ? String(e.updated_at).split('T')[0] : today,
+      lastmod: formatW3CDate(e.updated_at, today),
     }));
 
     // 6. Published Blog Posts from DB
@@ -110,11 +124,7 @@ export default async function handler(req, res) {
         path: `/blog/${p.slug}`,
         priority: '0.7',
         changefreq: 'weekly',
-        lastmod: p.updated_at
-          ? String(p.updated_at).split('T')[0]
-          : p.publish_date
-          ? String(p.publish_date).split('T')[0]
-          : today,
+        lastmod: formatW3CDate(p.updated_at || p.publish_date, today),
       }));
 
     // Combine and deduplicate
@@ -140,9 +150,10 @@ export default async function handler(req, res) {
 
     const xmlEntries = filteredRoutes.map((item) => {
       const loc = item.path === '/' ? `${BASE_URL}/` : `${BASE_URL}${item.path}`;
+      const lastmod = formatW3CDate(item.lastmod, today);
       return `  <url>
     <loc>${loc}</loc>
-    <lastmod>${item.lastmod || today}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${item.changefreq || 'weekly'}</changefreq>
     <priority>${item.priority || '0.7'}</priority>
   </url>`;
@@ -155,7 +166,7 @@ ${xmlEntries.join('\n')}
 `;
 
     res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=3600');
     return res.end(xmlContent);
   } catch (err) {
     console.error('Sitemap API error:', err);
