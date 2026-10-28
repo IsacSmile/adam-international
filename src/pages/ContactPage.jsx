@@ -140,6 +140,11 @@ export default function ContactPage() {
       addressCountry: 'IN',
     },
     openingHours: 'Mo-Fr 09:30-17:30',
+    sameAs: [
+      'https://www.facebook.com/adaminternational.kochi/',
+      'https://www.instagram.com/adaminternational.kochi/',
+      'https://www.youtube.com/@adaminternationalkochi',
+    ],
   };
 
   return (

@@ -428,24 +428,66 @@ export default async function handler(req, res) {
     }
 
     // -------------------------------------------------------------------------
-    // DELETE ?id=: Delete lead
+    // DELETE: Delete single or multiple leads
+    // Supports ?id=<uuid>, ?ids=<uuid1>,<uuid2>, or JSON body { ids: [...] }
     // -------------------------------------------------------------------------
     if (req.method === 'DELETE') {
       if (!verifyOrigin(req, res)) {
         return; // verifyOrigin sends 403
       }
 
-      const id = query.id;
-      if (!id) {
-        return res.status(400).json({ ok: false, error: 'Missing lead ID' });
+      let rawIds = [];
+      if (query.id) {
+        rawIds.push(query.id);
+      }
+      if (query.ids) {
+        rawIds.push(...query.ids.split(','));
       }
 
-      await sql`
+      // Check request body if present
+      let body = {};
+      if (typeof req.body === 'string') {
+        const trimmed = req.body.trim();
+        if (trimmed) {
+          try {
+            body = JSON.parse(trimmed);
+          } catch {}
+        }
+      } else if (req.body && typeof req.body === 'object') {
+        body = req.body;
+      }
+
+      if (body.id) {
+        rawIds.push(body.id);
+      }
+      if (Array.isArray(body.ids)) {
+        rawIds.push(...body.ids);
+      }
+
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const validIds = Array.from(
+        new Set(
+          rawIds
+            .map((id) => (typeof id === 'string' ? id.trim() : ''))
+            .filter((id) => uuidRegex.test(id))
+        )
+      );
+
+      if (validIds.length === 0) {
+        return res.status(400).json({ ok: false, error: 'Missing or invalid lead ID(s) to delete' });
+      }
+
+      const deletedRows = await sql`
         DELETE FROM leads
-        WHERE id = ${id}
+        WHERE id = ANY(${validIds}::uuid[])
+        RETURNING id
       `;
 
-      return res.status(200).json({ ok: true });
+      return res.status(200).json({
+        ok: true,
+        deletedCount: deletedRows.length,
+        deletedIds: validIds,
+      });
     }
 
     res.setHeader('Allow', 'GET, PATCH, DELETE');

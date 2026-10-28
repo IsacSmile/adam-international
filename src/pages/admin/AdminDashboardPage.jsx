@@ -108,8 +108,16 @@ export default function AdminDashboardPage({ admin }) {
   const [drawerAssignedTo, setDrawerAssignedTo] = useState('');
   const [drawerStatus, setDrawerStatus] = useState('new');
   const [isSavingDrawer, setIsSavingDrawer] = useState(false);
-  const [drawerSavedToast, setDrawerSavedToast] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [actionToast, setActionToast] = useState(null);
+
+  const showToast = useCallback((msg, type = 'success') => {
+    setActionToast({ msg, type });
+    setTimeout(() => setActionToast(null), 3000);
+  }, []);
 
   // Keep track of active requests
   const abortControllerRef = useRef(null);
@@ -193,6 +201,10 @@ export default function AdminDashboardPage({ admin }) {
 
       const data = await res.json();
       setLeads(data.leads || []);
+      setSelectedIds((prev) => {
+        const currentIds = new Set((data.leads || []).map((l) => l.id));
+        return prev.filter((id) => currentIds.has(id));
+      });
       setTotalLeads(data.total || 0);
       if (data.counts) {
         setCounts(data.counts);
@@ -408,18 +420,22 @@ export default function AdminDashboardPage({ admin }) {
     }
   };
 
-  // Delete lead handler
-  const handleDeleteLead = async () => {
-    if (!selectedLead) return;
+  // Single delete lead handler (for table row, mobile card, or drawer)
+  const handleDeleteSingle = async (lead, e) => {
+    if (e) e.stopPropagation();
+    if (!lead) return;
     const confirmed = window.confirm(
-      `Are you sure you want to permanently delete the lead for "${selectedLead.name}"? This action cannot be undone.`
+      `Are you sure you want to permanently delete the enquiry from "${lead.name}"? This action cannot be undone.`
     );
     if (!confirmed) return;
 
+    setDeletingId(lead.id);
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/leads?id=${selectedLead.id}`, {
+      const res = await fetch(`/api/admin/leads?id=${lead.id}`, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [lead.id] }),
         credentials: 'same-origin',
       });
 
@@ -432,14 +448,79 @@ export default function AdminDashboardPage({ admin }) {
         throw new Error('Failed to delete lead');
       }
 
-      setLeads((prev) => prev.filter((l) => l.id !== selectedLead.id));
-      setSelectedLead(null);
+      setLeads((prev) => prev.filter((l) => l.id !== lead.id));
+      setSelectedIds((prev) => prev.filter((id) => id !== lead.id));
+      if (selectedLead?.id === lead.id) {
+        setSelectedLead(null);
+      }
+      showToast(`Enquiry for "${lead.name}" deleted successfully.`);
       fetchLeads();
     } catch (err) {
       alert('Failed to delete lead. Please try again.');
     } finally {
+      setDeletingId(null);
       setIsDeleting(false);
     }
+  };
+
+  // Bulk delete selected leads handler
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    const count = selectedIds.length;
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete ${count} selected ${count === 1 ? 'enquiry' : 'enquiries'}? This action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setIsBulkDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/leads?ids=${selectedIds.join(',')}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds }),
+        credentials: 'same-origin',
+      });
+
+      if (res.status === 401) {
+        navigate('/admin/login', { replace: true });
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error('Failed to delete selected enquiries');
+      }
+
+      const idsToRemove = new Set(selectedIds);
+      setLeads((prev) => prev.filter((l) => !idsToRemove.has(l.id)));
+      if (selectedLead && idsToRemove.has(selectedLead.id)) {
+        setSelectedLead(null);
+      }
+      setSelectedIds([]);
+      showToast(`${count} ${count === 1 ? 'enquiry' : 'enquiries'} deleted successfully.`);
+      fetchLeads();
+    } catch (err) {
+      alert('Failed to delete selected enquiries. Please try again.');
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
+
+  const isAllSelected = leads.length > 0 && leads.every((l) => selectedIds.includes(l.id));
+  const isSomeSelected = leads.some((l) => selectedIds.includes(l.id)) && !isAllSelected;
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(leads.map((l) => l.id));
+    }
+  };
+
+  const toggleSelectLead = (id, e) => {
+    if (e) e.stopPropagation();
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
 
   const totalPages = Math.ceil(totalLeads / pageSize) || 1;
@@ -633,14 +714,43 @@ export default function AdminDashboardPage({ admin }) {
             </div>
           </div>
 
-          {/* Action Row: Export & Summary */}
+          {/* Action Row: Export, Selection & Summary */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs text-slate-500">
-            <div>
-              Showing <span className="font-bold text-[#0B1F3A]">{leads.length}</span> of{' '}
-              <span className="font-bold text-[#0B1F3A]">{totalLeads}</span> leads matching filters
+            <div className="flex items-center gap-2.5">
+              <div>
+                Showing <span className="font-bold text-[#0B1F3A]">{leads.length}</span> of{' '}
+                <span className="font-bold text-[#0B1F3A]">{totalLeads}</span> leads matching filters
+              </div>
+              {selectedIds.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#0B1F3A] text-[#DFBE7A] font-semibold text-[11px]">
+                  <span>{selectedIds.length} selected</span>
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
+              {selectedIds.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleDeleteSelected}
+                    disabled={isBulkDeleting}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-semibold transition-all cursor-pointer shadow-sm text-xs"
+                    title="Delete selected enquiries"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{isBulkDeleting ? 'Deleting…' : `Delete (${selectedIds.length})`}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIds([])}
+                    className="px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 text-xs font-medium hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    Clear selection
+                  </button>
+                </>
+              )}
+
               <button
                 type="button"
                 onClick={fetchLeads}
@@ -724,12 +834,25 @@ export default function AdminDashboardPage({ admin }) {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#0B1F3A]/5 text-[#0B1F3A] font-bold uppercase tracking-wider border-b border-slate-200 select-none text-[11px]">
                     <tr>
+                      <th className="py-3.5 px-3 w-10 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isAllSelected}
+                          ref={(el) => {
+                            if (el) el.indeterminate = isSomeSelected;
+                          }}
+                          onChange={toggleSelectAll}
+                          className="w-4 h-4 rounded border-slate-300 text-[#C9A84C] accent-[#0B1F3A] focus:ring-[#C9A84C] cursor-pointer"
+                          title={isAllSelected ? 'Deselect all' : 'Select all on page'}
+                        />
+                      </th>
                       <th className="py-3.5 px-4">Date (IST)</th>
                       <th className="py-3.5 px-4">Name</th>
                       <th className="py-3.5 px-4">Contact</th>
                       <th className="py-3.5 px-4">Country & Service</th>
                       <th className="py-3.5 px-4">Branch</th>
                       <th className="py-3.5 px-4">Status</th>
+                      <th className="py-3.5 px-4 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-normal">
@@ -743,8 +866,24 @@ export default function AdminDashboardPage({ admin }) {
                         <tr
                           key={lead.id}
                           onClick={() => openDrawer(lead)}
-                          className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                          className={`hover:bg-slate-50/80 transition-colors cursor-pointer group ${
+                            selectedIds.includes(lead.id) ? 'bg-[#C9A84C]/10 hover:bg-[#C9A84C]/15' : ''
+                          }`}
                         >
+                          {/* Checkbox */}
+                          <td
+                            className="py-3.5 px-3 text-center"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.includes(lead.id)}
+                              onChange={(e) => toggleSelectLead(lead.id, e)}
+                              className="w-4 h-4 rounded border-slate-300 text-[#C9A84C] accent-[#0B1F3A] focus:ring-[#C9A84C] cursor-pointer"
+                              title="Select enquiry"
+                            />
+                          </td>
+
                           {/* Date (IST) */}
                           <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
                             <div className="font-semibold text-slate-800">
@@ -856,6 +995,26 @@ export default function AdminDashboardPage({ admin }) {
                               ))}
                             </select>
                           </td>
+
+                          {/* Single Delete Action */}
+                          <td
+                            className="py-3.5 px-4 text-right whitespace-nowrap"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteSingle(lead, e)}
+                              disabled={deletingId === lead.id}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-50 transition-colors cursor-pointer inline-flex items-center justify-center"
+                              title={`Delete enquiry from ${lead.name}`}
+                            >
+                              {deletingId === lead.id ? (
+                                <RefreshCw className="w-4 h-4 animate-spin text-rose-600" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
@@ -876,49 +1035,83 @@ export default function AdminDashboardPage({ admin }) {
                   <div
                     key={lead.id}
                     onClick={() => openDrawer(lead)}
-                    className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:border-[#C9A84C] transition-all cursor-pointer space-y-3"
+                    className={`bg-white rounded-2xl border p-4 shadow-sm hover:border-[#C9A84C] transition-all cursor-pointer space-y-3 ${
+                      selectedIds.includes(lead.id)
+                        ? 'border-[#C9A84C] bg-[#C9A84C]/5 ring-1 ring-[#C9A84C]'
+                        : 'border-slate-200'
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <h3 className="font-bold text-[#0B1F3A] text-sm">{lead.name}</h3>
-                          <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                            {FORM_TYPE_LABELS[lead.form_type] || 'Booking form'}
-                          </span>
-                          {(() => {
-                            const d = typeof lead.details === 'string' ? (() => { try { return JSON.parse(lead.details); } catch { return null; } })() : lead.details;
-                            if (d?.preferredDate) {
-                              return (
-                                <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                  Consultation requested
-                                </span>
-                              );
-                            }
-                            return null;
-                          })()}
+                      <div className="flex items-start gap-2.5">
+                        <div
+                          className="pt-0.5"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(lead.id)}
+                            onChange={(e) => toggleSelectLead(lead.id, e)}
+                            className="w-4 h-4 rounded border-slate-300 text-[#C9A84C] accent-[#0B1F3A] focus:ring-[#C9A84C] cursor-pointer"
+                            title="Select enquiry"
+                          />
                         </div>
-                        <div className="text-[11px] text-slate-500 font-medium mt-0.5">
-                          {formatIST(lead.created_at)}
-                        </div>
-                        {formatSourcePage(lead.source_page) && (
-                          <div className="text-[11px] text-slate-500 font-medium mt-0.5">
-                            {formatSourcePage(lead.source_page)}
+                        <div>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <h3 className="font-bold text-[#0B1F3A] text-sm">{lead.name}</h3>
+                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                              {FORM_TYPE_LABELS[lead.form_type] || 'Booking form'}
+                            </span>
+                            {(() => {
+                              const d = typeof lead.details === 'string' ? (() => { try { return JSON.parse(lead.details); } catch { return null; } })() : lead.details;
+                              if (d?.preferredDate) {
+                                return (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Consultation requested
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
-                        )}
+                          <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                            {formatIST(lead.created_at)}
+                          </div>
+                          {formatSourcePage(lead.source_page) && (
+                            <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                              {formatSourcePage(lead.source_page)}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      <select
-                        value={lead.status || 'new'}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => handleStatusChange(lead.id, e.target.value, e)}
-                        className="px-2 py-1 rounded-lg text-[11px] font-bold border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
-                      >
-                        {STATUS_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <select
+                          value={lead.status || 'new'}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => handleStatusChange(lead.id, e.target.value, e)}
+                          className="px-2 py-1 rounded-lg text-[11px] font-bold border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]"
+                        >
+                          {STATUS_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteSingle(lead, e)}
+                          disabled={deletingId === lead.id}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-50 transition-colors cursor-pointer inline-flex items-center justify-center"
+                          title="Delete enquiry"
+                        >
+                          {deletingId === lead.id ? (
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-600" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
@@ -1281,7 +1474,7 @@ export default function AdminDashboardPage({ admin }) {
             <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
-                onClick={handleDeleteLead}
+                onClick={() => handleDeleteSingle(selectedLead)}
                 disabled={isDeleting}
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-colors cursor-pointer"
               >
@@ -1299,6 +1492,52 @@ export default function AdminDashboardPage({ admin }) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Floating Bulk Action Bar */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#0B1F3A] text-white px-5 py-3 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3.5 sm:gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#C9A84C] text-[#0B1F3A] flex items-center justify-center text-xs font-bold">
+              {selectedIds.length}
+            </span>
+            <span className="whitespace-nowrap">
+              {selectedIds.length === 1 ? '1 enquiry selected' : `${selectedIds.length} enquiries selected`}
+            </span>
+          </div>
+
+          <div className="h-4 w-px bg-white/20" />
+
+          <button
+            type="button"
+            onClick={handleDeleteSelected}
+            disabled={isBulkDeleting}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer whitespace-nowrap"
+          >
+            {isBulkDeleting ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+            <span>{isBulkDeleting ? 'Deleting…' : `Delete (${selectedIds.length})`}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedIds([])}
+            className="text-xs text-slate-300 hover:text-white px-2 py-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer whitespace-nowrap"
+          >
+            Deselect
+          </button>
+        </div>
+      )}
+
+      {/* Floating Action Toast Notification */}
+      {actionToast && (
+        <div className="fixed top-20 right-6 z-50 bg-[#0B1F3A] text-white border border-[#C9A84C]/40 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-medium animate-in fade-in slide-in-from-top-2 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-[#C9A84C] shrink-0" />
+          <span>{actionToast.msg}</span>
         </div>
       )}
 

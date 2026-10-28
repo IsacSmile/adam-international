@@ -6,7 +6,6 @@ import { neon } from '@neondatabase/serverless';
 
 // Load .env.local or .env if DATABASE_URL is not set in environment
 function loadEnv() {
-  if (process.env.DATABASE_URL) return;
   const candidates = ['.env.local', '.env'];
   for (const file of candidates) {
     const p = path.resolve(process.cwd(), file);
@@ -82,11 +81,11 @@ function promptPassword(promptText) {
 }
 
 async function main() {
-  const emailArg = process.argv[2];
+  const emailArg = process.argv[2] || process.env.ADMIN_EMAIL;
 
   if (!emailArg) {
     console.error('Usage: node scripts/create-admin.js <admin-email>');
-    console.error('Example: node scripts/create-admin.js admin@example.com');
+    console.error('Or set ADMIN_EMAIL in your environment / .env.local');
     process.exit(1);
   }
 
@@ -105,18 +104,28 @@ async function main() {
 
   console.log(`\nCreating / updating admin user: ${email}`);
 
-  const password = await promptPassword('Enter password (min 12 characters): ');
+  let password = (!process.argv[2] && process.env.ADMIN_PASSWORD) ? process.env.ADMIN_PASSWORD : '';
 
-  if (!password || password.length < 12) {
-    console.error('\nError: Password must be at least 12 characters long.');
-    process.exit(1);
-  }
+  if (!password) {
+    password = await promptPassword('Enter password (min 12 characters): ');
 
-  const confirmPassword = await promptPassword('Confirm password: ');
+    if (!password || password.length < 12) {
+      console.error('\nError: Password must be at least 12 characters long.');
+      process.exit(1);
+    }
 
-  if (password !== confirmPassword) {
-    console.error('\nError: Passwords do not match.');
-    process.exit(1);
+    const confirmPassword = await promptPassword('Confirm password: ');
+
+    if (password !== confirmPassword) {
+      console.error('\nError: Passwords do not match.');
+      process.exit(1);
+    }
+  } else {
+    console.log('Using ADMIN_PASSWORD from environment...');
+    if (password.length < 12) {
+      console.error('\nError: Password in environment must be at least 12 characters long.');
+      process.exit(1);
+    }
   }
 
   console.log('\nHashing password with bcrypt (cost 12)...');

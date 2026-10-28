@@ -14,7 +14,7 @@ import { successStories } from '../data/successStories';
 import { galleryItems } from '../data/gallery';
 import { SHOW_PLACEHOLDERS } from '../lib/contentFlags';
 import { usePosts } from '../hooks/useContent';
-import { contact } from '../data/contact';
+import { contact, socialLinks } from '../data/contact';
 
 const hasStories = SHOW_PLACEHOLDERS || successStories.some((s) => !s.isPlaceholder);
 const hasGallery = SHOW_PLACEHOLDERS
@@ -86,7 +86,7 @@ export default function Footer({ onOpenModal }) {
             {/* Social Icons */}
             <div className="flex items-center gap-3">
               <a
-                href="https://facebook.com"
+                href={socialLinks?.facebook || 'https://www.facebook.com/adaminternational.kochi/'}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -95,7 +95,7 @@ export default function Footer({ onOpenModal }) {
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://instagram.com"
+                href={socialLinks?.instagram || 'https://www.instagram.com/adaminternational.kochi/'}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -104,7 +104,7 @@ export default function Footer({ onOpenModal }) {
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href="https://youtube.com"
+                href={socialLinks?.youtube || 'https://www.youtube.com/@adaminternationalkochi'}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"

@@ -16,7 +16,15 @@ export const contact = {
     { days: 'Monday – Friday', time: '9:30 AM – 5:30 PM' },
   ],
   workingDays: [1, 2, 3, 4, 5], // 0 = Sunday … 6 = Saturday
+  social: {
+    facebook: 'https://www.facebook.com/adaminternational.kochi/',
+    instagram: 'https://www.instagram.com/adaminternational.kochi/',
+    youtube: 'https://www.youtube.com/@adaminternationalkochi',
+  },
 };
+
+export const socialLinks = contact.social;
 
 export const whatsappLink = (text = contact.whatsappText) =>
   `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(text)}`;
+

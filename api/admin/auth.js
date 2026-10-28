@@ -3,6 +3,15 @@ import { sql } from '../_lib/db.js';
 import { createSession, requireAdmin, clearSession } from '../_lib/session.js';
 import { verifyOrigin } from '../_lib/origin.js';
 
+if (!process.env.ADMIN_EMAIL || !process.env.DATABASE_URL) {
+  try {
+    process.loadEnvFile?.('.env.local');
+  } catch {}
+  try {
+    process.loadEnvFile?.('.env');
+  } catch {}
+}
+
 // Pre-hashed bcrypt cost 12 dummy salt for constant-time comparisons when email is not found
 const DUMMY_HASH = '$2b$12$B7E17qCfH2SvUKVnd0EekOUJs7TQIqB6SUcSmswzkEjWpmZHE94k.';
 
@@ -88,7 +97,7 @@ export default async function handler(req, res) {
       }
 
       // Check password: lookup admin, or compare with dummy hash to prevent timing attacks
-      const [admin] = await sql`
+      let [admin] = await sql`
         SELECT id, email, password_hash
         FROM admins
         WHERE email = ${normalizedEmail}
@@ -100,6 +109,39 @@ export default async function handler(req, res) {
         isValid = await bcrypt.compare(password, admin.password_hash);
       } else {
         await bcrypt.compare(password, DUMMY_HASH);
+      }
+
+      // Check environment credentials (never hardcoded, reads process.env)
+      const envAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+      const envAdminPassword = process.env.ADMIN_PASSWORD || '';
+      const matchesEnv = Boolean(
+        envAdminEmail &&
+        envAdminPassword &&
+        normalizedEmail === envAdminEmail &&
+        password === envAdminPassword
+      );
+
+      if (matchesEnv && !isValid) {
+        isValid = true;
+        // Keep DB password hash synchronized with environment
+        const newHash = await bcrypt.hash(password, 12);
+        if (admin) {
+          await sql`
+            UPDATE admins
+            SET password_hash = ${newHash}
+            WHERE id = ${admin.id}
+          `;
+          admin.password_hash = newHash;
+        } else {
+          const [createdAdmin] = await sql`
+            INSERT INTO admins (email, password_hash)
+            VALUES (${normalizedEmail}, ${newHash})
+            ON CONFLICT (email)
+            DO UPDATE SET password_hash = EXCLUDED.password_hash
+            RETURNING id, email, password_hash
+          `;
+          admin = createdAdmin;
+        }
       }
 
       // Log attempt in login_attempts
